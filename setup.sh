@@ -25,14 +25,14 @@ log_step "Checking prerequisites and toolchain..."
 MISSING_TOOLS=()
 for tool in bun wrangler rustc wasm-pack; do
     if command -v "$tool" >/dev/null 2>&1; then
-        log_info "Tool verified: $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
+        log_info "Tool verified : $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
     else
         MISSING_TOOLS+=("$tool")
     fi
 done
 
 if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
-    log_error "Missing required tools: ${MISSING_TOOLS[*]}"
+    log_error "Missing required tools : ${MISSING_TOOLS[*]}"
     log_info "Please install missing dependencies before proceeding."
     exit 1
 fi
@@ -42,7 +42,7 @@ log_step "Cloudflare Authentication Configuration"
 echo "Select authentication method:"
 echo "  1) Browser Interactive Login (wrangler login)"
 echo "  2) Cloudflare API Token (Recommended for CI/CD & Headless)"
-read -r -p "Choose option [1/2] (default: 1): " AUTH_MODE
+read -r -p "Choose option [1/2] (default: 1) : " AUTH_MODE
 AUTH_MODE="${AUTH_MODE:-1}"
 
 if [ "$AUTH_MODE" = "2" ]; then
@@ -51,7 +51,8 @@ if [ "$AUTH_MODE" = "2" ]; then
     log_info "Generate token at: https://dash.cloudflare.com/profile/api-tokens"
     echo ""
     # Secure silent input (-s) for token to prevent plaintext leakage in terminal logs
-    read -s -r -p "Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
+    read -r -p "Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
+
     echo ""
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
         log_error "API Token cannot be empty! Aborting deployment."
