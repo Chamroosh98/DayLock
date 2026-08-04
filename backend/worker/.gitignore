@@ -1,0 +1,10 @@
+target/
+.git/
+.wrangler/
+build/
+pkg/
+
+wrangler.toml
+Cargo.lock
+README.md
+bun.lock 

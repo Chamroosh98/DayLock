@@ -1,0 +1,24 @@
+[package]
+name = "wasm"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+aes-gcm = "0.10"
+argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
+console_error_panic_hook = "0.1.7"
+png = "0.17.14"
+sharks = "0.5.0"
+rand = { version = "0.8", features = ["std", "getrandom"] }
+
+hkdf = "0.12"
+sha2 = "0.10"
+x25519-dalek = { version = "2.0.1", features = ["static_secrets"] }
+
+getrandom = { version = "0.2.17", features = ["js"] }
+

@@ -1,0 +1,5 @@
+{
+  "name": "DayLock",
+  "description": "Powered By: Shervina (IRAN's girl)",
+  "requestFramePermissions": ["microphone", "camera"]
+}
