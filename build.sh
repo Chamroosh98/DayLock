@@ -4,7 +4,7 @@ set -e
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
-MODE="${1:-dev}"   #  default → dev
+MODE="${1:-dev}"            #  default → dev
 
 echo "▶ Frontend build..."
 cd frontend
@@ -16,7 +16,7 @@ cd backend/wasm
 wasm-pack build --release --target web --out-dir ../../frontend/dist/pkg
 cd "$ROOT"
 
-echo "▶ Worker ($MODE)..."
+echo "▶ Worker ($MODE) ..."
 cd backend/worker
 
 case "$MODE" in
