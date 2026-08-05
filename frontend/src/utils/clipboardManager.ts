@@ -110,7 +110,7 @@ export const copyToClipboardWithAutoClear = async (
           if (onClearNotify) {
             onClearNotify(
               language === 'fa'
-                ? '📋 داده‌های کپی شده به طور خودکار از حافظه موقت (Clipboard) پاک شدند.'
+                ? '📋 داده‌های کپی شده به شکل خودکار از کلیپپ برد پاک شدند.'
                 : '📋 Copied secure data automatically neutralized from clipboard.'
             );
           }

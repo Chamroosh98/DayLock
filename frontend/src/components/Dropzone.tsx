@@ -122,7 +122,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           </div>
         ) : (
           <p className="text-[8px] uppercase tracking-wider text-zinc-500 opacity-80">
-            {language === 'fa' ? 'بکشید و رها کنید یا کلیک کنید' : 'Drag & Drop or Tap to Browse'}
+            {language === 'fa' ? 'بکش و رها کن یا کلیک کن' : 'Drag & Drop or Tap to Browse'}
           </p>
         )}
       </div>

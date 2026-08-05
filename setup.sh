@@ -42,7 +42,7 @@ log_step "Cloudflare Authentication Configuration"
 echo "   Select authentication method:"
 echo "      1) Browser Interactive Login (wrangler login)"
 echo "      2) Cloudflare API Token (Recommended for CI/CD & Headless)"
-read -r -p "    Choose option [1/2] (default: 1) : " AUTH_MODE
+read -r -p "   Choose option [1/2] (default: 1) : " AUTH_MODE
 AUTH_MODE="${AUTH_MODE:-1}"
 
 if [ "$AUTH_MODE" = "2" ]; then
@@ -51,7 +51,7 @@ if [ "$AUTH_MODE" = "2" ]; then
     log_info "Generate token at: https://dash.cloudflare.com/profile/api-tokens"
     echo ""
     # Secure silent input (-s) for token to prevent plaintext leakage in terminal logs
-    read -r -p "    👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
+    read -r -p "   👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
 
     echo ""
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then

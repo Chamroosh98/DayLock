@@ -1,10 +1,14 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
+import { fileURLToPath } from "url";
 import fs from "fs";
 import crypto from "crypto";
 // @ts-ignore
 import secrets from "secrets.js-grempe";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize in-memory database stores
 const pastesStore = new Map<string, any>();
@@ -591,7 +595,7 @@ async function startServer() {
   });
 
   // Serve WASM pkg directory statically at /pkg
-  const pkgDir = path.join(process.cwd(), "backend/worker/pkg");
+  const pkgDir = path.join(__dirname, "../backend/worker/pkg");
   app.use("/pkg", express.static(pkgDir));
 
   // Vite middleware for development
@@ -602,10 +606,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    app.use(express.static(path.join(__dirname, "dist")));
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(path.join(__dirname, "dist", "index.html"));
     });
   }
 

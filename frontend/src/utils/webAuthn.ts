@@ -1,9 +1,3 @@
-/**
- * WebAuthn (Fingerprint/FaceID) Utility for secure local biometric gating.
- * Since this is an anonymous, zero-knowledge paste tool, we perform
- * WebAuthn operations on the browser client-side, storing the registered
- * credential details in the user's secure local storage to guard decryptions.
- */
 
 // Helper to convert array buffer to base64
 function bufferToBase64(buffer: ArrayBuffer): string {
@@ -89,7 +83,7 @@ export async function registerBiometrics(pasteId: string): Promise<string | null
     // Convert the credential rawId to Base64 to save in localStorage
     return bufferToBase64(credential.rawId);
   } catch (err: any) {
-    console.error("Biometric registration failed:", err);
+    console.error("Biometric registration failed :", err);
     throw err;
   }
 }

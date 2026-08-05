@@ -186,7 +186,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
     try {
       const allText = extractedConfigs.join('\n');
       await copyToClipboardWithAutoClear(allText, 30000, (msg) => setStatus({ type: 'warn', msg }), language === 'fa' ? 'fa' : 'en');
-      setStatus({ type: 'ok', msg: language === 'fa' ? "تمامی کانفیگ‌ها در حافظه کپی شدند!" : "All configurations copied to clipboard!" });
+      setStatus({ type: 'ok', msg: language === 'fa' ? "تمام کانفیگ‌ها در حافظه کپی شدن!!" : "All configurations copied to clipboard!" });
     } catch (err) {
       console.error("Failed to copy all configs", err);
     }
@@ -213,7 +213,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
       ]);
-      setStatus({ type: 'ok', msg: language === 'fa' ? "تصویر کد QR با موفقیت کپی شد!" : "QR Image copied to clipboard!" });
+      setStatus({ type: 'ok', msg: language === 'fa' ? "تصویر کد QR کپی شد!" : "QR Image copied to clipboard!" });
     } catch (err) {
       handleDownload();
     }
@@ -237,7 +237,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
             <h3 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{t.qrCode}</h3>
             <p className={`text-[9px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} mt-0.5 leading-snug`}>
               {language === 'fa' 
-                ? 'برای وارد کردن مستقیم کانفیگ VPN در موبایل خود، اسکن کنید.' 
+                ? 'برای وارد کردن مستقیم کانفیگ VPN در موبایل خود، اسکن کن.' 
                 : 'Scan to import the VPN configuration directly to your device.'}
             </p>
           </div>
@@ -301,7 +301,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
         <div className="flex flex-col items-center gap-2">
           <div 
             onClick={handleCopy}
-            title={language === 'fa' ? "برای کپی کردن کانفیگ کلیک کنید" : "Click to Copy Config"}
+            title={language === 'fa' ? "برای کپی کردن کانفیگ کلیک کن" : "Click to Copy Config"}
             className={`group relative p-4 rounded-3xl border ${isDarkMode ? 'bg-white border-white/10' : 'bg-white border-zinc-200'} shadow-2xl cursor-pointer overflow-hidden transition-transform duration-300 hover:scale-[1.03] active:scale-95`}
           >
             {secretQrUrl ? (
@@ -327,7 +327,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
             )}
           </div>
           <span className={`text-[8.5px] font-bold ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'} select-none uppercase tracking-widest`}>
-            {language === 'fa' ? "برای کپی روی QR کلیک کنید" : "Click QR to Copy Data"}
+            {language === 'fa' ? "برای کپی روی QR کلیک کن" : "Click QR to Copy Data"}
           </span>
         </div>
 
