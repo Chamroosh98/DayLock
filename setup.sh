@@ -14,18 +14,18 @@ CYAN="\033[36m"
 YELLOW="\033[33m"
 RED="\033[31m"
 
-log_info()    { echo -e "${BLUE}[INFO]${RESET} $1"; }
-log_step()    { echo -e "\n${CYAN}${BOLD}▶ $1${RESET}"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${RESET} $1"; }
-log_warn()    { echo -e "${YELLOW}[WARN]${RESET} $1"; }
-log_error()   { echo -e "${RED}[ERROR]${RESET} $1"; }
+log_info()    { echo -e "   ${BLUE}ℹ️${RESET} $1"; }
+log_step()    { echo -e "   \n${CYAN}${BOLD}⚙️ $1${RESET}"; }
+log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
+log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
+log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
 
 # ── Step 1: Toolchain Validation ──
-log_step "Checking prerequisites and toolchain..."
+log_step "🕵️‍♀️ Checking prerequisites and toolchain ..."
 MISSING_TOOLS=()
 for tool in bun wrangler rustc wasm-pack; do
     if command -v "$tool" >/dev/null 2>&1; then
-        log_info "Tool verified : $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
+        log_info "🛠️ Tool verified : $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
     else
         MISSING_TOOLS+=("$tool")
     fi
@@ -39,10 +39,10 @@ fi
 
 # ── Step 2: Cloudflare Authentication ──
 log_step "Cloudflare Authentication Configuration"
-echo "Select authentication method:"
-echo "  1) Browser Interactive Login (wrangler login)"
-echo "  2) Cloudflare API Token (Recommended for CI/CD & Headless)"
-read -r -p "Choose option [1/2] (default: 1) : " AUTH_MODE
+echo "   Select authentication method:"
+echo "      1) Browser Interactive Login (wrangler login)"
+echo "      2) Cloudflare API Token (Recommended for CI/CD & Headless)"
+read -r -p "    Choose option [1/2] (default: 1) : " AUTH_MODE
 AUTH_MODE="${AUTH_MODE:-1}"
 
 if [ "$AUTH_MODE" = "2" ]; then
@@ -51,23 +51,23 @@ if [ "$AUTH_MODE" = "2" ]; then
     log_info "Generate token at: https://dash.cloudflare.com/profile/api-tokens"
     echo ""
     # Secure silent input (-s) for token to prevent plaintext leakage in terminal logs
-    read -r -p "Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
+    read -r -p "    👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
 
     echo ""
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-        log_error "API Token cannot be empty! Aborting deployment."
+        log_error "API Token cannot be empty! Aborting deployment!"
         exit 1
     fi
     export CLOUDFLARE_API_TOKEN
 
-    read -r -p "Account ID (optional, press Enter to skip) : " CLOUDFLARE_ACCOUNT_ID
+    read -r -p "   Account ID (optional, press Enter to skip) : " CLOUDFLARE_ACCOUNT_ID
     if [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
         export CLOUDFLARE_ACCOUNT_ID
-        log_info "Cloudflare Account ID set to: $CLOUDFLARE_ACCOUNT_ID"
+        log_info "Cloudflare Account ID set to : $CLOUDFLARE_ACCOUNT_ID"
     fi
-    log_success "API Token injected securely into environment."
+    log_success "API Token injected securely into environment!"
 else
-    log_info "Initiating browser login via Wrangler..."
+    log_info "Initiating browser login via Wrangler ..."
     wrangler login
 fi
 
@@ -80,10 +80,10 @@ fi
 
 # ── Step 3: KV Namespace Resolution & Injection ──
 log_step "Provisioning / Verifying KV Namespaces on Cloudflare"
-log_info "Creating or retrieving KV namespace: RATE_LIMIT"
+log_info "Creating or retrieving KV namespace : RATE_LIMIT"
 RATE_OUT=$(wrangler kv namespace create RATE_LIMIT 2>&1) || true
 
-log_info "Creating or retrieving KV namespace: PASTE_KV"
+log_info "Creating or retrieving KV namespace : PASTE_KV"
 PASTE_OUT=$(wrangler kv namespace create PASTE_KV 2>&1) || true
 
 RATE_ID=$(echo "$RATE_OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
@@ -105,15 +105,15 @@ fi
 
 if [ -z "$RATE_ID" ] || [ -z "$PASTE_ID" ]; then
     log_error "Failed to resolve KV Namespace IDs."
-    log_info "RATE_LIMIT Output : $RATE_OUT"
-    log_info "PASTE_KV Output   : $PASTE_OUT"
+    log_info  "RATE_LIMIT Output : $RATE_OUT"
+    log_info  "PASTE_KV Output   : $PASTE_OUT"
     exit 1
 fi
 
 log_success "KV Namespace RATE_LIMIT ID  -> $RATE_ID"
 log_success "KV Namespace PASTE_KV ID    -> $PASTE_ID"
 
-log_info "Generating wrangler.toml from wrangler.toml.example..."
+log_info "Generating wrangler.toml from wrangler.toml.example ..."
 sed \
     -e "s/REPLACE_WITH_RATE_LIMIT_KV_ID/$RATE_ID/" \
     -e "s/REPLACE_WITH_PASTE_KV_ID/$PASTE_ID/" \
@@ -144,7 +144,7 @@ log_success "WASM binary compiled and optimized successfully :)"
 cd "$ROOT"
 log_step "Deploying Application to Cloudflare Edge Network"
 cd backend/worker
-log_info "Executing wrangler deploy..."
+log_info "Executing wrangler deploy ..."
 wrangler deploy
 
 log_step "Deployment Completed Successfully!"

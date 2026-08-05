@@ -11,10 +11,10 @@ export async function loadWasm(): Promise<any> {
       await wasmModule.default('/pkg/wasm_bg.wasm');
       W = wasmModule;
       isLoaded = true;
-      console.log('[frontend in wasmLoader.ts] Initialized successfully!', W.version ? W.version() : '');
+      console.log('[WASM] Initialized successfully!', W.version ? W.version() : '');
     }
   } catch (err) {
-    console.warn('[frontend in wasmLoader.ts] Failed to load WASM module, using JS fallbacks :', err);
+    console.warn('[WASM] Failed to load WASM module, using JS fallbacks:', err);
   }
   return W;
 }

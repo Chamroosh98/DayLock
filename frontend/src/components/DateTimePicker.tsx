@@ -333,7 +333,7 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
     const formattedMin = minute < 10 ? `0${minute}` : `${minute}`;
     const displayHour = hour12;
     if (isJalali) {
-      const ampmStr = ampm === 'AM' ? 'پیش از ظهر (AM)' : 'پس از ظهر (PM)';
+      const ampmStr = ampm === 'AM' ? 'قبل از ظهر (AM)' : 'بعد از ظهر (PM)';
       return localizeDigitsValue(`${displayHour}:${formattedMin} ${ampmStr}`, 'fa');
     }
     return `${displayHour}:${formattedMin} ${ampm}`;
@@ -424,28 +424,28 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
 
         {/* Wheel wrapper with a single, precisely aligned absolute selection border */}
         <div className="relative">
-          <div className={`absolute top-1/2 -translate-y-1/2 left-2 right-2 h-9 pointer-events-none rounded-xl border ${
+          <div className={`absolute top-1/2 -translate-y-1/2 left-1 right-1 h-11 pointer-events-none rounded-2xl border transition-all duration-300 ${
             isDarkMode 
-              ? 'bg-white/[0.04] border-white/10 shadow-[0_4px_20px_rgba(255,255,255,0.02)]' 
-              : 'bg-black/[0.025] border-black/5 shadow-[0_4px_16px_rgba(0,0,0,0.02)]'
+              ? 'bg-purple-500/10 border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]' 
+              : 'bg-purple-50/80 border-purple-200/80 shadow-[0_2px_12px_rgba(147,51,234,0.08)]'
           }`} />
 
           {/* Top Mask Gradient for premium iOS feel */}
           <div className={`absolute top-0 left-0 right-0 h-10 pointer-events-none z-10 bg-gradient-to-b ${
             isDarkMode 
-              ? 'from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent' 
-              : 'from-white via-white/60 to-transparent'
+              ? 'from-[#0a0a0c] via-[#0a0a0c]/70 to-transparent' 
+              : 'from-white via-white/70 to-transparent'
           }`} />
 
           {/* Bottom Mask Gradient for premium iOS feel */}
           <div className={`absolute bottom-0 left-0 right-0 h-10 pointer-events-none z-10 bg-gradient-to-t ${
             isDarkMode 
-              ? 'from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent' 
-              : 'from-white via-white/60 to-transparent'
+              ? 'from-[#0a0a0c] via-[#0a0a0c]/70 to-transparent' 
+              : 'from-white via-white/70 to-transparent'
           }`} />
 
           <div 
-            className={`relative grid ${activeTab === 'date' ? 'grid-cols-[1.1fr_1.4fr_0.9fr]' : 'grid-cols-[1fr_1fr_1fr]'} gap-2 overflow-hidden h-[220px]`}
+            className={`relative grid ${activeTab === 'date' ? 'grid-cols-[1.1fr_1.4fr_0.9fr]' : 'grid-cols-[1fr_1fr_1fr]'} gap-2 overflow-hidden h-[200px]`}
             dir={isJalali ? 'ltr' : undefined}
           >
             <AnimatePresence mode="wait">
@@ -691,7 +691,7 @@ function PickerScrollCol<T extends string | number>({
       <div 
         ref={containerRef}
         style={{ perspective: '400px', transformStyle: 'preserve-3d' }}
-        className="w-full h-full flex flex-col justify-center items-center py-1 relative scrollbar-none pointer-events-none"
+        className="w-full h-full flex flex-col justify-center items-center py-2 relative scrollbar-none pointer-events-none"
       >
         {[-2, -1, 0, 1, 2].map((offset) => {
           const targetIdx = currentIndex + offset;
@@ -700,8 +700,8 @@ function PickerScrollCol<T extends string | number>({
             return (
               <div
                 key={`empty-${offset}`}
-                style={{ height: '36px' }}
-                className="w-full flex items-center justify-center opacity-0 pointer-events-none select-none text-sm py-1.5"
+                style={{ height: '40px' }}
+                className="w-full flex items-center justify-center opacity-0 pointer-events-none select-none text-sm py-1"
               />
             );
           }
@@ -713,11 +713,11 @@ function PickerScrollCol<T extends string | number>({
           // Opacities and zoom based on offset from center (0)
           const isActive = offset === 0;
           const absOffset = Math.abs(offset);
-          const opacity = isActive ? 1 : absOffset === 1 ? 0.4 : 0.12;
-          const scale = isActive ? 1.22 : absOffset === 1 ? 0.92 : 0.72;
-          const rotateX = offset * -24;
-          const translateZ = absOffset * -18;
-          const translateY = offset * -2; // Subtle compression to enhance the 3D spherical depth
+          const opacity = isActive ? 1 : absOffset === 1 ? 0.55 : 0.28;
+          const scale = isActive ? 1.25 : absOffset === 1 ? 0.92 : 0.78;
+          const rotateX = offset * -22;
+          const translateZ = absOffset * -16;
+          const translateY = offset * -1; // Subtle compression for depth
 
           return (
             <button
@@ -728,16 +728,16 @@ function PickerScrollCol<T extends string | number>({
                 opacity, 
                 transform: `rotateX(${rotateX}deg) translateZ(${translateZ}px) translateY(${translateY}px) scale(${scale})`,
                 transformStyle: 'preserve-3d',
-                height: '36px'
+                height: '40px'
               }}
               className={`w-full text-center font-bold transition-all duration-300 ease-out pointer-events-auto leading-none cursor-pointer flex items-center justify-center whitespace-nowrap truncate px-1 ${
                 isActive 
                   ? isDarkMode 
-                    ? `text-purple-400 font-extrabold text-sm sm:text-base md:text-lg ${language === 'fa' ? 'font-sans' : 'font-mono'} filter drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]` 
-                    : `text-purple-600 font-extrabold text-sm sm:text-base md:text-lg ${language === 'fa' ? 'font-sans' : 'font-mono'} filter drop-shadow-[0_0_6px_rgba(147,51,234,0.15)]`
+                    ? `text-purple-400 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-sans' : 'font-mono'} filter drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]` 
+                    : `text-purple-600 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-sans' : 'font-mono'}`
                   : isDarkMode 
-                    ? 'text-zinc-400 text-[10px] sm:text-xs md:text-sm' 
-                    : 'text-zinc-650 text-[10px] sm:text-xs md:text-sm'
+                    ? 'text-zinc-400 text-xs sm:text-sm font-semibold' 
+                    : 'text-zinc-600 text-xs sm:text-sm font-semibold'
               }`}
             >
               {localizedDisplay}

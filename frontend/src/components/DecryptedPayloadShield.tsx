@@ -99,12 +99,12 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
             </div>
 
             <h4 className="text-xs font-black uppercase tracking-widest text-zinc-100 mb-1.5">
-              {language === 'fa' ? 'سپر حفاظتی رمزگشایی  اکتیوه!' : 'Decrypted Shield Active'}
+              {language === 'fa' ? 'سپر حفاظتی رمزگشایی فعال است' : 'Decrypted Shield Active'}
             </h4>
             
             <p className="text-[10px] text-zinc-400 mt-1 max-w-xs leading-relaxed mb-6">
               {language === 'fa'
-                ? 'کانتنت برای جلوگیری از اسکرین‌شات‌های ناخواسته تار گردیده! از کلیدهای کنترل زیر برای مشاهده موقت یا دائم بهره ببرید!'
+                ? 'محتوا برای جلوگیری از اسکرین‌شات‌های ناخواسته تار گردیده است. از کلیدهای کنترل زیر برای مشاهده موقت یا دائم استفاده کنید.'
                 : 'Sensitive payload is masked to secure visual frames. Use the active controls below to display securely.'}
             </p>
 
@@ -149,7 +149,7 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
               className="px-3 py-1.5 bg-rose-950/90 hover:bg-rose-900/90 text-rose-400 border border-rose-500/20 rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-xl backdrop-blur-md"
             >
               <Unlock className="w-3 h-3" />
-              {language === 'fa' ? 'قفله کردن دوباره' : 'Lock Payload'}
+              {language === 'fa' ? 'قفله کردن مجدد' : 'Lock Payload'}
             </button>
           )}
         </div>
@@ -166,7 +166,7 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
           >
             <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wider">
               ⚠️ {language === 'fa' 
-                ? 'هشدار: رمزگشایی مداوم اکتیوه! صفحه اکنون در برابر اسکرین‌شات آسیب‌پذیره!!' 
+                ? 'هشدار: رمزگشایی مداوم فعال است. صفحه اکنون در برابر اسکرین‌شات آسیب‌پذیر می‌باشد!' 
                 : 'Warning: Sticky view active. Content is vulnerable to screenshot triggers!'}
             </p>
           </motion.div>

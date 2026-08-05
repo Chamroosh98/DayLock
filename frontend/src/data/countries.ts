@@ -2,7 +2,7 @@ import React from 'react';
 import { Country } from '../types';
 
 export const COUNTRIES: Country[] = [
-  {code:'IR',name:'Iran',fa:'ایران',flag:'🦁☀️'},
+  {code:'IR',name:'Iran',fa:'ایران',flag:'🇮🇷'},
   {code:'US',name:'United States',fa:'آمریکا',flag:'🇺🇸'},
   {code:'DE',name:'Germany',fa:'آلمان',flag:'🇩🇪'},
   {code:'GB',name:'United Kingdom',fa:'انگلستان',flag:'🇬🇧'},
