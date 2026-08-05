@@ -2,10 +2,10 @@
 <br>
 
 <div align="center">
-  <h1>
-    <img src="frontend/public/dl.svg" alt="DayLock Logo" width="40" height="40" style="vertical-align: middle; margin-right: 8px;">
-    <span style="vertical-align: middle;">DayLock</span>
-  </h1>
+    <img src="frontend/public/dl.svg" alt="DayLock Logo" width="77" height="77" style="vertical-align: middle; margin-right: 8px;">
+    <h1>
+        <span style="vertical-align: middle;">DayLock</span>
+    </h1>
 </div>
 
 <p align="center">
