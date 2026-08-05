@@ -2,7 +2,6 @@
 temp/
 test/ 
 docs/
-README.md
 .directory
 .git/
 *.log
