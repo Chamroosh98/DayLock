@@ -21,11 +21,11 @@ log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
 
 # ── Step 1: Toolchain Validation ──
-log_step "🕵️‍♀️ Checking prerequisites and toolchain ..."
+log_step "Checking prerequisites and toolchain ..."
 MISSING_TOOLS=()
 for tool in bun wrangler rustc wasm-pack; do
     if command -v "$tool" >/dev/null 2>&1; then
-        log_info "🛠️ Tool verified : $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
+        log_info "Tool verified : $(printf '%-10s' "$tool") (${GREEN}OK${RESET})"
     else
         MISSING_TOOLS+=("$tool")
     fi
