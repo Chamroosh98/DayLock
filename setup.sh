@@ -15,7 +15,7 @@ YELLOW="\033[33m"
 RED="\033[31m"
 
 log_info()    { echo -e "   ${BLUE}ℹ️${RESET} $1"; }
-log_step()    { echo -e "   \n${CYAN}${BOLD}⚙️ $1${RESET}"; }
+log_step()    { echo -e "   ${CYAN}${BOLD}⚙️ $1${RESET}"; }
 log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
 log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
@@ -39,7 +39,7 @@ fi
 
 # ── Step 2: Cloudflare Authentication ──
 log_step "Cloudflare Authentication Configuration"
-echo "   Select authentication method:"
+echo "   Select authentication method :"
 echo "      1) Browser Interactive Login (wrangler login)"
 echo "      2) Cloudflare API Token (Recommended for CI/CD & Headless)"
 read -r -p "   Choose option [1/2] (default: 1) : " AUTH_MODE
@@ -80,8 +80,8 @@ fi
 
 # ── Step 3: KV Namespace Resolution & Injection ──
 log_step "Provisioning / Verifying KV Namespaces on Cloudflare"
-log_info "Creating or retrieving KV namespace : RATE_LIMIT"
-RATE_OUT=$(wrangler kv namespace create RATE_LIMIT 2>&1) || true
+log_info "Creating or retrieving KV namespace : RATE_LIMIT_KV"
+RATE_OUT=$(wrangler kv namespace create RATE_LIMIT_KV 2>&1) || true
 
 log_info "Creating or retrieving KV namespace : PASTE_KV"
 PASTE_OUT=$(wrangler kv namespace create PASTE_KV 2>&1) || true
@@ -96,7 +96,7 @@ if [ -z "$RATE_ID" ] || [ -z "$PASTE_ID" ]; then
     log_info "Resolving existing KV IDs via 'wrangler kv namespace list'..."
     LIST_OUT=$(wrangler kv namespace list 2>&1) || true
     if [ -z "$RATE_ID" ]; then
-        RATE_ID=$(echo "$LIST_OUT" | grep -i RATE_LIMIT | grep -oE '[a-f0-9]{32}' | head -1 || true)
+        RATE_ID=$(echo "$LIST_OUT" | grep -i RATE_LIMIT_KV | grep -oE '[a-f0-9]{32}' | head -1 || true)
     fi
     if [ -z "$PASTE_ID" ]; then
         PASTE_ID=$(echo "$LIST_OUT" | grep -i PASTE_KV | grep -oE '[a-f0-9]{32}' | head -1 || true)
@@ -105,13 +105,13 @@ fi
 
 if [ -z "$RATE_ID" ] || [ -z "$PASTE_ID" ]; then
     log_error "Failed to resolve KV Namespace IDs."
-    log_info  "RATE_LIMIT Output : $RATE_OUT"
-    log_info  "PASTE_KV Output   : $PASTE_OUT"
+    log_info  "RATE_LIMIT_KV Output   : $RATE_OUT"
+    log_info  "PASTE_KV      Output   : $PASTE_OUT"
     exit 1
 fi
 
-log_success "KV Namespace RATE_LIMIT ID  -> $RATE_ID"
-log_success "KV Namespace PASTE_KV ID    -> $PASTE_ID"
+log_success "KV Namespace RATE_LIMIT_KV ID  -> $RATE_ID"
+log_success "KV Namespace PASTE_KV ID       -> $PASTE_ID"
 
 log_info "Generating wrangler.toml from wrangler.toml.example ..."
 sed \

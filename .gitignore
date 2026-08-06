@@ -6,6 +6,7 @@ docs/
 .git/
 *.log
 .DS_Store
+build.sh
 
 frontend/dist/
 frontend/node_modules
