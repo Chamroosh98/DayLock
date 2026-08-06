@@ -16,10 +16,11 @@
 
 <br>
 <p align="center">
-  <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Deploy%20to-Cloudflare%20Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Deploy to Cloudflare Workers"></a>
-  <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Built%20with-Rust-000000?style=for-the-badge&logo=rust&logoColor=white" alt="Built with Rust"></a>
-  <a href="https://bun.sh/"><img src="https://img.shields.io/badge/Runtime-Bun-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Runtime Bun"></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/UI-React%2019-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="UI React 19"></a>
+  <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers"></a>
+  <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
+  <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=white" alt="Rust"></a>
+  <a href="https://bun.sh/"><img src="https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=FBF0DF" alt="Bun"></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
 </p>
 
 **DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
@@ -32,7 +33,7 @@
 - ⚡ **Edge-Powered Speed:** Serverless API endpoints & static asset delivery powered by Cloudflare Workers and KV Storage.
 - 💥 **Burn-on-Read & Expiration (TTL):** Support for self-destructing pastes after a single read or fixed time window.
 - 🛡️ **Built-in Rate Limiting:** Automated IP/Fingerprint rate-limiting leveraging Cloudflare KV.
-- 🎨 **Modern Minimalist UI:** Built with React 18, Vite, and Tailwind CSS.
+- 🎨 **Modern Minimalist UI:** Built with React 19, Vite, and Tailwind CSS.
 - 🚀 **Automated One-Step Setup:** Interactive CLI wizard (`setup.sh`) for seamless local setup & edge deployment.
 
 ---
