@@ -74,7 +74,7 @@ chmod +x setup.sh
 #### What `setup.sh` does automatically:
 
 1. **🔑 Authenticate** — Prompts for `wrangler login` or API Token verification.
-2. **📦 Create KV Namespaces** — Provisions `RATE_LIMIT` and `PASTE_KV` directly on your Cloudflare account.
+2. **📦 Create KV Namespaces** — Provisions `RATE_LIMIT_KV` and `PASTE_KV` directly on your Cloudflare account.
 3. **⚙️ Configuration** — Generates `backend/worker/wrangler.toml` with the created KV IDs.
 4. **🏗️ Build Chain** — Compiles frontend -> packages WASM into `frontend/dist/pkg`.
 5. **🌐 Deploy** — Publishes Worker API and static assets to Cloudflare Edge.
@@ -95,13 +95,13 @@ If you don't have local CLI access or prefer deploying directly via Cloudflare's
 5. **Create KV Namespaces Manually:**
 * In Cloudflare Dashboard, go to **Workers & Pages** -> **KV**.
 * Create two namespaces :
-* `RATE_LIMIT`
+* `RATE_LIMIT_KV`
 * `PASTE_KV`
 
 
 6. **Bind KV Namespaces to your Project:**
 * Go to your Project **Settings** -> **Functions** / **Bindings** -> **KV Namespace Bindings**.
-* Add binding `RATE_LIMIT` pointing to your created `RATE_LIMIT` namespace.
+* Add binding `RATE_LIMIT_KV` pointing to your created `RATE_LIMIT_KV` namespace.
 * Add binding `PASTE_KV` pointing to your created `PASTE_KV` namespace.
 
 
@@ -151,6 +151,6 @@ Cloudflare Worker (Edge API)
         ▼  [Encrypted Blobs]
 Cloudflare KV Storage
   ├── PASTE_KV
-  └── RATE_LIMIT
+  └── RATE_LIMIT_KV
 
 ```
