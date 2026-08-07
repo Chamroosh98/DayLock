@@ -21,7 +21,6 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-E57300?style=for-the-badge&logo=rust&logoColor=white" alt="Rust"></a>
   <a href="https://bun.sh/"><img src="https://img.shields.io/badge/Bun-FBF0DF?style=for-the-badge&logo=bun&logoColor=black" alt="Bun"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
-  <!-- <a href="https://github.com/Chamroosh98/DayLock/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a> -->
 </p>
 
 **DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
@@ -78,7 +77,7 @@ You can deploy **DayLock** to Cloudflare using either the automated CLI wizard o
 This method automatically handles compilation, binding KV namespaces, generating configurations, and deploying to Cloudflare.
 
 ```bash
-git clone [https://github.com/Chamroosh98/DayLock.git](https://github.com/Chamroosh98/DayLock.git)
+git clone https://github.com/Chamroosh98/DayLock.git
 cd DayLock
 chmod +x setup.sh
 ./setup.sh
@@ -93,6 +92,7 @@ chmod +x setup.sh
 5. **🌐 Deploy** — Publishes Worker API and static assets to Cloudflare Edge.
 
 > 🎉 **All set!** At the end of execution, you'll receive your live URL :
+
 > `https://daylock.<subdomain>.workers.dev`
 
 ---
