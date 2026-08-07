@@ -14,7 +14,6 @@
 
 ---
 
-<br>
 <p align="center">
   <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge" alt="Version"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers"></a>
@@ -26,6 +25,20 @@
 </p>
 
 **DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
+
+---
+## 📍 Table of Contents
+
+- [📍 Table of Contents](#-table-of-contents)
+- [✨ Features](#-features)
+- [🛠️ Prerequisites \& Requirements](#️-prerequisites--requirements)
+- [🚀 Deployment Options](#-deployment-options)
+  - [Option 1 : Automated CLI Wizard (Recommended)](#option-1--automated-cli-wizard-recommended)
+    - [What `setup.sh` does automatically:](#what-setupsh-does-automatically)
+  - [Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)](#option-2--cloudflare-dashboard--git-integration-manual-deployment)
+- [🔑 API Token Setup *(Optional)*](#-api-token-setup-optional)
+- [💾 Add Backblaze B2 Storage *(Optional)*](#-add-backblaze-b2-storage-optional)
+- [🏗️ Architecture Flow](#️-architecture-flow)
 
 ---
 
