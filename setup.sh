@@ -20,6 +20,7 @@ log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
 log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
 
+
 # ── Step 1: Toolchain Validation ──
 log_step "Checking prerequisites and toolchain ..."
 MISSING_TOOLS=()
@@ -36,6 +37,7 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
     log_info "Please install missing dependencies before proceeding."
     exit 1
 fi
+
 
 # ── Step 2: Cloudflare Authentication ──
 log_step "Cloudflare Authentication Configuration"
@@ -78,40 +80,47 @@ if [ ! -f wrangler.toml.example ]; then
     exit 1
 fi
 
+
 # ── Step 3: KV Namespace Resolution & Injection ──
 log_step "Provisioning / Verifying KV Namespaces on Cloudflare"
-log_info "Creating or retrieving KV namespace : RATE_LIMIT_KV"
-RATE_OUT=$(wrangler kv namespace create RATE_LIMIT_KV 2>&1) || true
 
-log_info "Creating or retrieving KV namespace : PASTE_KV"
-PASTE_OUT=$(wrangler kv namespace create PASTE_KV 2>&1) || true
+create_or_find_kv() {
+    local NAME="$1"
+    local OUT ID
 
-RATE_ID=$(echo "$RATE_OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
-PASTE_ID=$(echo "$PASTE_OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
+    log_info "KV namespace: ${NAME}"
+    OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
+    echo "$OUT" | while IFS= read -r line; do log_info "  $line"; done || true
 
-if [ -z "$RATE_ID" ]; then RATE_ID=$(echo "$RATE_OUT" | grep -oE '[a-f0-9]{32}' | head -1 || true); fi
-if [ -z "$PASTE_ID" ]; then PASTE_ID=$(echo "$PASTE_OUT" | grep -oE '[a-f0-9]{32}' | head -1 || true); fi
-
-if [ -z "$RATE_ID" ] || [ -z "$PASTE_ID" ]; then
-    log_info "Resolving existing KV IDs via 'wrangler kv namespace list'..."
-    LIST_OUT=$(wrangler kv namespace list 2>&1) || true
-    if [ -z "$RATE_ID" ]; then
-        RATE_ID=$(echo "$LIST_OUT" | grep -i RATE_LIMIT_KV | grep -oE '[a-f0-9]{32}' | head -1 || true)
+    ID=$(echo "$OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
+    if [ -z "$ID" ]; then
+        ID=$(echo "$OUT" | grep -oE '[a-f0-9]{32}' | head -1 || true)
     fi
-    if [ -z "$PASTE_ID" ]; then
-        PASTE_ID=$(echo "$LIST_OUT" | grep -i PASTE_KV | grep -oE '[a-f0-9]{32}' | head -1 || true)
+
+    if [ -z "$ID" ]; then
+        log_warn "${NAME} already exists (or create failed) — resolving via list..."
+        local LIST_OUT
+        LIST_OUT=$(wrangler kv namespace list 2>&1) || true
+        ID=$(echo "$LIST_OUT" | grep -i "\"${NAME}\"" | grep -oE '[a-f0-9]{32}' | head -1 || true)
+        if [ -z "$ID" ]; then
+        ID=$(echo "$LIST_OUT" | grep -i "${NAME}" | grep -oE '[a-f0-9]{32}' | head -1 || true)
+        fi
+    else
+        log_success "Created ${NAME}"
     fi
-fi
 
-if [ -z "$RATE_ID" ] || [ -z "$PASTE_ID" ]; then
-    log_error "Failed to resolve KV Namespace IDs."
-    log_info  "RATE_LIMIT_KV Output   : $RATE_OUT"
-    log_info  "PASTE_KV      Output   : $PASTE_OUT"
-    exit 1
-fi
+    if [ -z "$ID" ]; then
+        log_error "Could not resolve ID for ${NAME}"
+        log_info "create output: $OUT"
+        return 1
+    fi
 
-log_success "KV Namespace RATE_LIMIT_KV ID  -> $RATE_ID"
-log_success "KV Namespace PASTE_KV ID       -> $PASTE_ID"
+    log_success "${NAME} ID -> ${ID}"
+    echo "$ID"
+}
+
+RATE_ID=$(create_or_find_kv "RATE_LIMIT_KV") || exit 1
+PASTE_ID=$(create_or_find_kv "PASTE_KV") || exit 1
 
 log_info "Generating wrangler.toml from wrangler.toml.example ..."
 sed \
@@ -119,7 +128,8 @@ sed \
     -e "s/REPLACE_WITH_PASTE_KV_ID/$PASTE_ID/" \
     wrangler.toml.example > wrangler.toml
 
-log_success "wrangler.toml successfully generated with dynamic KV IDs :)"
+log_success "wrangler.toml ready — continuing deploy even if KVs already existed."
+
 
 # ── Step 4: Frontend Packaging  ──
 cd "$ROOT"
@@ -130,6 +140,7 @@ bun install
 log_info "Building production bundle with Vite ..."
 bun run build
 log_success "Frontend assets built into -> frontend/dist."
+
 
 # ── Step 5: WebAssembly Core Compilation ──
 cd "$ROOT"
