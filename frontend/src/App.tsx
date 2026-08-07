@@ -30,6 +30,17 @@ import { DecryptedPayloadShield } from './components/DecryptedPayloadShield';
 import { DateTimePicker } from './components/DateTimePicker';
 import { TravelerManualModal } from './components/TravelerManualModal';
 import { ExplosionOverlay } from './components/ExplosionOverlay';
+import { HoneyPotIcon } from './components/common/HoneyPotIcon';
+import { MarqueeHeader } from './components/common/MarqueeHeader';
+import { FloatingSystemPanel } from './components/common/FloatingSystemPanel';
+import { MobileDock } from './components/common/MobileDock';
+import { FooterCredit } from './components/common/FooterCredit';
+import { ToastNotification } from './components/common/ToastNotification';
+import { PasswordWarningModal } from './components/modals/PasswordWarningModal';
+import { ContentWarningModal } from './components/modals/ContentWarningModal';
+import { KeyboardWarningModal } from './components/modals/KeyboardWarningModal';
+import { SelfDestructOverlay } from './components/modals/SelfDestructOverlay';
+import { ShareConfirmModal } from './components/modals/ShareConfirmModal';
 import { localizeDigitsValue, toPersianDigits, toEnglishDigits } from './utils/numberConverter';
 import { jalaliToGregorian, gregorianToJalali, isJalaliLeapYear } from './utils/jalaliConverter';
 import { e2eGenKeypair, e2eEncrypt, e2eDecrypt } from './utils/e2eCrypto';
@@ -48,34 +59,6 @@ const formatExpirationDate = (expiresAtSeconds: number, lang: 'en' | 'fa') => {
   }
   return `${d.toLocaleDateString()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
-
-const HoneyPotIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    {/* Dipper stick */}
-    <path d="M15 3 L19 7" strokeWidth="2.5" />
-    <circle cx="19" cy="7" r="1.5" fill="currentColor" />
-    
-    {/* Jar top lid */}
-    <rect x="6" y="6" width="12" height="3" rx="1.5" fill="currentColor" opacity="0.2" />
-    <rect x="6" y="6" width="12" height="3" rx="1.5" />
-    
-    {/* Jar body */}
-    <path d="M5 9 C5 13, 6 21, 12 21 C18 21, 19 13, 19 9 Z" fill="currentColor" opacity="0.05" />
-    <path d="M5 9 C5 13, 6 21, 12 21 C18 21, 19 13, 19 9 Z" />
-    
-    {/* Label on the jar */}
-    <rect x="9" y="11" width="6" height="4" rx="1" fill="currentColor" opacity="0.15" />
-    <text x="12" y="14" fontSize="5" fontWeight="bold" textAnchor="middle" stroke="none" fill="currentColor" className="font-sans">H</text>
-  </svg>
-);
 
 const getFileBase64 = (file: File | Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -166,7 +149,7 @@ export default function App() {
         { 
           element: '#content-type-selector', 
           popover: { 
-            title: language === 'en' ? 'Payload Formats' : 'فرمت پیلود', 
+            title: language === 'en' ? 'Payload Formats' : 'قالب‌های ارسال محتوا', 
             description: language === 'en' ? 'Select from six specialized templates: secure text, files, steganography, audio logs, secret splitting, or E2E chat rooms.' : 'از بین ۶ قالب تخصصی انتخاب کنید: پیام متنی، فایل امن، پنهان‌نگاری در تصویر، ضبط صدا، تقسیم راز یا چت امن دوطرفه.',
             side: "bottom", 
             align: 'start' 
@@ -188,7 +171,7 @@ export default function App() {
         { 
           element: '#opt-honeypot', 
           popover: { 
-            title: language === 'en' ? 'Honeypot Decoy' : 'تله فریب (هانی پات)', 
+            title: language === 'en' ? 'Honeypot Decoy' : 'تله عسل (حالت فریب)', 
             description: language === 'en' ? 'Set a benign secondary passphrase linked to innocent cover-content. If compromised or forced to decrypt, providing the decoy reveals safe data while keeping your real secret invisible.' : 'یک رمز عبور فرعی برای شرایط اضطراری تعریف کنید. در صورت اجبار، ارائه این رمز عبور اطلاعاتی بی‌خطر را نشان داده و محتوای اصلی را پنهان نگه می‌دارد.',
             side: "top", 
             align: 'start' 
@@ -472,6 +455,12 @@ export default function App() {
       e.preventDefault();
       return;
     }
+    if (e.key === 'Enter') {
+      if (mainTab === 'view' && viewData) {
+        performDecryption(viewData, viewPassword, viewData.isFile);
+      }
+      return;
+    }
     if (e.key.length === 1) {
       if (!isAsciiChar(e.key)) {
         e.preventDefault();
@@ -666,7 +655,7 @@ export default function App() {
           const cap = W.stego_capacity_png(pngBytes);
           setStegoCapacity(cap);
         } catch (e) {
-          console.error("WASM stego_capacity_png error :", e);
+          console.error("WASM stego_capacity_png error:", e);
         }
       }
       const reader = new FileReader();
@@ -767,7 +756,7 @@ export default function App() {
   const handleCreateE2EChannel = async () => {
     if (!e2eKeyPair) return;
     setIsE2ELoading(true);
-    setStatus({ type: 'warn', msg: "Registering secure E2E Channel on backend ..." });
+    setStatus({ type: 'warn', msg: "Registering secure E2E Channel on backend..." });
     try {
       const payload = {
         is_e2e_channel: true,
@@ -812,8 +801,8 @@ export default function App() {
       if (channelData.e2e_messages && Array.isArray(channelData.e2e_messages)) {
         for (const msg of channelData.e2e_messages) {
           let text = language === 'fa'
-            ? "[خطا در رمزگشایی : بهم نخوردن کلید خصوصی]"
-            : "[Decryption Failed : Private key mismatch]";
+            ? "[خطا در رمزگشایی: عدم تطابق کلید خصوصی]"
+            : "[Decryption Failed: Private key mismatch]";
           if (e2eKeyPair) {
             try {
               text = await e2eDecrypt(
@@ -827,7 +816,7 @@ export default function App() {
             }
           } else {
             text = language === 'fa'
-              ? "[رمزگذاری شده : برای رمزگشایی ابتدا هویت E2E بساز]"
+              ? "[رمزگذاری شده: برای رمزگشایی ابتدا هویت E2E بسازید]"
               : "[Encrypted: Generate E2E identity to decrypt]";
           }
           decryptedMsgs.push({
@@ -866,7 +855,7 @@ export default function App() {
   const handleAudioExtract = async () => {
     if (!audioExtractFile) return;
     setIsAudioExtracting(true);
-    setStatus({ type: 'warn', msg: "Decoding hidden data from WAV audio cover ..." });
+    setStatus({ type: 'warn', msg: "Decoding hidden data from WAV audio cover..." });
     try {
       const arrayBuffer = await audioExtractFile.arrayBuffer();
       const wavBytes = new Uint8Array(arrayBuffer);
@@ -1233,7 +1222,7 @@ export default function App() {
 
       const hash = (viewInput.includes('#') ? viewInput.split('#')[1] : viewInput).trim();
       if (!hash || hash === 'undefined') {
-        setStatus({ type: 'err', msg: language === 'fa' ? 'لطفاً شناسه یا لینک معتبر وارد کن!' : 'Please enter a valid link or paste ID' });
+        setStatus({ type: 'err', msg: language === 'fa' ? 'لطفاً شناسه یا لینک معتبر وارد کنید' : 'Please enter a valid link or paste ID' });
         return;
       }
       
@@ -1269,7 +1258,7 @@ export default function App() {
         isFile = true;
       }
       if (!id || id === 'undefined') {
-        setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه پیست معتبر نیست' : 'Invalid paste ID' });
+        setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه پاست معتبر نیست' : 'Invalid paste ID' });
         return;
       }
       const res = await fetch(`/api/paste/${id}?key=${keyPart || ''}`);
@@ -1322,7 +1311,7 @@ export default function App() {
                     const plainStegoBytes = W.stego_extract(plain.data, '');
                     stegoText = new TextDecoder().decode(plainStegoBytes);
                   } catch (stegoErr) {
-                    console.warn("WASM stego extraction failed on view :", stegoErr);
+                    console.warn("WASM stego extraction failed on view:", stegoErr);
                   }
                 }
                 
@@ -1362,7 +1351,7 @@ export default function App() {
                   stegoText = extractJson.message;
                 }
               } catch (e) {
-                console.error("Auto stego extraction failed   :", e);
+                console.error("Auto stego extraction failed:", e);
               }
             }
 
@@ -1515,7 +1504,7 @@ export default function App() {
                   const plainStegoBytes = W.stego_extract(plain.data, '');
                   stegoText = new TextDecoder().decode(plainStegoBytes);
                 } catch (stegoErr) {
-                  console.warn("WASM stego extraction failed on view :", stegoErr);
+                  console.warn("WASM stego extraction failed on view:", stegoErr);
                 }
               }
               
@@ -1531,7 +1520,7 @@ export default function App() {
               setStatus({ type: 'ok', msg: t.decryptedSuccess });
             }
           } catch (decErr) {
-            console.error("Local WASM password decryption failed :", decErr);
+            console.error("Local WASM password decryption failed:", decErr);
             throw new Error(t.invalidPassword);
           }
         } else {
@@ -1562,7 +1551,7 @@ export default function App() {
                 stegoText = extractJson.message;
               }
             } catch (e) {
-              console.error("Auto stego extraction failed :", e);
+              console.error("Auto stego extraction failed:", e);
             }
           }
 
@@ -1587,7 +1576,7 @@ export default function App() {
             setStatus({ type: 'ok', msg: t.biometricRegisterSuccess });
           }
         } catch (biometricErr) {
-          console.warn("Could not register biometrics :", biometricErr);
+          console.warn("Could not register biometrics:", biometricErr);
         }
       }
     } catch (err: any) {
@@ -1702,172 +1691,32 @@ export default function App() {
         }}
       />
 
-      {/* Mobile Floating Dock - Primary Nav for Mobile/Tablet */}
-      <div id="floating-dock" className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70] lg:hidden w-[92%] max-w-sm md:max-w-md">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ 
-            y: showDock ? 0 : 100, 
-            opacity: showDock ? 1 : 0,
-            scale: showDock ? 1 : 0.95
-          }}
-          transition={{ type: "spring", stiffness: 260, damping: 25 }}
-          className={`flex items-center justify-between p-1.5 rounded-full backdrop-blur-2xl border shadow-2xl ${isDarkMode ? 'bg-zinc-900/60 border-white/10 shadow-black/50' : 'bg-white/60 border-zinc-200 shadow-zinc-200/50'}`}
-        >
-          <div className="flex gap-1 flex-1">
-            <button 
-              onClick={() => setMainTab('create')}
-              className={`flex-1 py-2 md:py-2.5 flex items-center justify-center transition-all rounded-full ${mainTab === 'create' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20') : (isDarkMode ? 'text-zinc-400' : 'text-zinc-500')}`}
-              title={t.create}
-            >
-              <Plus className="w-4 h-4 md:w-4.5 md:h-4.5" />
-            </button>
-            <button 
-              onClick={() => setMainTab('view')}
-              className={`flex-1 py-2 md:py-2.5 flex items-center justify-center transition-all rounded-full ${mainTab === 'view' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20') : (isDarkMode ? 'text-zinc-400' : 'text-zinc-500')}`}
-              title={t.view}
-            >
-              <Eye className="w-4 h-4 md:w-4.5 md:h-4.5" />
-            </button>
-          </div>
-          
-          <div className={`w-px h-6 md:h-7 mx-2.5 md:mx-3 ${isDarkMode ? 'bg-white/10' : 'bg-zinc-200'}`} />
-          
-          <div className="flex items-center gap-1 md:gap-1 pe-1">
-            <button
-              id="screenshot-shield-btn-mobile"
-              onClick={() => setShowSecurityShield(true)}
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center relative ${isDarkMode ? 'text-emerald-400 hover:bg-white/5' : 'text-emerald-600 hover:bg-black/5'}`}
-              title={language === 'fa' ? 'مدیریت سپرهای حفاظتی صفحه' : 'Manage Screen Shield Engines'}
-            >
-              <Shield className="w-4 h-4 md:w-4.5 md:h-4.5" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-            </button>
-            <button
-              onClick={() => handleOpenTravelerManual('overview')}
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center ${isDarkMode ? 'text-emerald-400 hover:bg-white/5' : 'text-emerald-600 hover:bg-black/5'}`}
-            >
-              <HelpCircle className="w-4 h-4 md:w-4.5 md:h-4.5" />
-            </button>
-            <button
-              onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-xs md:text-sm ${isDarkMode ? 'text-emerald-400 hover:bg-white/5' : 'text-emerald-600 hover:bg-black/5'}`}
-            >
-              {language === 'en' ? 'FA' : 'EN'}
-            </button>
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center ${isDarkMode ? 'text-yellow-400 hover:bg-white/5' : 'text-zinc-600 hover:bg-black/5'}`}
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 md:w-4.5 md:h-4.5" /> : <Moon className="w-4 h-4 md:w-4.5 md:h-4.5" />}
-            </button>
-          </div>
-        </motion.div>
-      </div>
+      <MobileDock
+        isDarkMode={isDarkMode}
+        language={language}
+        mainTab={mainTab}
+        setMainTab={setMainTab}
+        showDock={showDock}
+        setShowSecurityShield={setShowSecurityShield}
+        handleOpenTravelerManual={handleOpenTravelerManual}
+        setLanguage={setLanguage}
+        setIsDarkMode={setIsDarkMode}
+        t={t}
+      />
 
-      {/* Free IRAN Marquee - Perfect Seamless Infinite Loop */}
-      <div dir="ltr" className={`fixed top-0 left-0 w-full ${isDarkMode ? 'bg-emerald-500/5 border-white/5' : 'bg-emerald-500/5 border-black/5'} border-b py-1.5 z-50 overflow-hidden backdrop-blur-md`}>
-        <motion.div 
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
-          className="flex whitespace-nowrap gap-16 w-max"
-        >
-          {/* First loop block */}
-          <div className="flex gap-16 pr-16 items-center">
-            {[...Array(6)].map((_, i) => (
-              <React.Fragment key={`loop1-${i}`}>
-                <span className={`text-[10px] font-black uppercase tracking-[0.5em] ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} flex items-center gap-4`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-emerald-400' : 'bg-emerald-600'} shadow-[0_0_8px_rgba(16,185,129,0.4)]`} />
-                  {t.freeIran}
-                </span>
-                <span className={`text-[10px] font-black uppercase tracking-[0.5em] ${isDarkMode ? 'text-red-400' : 'text-red-600'} flex items-center gap-4`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-red-400' : 'bg-red-600'} shadow-[0_0_8px_rgba(239,68,68,0.4)]`} />
-                  {t.helpIran}
-                </span>
-              </React.Fragment>
-            ))}
-          </div>
-          {/* Identical cloned block for seamless transition */}
-          <div className="flex gap-16 pr-16 items-center" aria-hidden="true">
-            {[...Array(6)].map((_, i) => (
-              <React.Fragment key={`loop2-${i}`}>
-                <span className={`text-[10px] font-black uppercase tracking-[0.5em] ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} flex items-center gap-4`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-emerald-400' : 'bg-emerald-600'} shadow-[0_0_8px_rgba(16,185,129,0.4)]`} />
-                  {t.freeIran}
-                </span>
-                <span className={`text-[10px] font-black uppercase tracking-[0.5em] ${isDarkMode ? 'text-red-400' : 'text-red-600'} flex items-center gap-4`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-red-400' : 'bg-red-600'} shadow-[0_0_8px_rgba(239,68,68,0.4)]`} />
-                  {t.helpIran}
-                </span>
-              </React.Fragment>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+      <MarqueeHeader
+        isDarkMode={isDarkMode}
+        t={t}
+      />
 
-      {/* Floating System Panel - Perfectly aligned between Top Navbar (Marquee) and Main Grid Column layouts */}
-      <div className="w-full hidden lg:flex justify-end mb-2 mt-8 z-10 animate-fade-in">
-        <div 
-          id="desktop-toggles"
-          className={`flex items-center gap-2 p-1.5 rounded-full backdrop-blur-xl border transition-all duration-500 
-            ${isDarkMode ? 'bg-zinc-900/40 border-white/10' : 'bg-white/40 border-zinc-200 shadow-lg shadow-zinc-200/50'}`}
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowSecurityShield(true)}
-            className={`p-2 rounded-full transition-all duration-300 relative ${
-              isDarkMode 
-                ? 'hover:bg-white/5 text-emerald-400' 
-                : 'hover:bg-black/5 text-emerald-600'
-            }`}
-            title={language === 'en' ? 'Manage Screen Shield Engines' : 'مدیریت سپرهای حفاظتی صفحه'}
-          >
-            <Shield className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-          </motion.button>
-          <div className={`w-px h-4 ${isDarkMode ? 'bg-white/10' : 'bg-zinc-200'}`} />
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleOpenTravelerManual('overview')}
-            className={`p-2 rounded-full transition-all duration-300 ${
-              isDarkMode 
-                ? 'hover:bg-white/5 text-emerald-400' 
-                : 'hover:bg-black/5 text-emerald-600'
-            }`}
-            title={language === 'en' ? 'Traveler Security Manual' : 'راهنمای امنیتی تور'}
-          >
-            <HelpCircle className="w-4 h-4" />
-          </motion.button>
-          <div className={`w-px h-4 ${isDarkMode ? 'bg-white/10' : 'bg-zinc-200'}`} />
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
-            className={`px-3 py-1.5 rounded-full transition-all duration-300 font-bold text-[10px] tracking-widest ${
-              isDarkMode 
-                ? 'hover:bg-white/5 text-emerald-400' 
-                : 'hover:bg-black/5 text-emerald-600'
-            }`}
-          >
-            {language === 'en' ? 'FA' : 'EN'}
-          </motion.button>
-          <div className={`w-px h-4 ${isDarkMode ? 'bg-white/10' : 'bg-zinc-200'}`} />
-          <motion.button
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`p-2 rounded-full transition-all duration-300 ${
-              isDarkMode 
-                ? 'hover:bg-white/5 text-yellow-400' 
-                : 'hover:bg-black/5 text-zinc-600'
-            }`}
-          >
-            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </motion.button>
-        </div>
-      </div>
+      <FloatingSystemPanel
+        isDarkMode={isDarkMode}
+        language={language}
+        setShowSecurityShield={setShowSecurityShield}
+        handleOpenTravelerManual={handleOpenTravelerManual}
+        setLanguage={setLanguage}
+        setIsDarkMode={setIsDarkMode}
+      />
 
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 relative z-10 mt-4 sm:mt-8 lg:mt-4">
         <motion.div 
@@ -2065,10 +1914,10 @@ export default function App() {
                                   try {
                                     const text = await navigator.clipboard.readText();
                                     setMessage(text);
-                                    setStatus({ type: 'ok', msg: language === 'fa' ? 'متن به درستی جایگذاری شد' : 'Clipboard pasted successfully' });
+                                    setStatus({ type: 'ok', msg: language === 'fa' ? 'متن با موفقیت جایگذاری شد' : 'Clipboard pasted successfully' });
                                   } catch (err) {
                                     // Soft fallback: try reading directly or inform gracefully to reduce browser/OS level visual prompts
-                                    setStatus({ type: 'err', msg: language === 'fa' ? 'لطفا متن خودتو مستقیماً داخل کادر جایگذاری کن.' : 'Please paste directly into the box.' });
+                                    setStatus({ type: 'err', msg: language === 'fa' ? 'لطفا متن خود را مستقیماً داخل کادر جایگذاری (Paste) کنید.' : 'Please paste directly into the box.' });
                                   }
                                 }}
                                 className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
@@ -2342,7 +2191,7 @@ export default function App() {
                                 dir={language === 'fa' ? 'rtl' : 'ltr'}
                               />
                               <div className={`absolute ${language === 'fa' ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 font-bold uppercase ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}>
-                                {language === 'fa' ? 'مینیمم' : 'MIN'}
+                                {language === 'fa' ? 'حداقل' : 'MIN'}
                               </div>
                             </div>
                           </div>
@@ -2463,7 +2312,7 @@ export default function App() {
                             } ${language === 'fa' ? 'font-vazir text-[11.5px] font-bold' : ''}`}
                           >
                             <Mic className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
-                            <span>{language === 'fa' ? 'ریکورد صدا بشکل امن' : 'Secure Voice Recorder'}</span>
+                            <span>{language === 'fa' ? 'ضبط صدای امن' : 'Secure Voice Recorder'}</span>
                           </button>
                           <button
                             type="button"
@@ -2485,10 +2334,10 @@ export default function App() {
                             <div className="absolute top-4 left-6 right-6 flex items-center justify-between border-b border-zinc-500/10 pb-3">
                               <p className={`text-[10px] font-black uppercase tracking-widest ${isRecording ? 'text-red-500 animate-pulse' : 'text-zinc-500'}`}>
                                 {isRecording 
-                                  ? (language === 'fa' ? 'در حال ریکورد ...' : 'REC • LIVE') 
+                                  ? (language === 'fa' ? 'در حال ضبط...' : 'REC • LIVE') 
                                   : (audioBlob 
                                     ? (language === 'fa' ? 'پیش‌نمایش صدا' : 'READY TO SECURE') 
-                                    : (language === 'fa' ? 'ریکورد صدا' : 'VOICE RECORDER'))}
+                                    : (language === 'fa' ? 'ضبط صدا' : 'VOICE RECORDER'))}
                               </p>
                               <div className={`w-2.5 h-2.5 rounded-full ${isRecording ? 'bg-red-500' : audioBlob ? 'bg-emerald-500' : 'bg-zinc-500'}`} />
                             </div>
@@ -2527,7 +2376,7 @@ export default function App() {
                               </div>
                             ) : (
                               <div className="text-center space-y-1 text-zinc-500 text-[9px] uppercase tracking-wider my-4">
-                                {language === 'fa' ? 'برای ریکورد دکمه میکروفون رو بزن' : 'TAP THE MIC TO START'}
+                                {language === 'fa' ? 'برای ضبط دکمه میکروفون را بزنید' : 'TAP THE MIC TO START'}
                               </div>
                             )}
 
@@ -2599,7 +2448,7 @@ export default function App() {
                                   icon={<Headphones className="w-10 h-10 text-emerald-500"/>} 
                                   accept=".wav,audio/wav,audio/x-wav" 
                                   isDarkMode={isDarkMode} 
-                                  label={language === 'fa' ? 'یه فایل صوتی با فرمت WAV انتخاب کن' : 'Select a standard PCM WAV audio file'} 
+                                  label={language === 'fa' ? 'یک فایل صوتی با فرمت WAV انتخاب کنید' : 'Select a standard PCM WAV audio file'} 
                                   language={language}
                                 />
                               </div>
@@ -2697,7 +2546,7 @@ export default function App() {
                                      onChange={(e) => handlePasswordChange(e.target.value, setAudioEmbedPassword, 'audioEmbedPassword')}
                                      onKeyDown={(e) => handlePasswordKeyDown(e, 'audioEmbedPassword')}
                                      disabled={disabledInputs['audioEmbedPassword']}
-                                     placeholder={disabledInputs['audioEmbedPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : (language === 'fa' ? 'گذرواژه برای جاسازی/استخراج رمز' : 'Password to encrypt/embed stego message')}
+                                     placeholder={disabledInputs['audioEmbedPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : (language === 'fa' ? 'کلمه عبور جهت جاسازی/استخراج رمز' : 'Password to encrypt/embed stego message')}
                                      dir="ltr"
                                      className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-600' : 'bg-white border-zinc-300 text-zinc-800 placeholder:text-zinc-450'} border rounded-2xl h-[42px] ps-11 pe-11 text-xs xl:rounded-[32px] xl:h-auto xl:p-5 xl:ps-12 xl:pe-12 outline-none focus:border-emerald-500/50 transition-all text-left ltr disabled:opacity-40 disabled:cursor-not-allowed disabled:border-amber-500/40`}
                                    />
@@ -2729,7 +2578,7 @@ export default function App() {
                               </h4>
                               <p className={`text-[11px] sm:text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'} leading-relaxed ${language === 'fa' ? 'font-vazir' : ''}`}>
                                 {language === 'fa' 
-                                  ? 'برای بهره از کانال‌های گفتگوی ایمن، یک جفت کلید رمزنگاری اختصاصی بساز. این کلید به هیچ وجه از مرورگر شما خارج نمیشه!' 
+                                  ? 'برای استفاده از کانال‌های گفتگوی ایمن، یک جفت کلید رمزنگاری اختصاصی ایجاد کنید. این کلید به هیچ وجه از مرورگر شما خارج نخواهد شد.' 
                                   : 'To interact in secure channels, generate a personal cryptographic keypair. Your private key never leaves this browser.'}
                               </p>
                             </div>
@@ -2755,11 +2604,11 @@ export default function App() {
                               <div className="flex items-center gap-2.5 relative z-10">
                                 <Zap className="w-4 h-4 text-emerald-500 animate-pulse shrink-0" />
                                 <span className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'} ${language === 'fa' ? 'font-vazir text-[11px] font-bold' : ''}`}>
-                                  {language === 'fa' ? 'ساخت کلیدهای امنیتی اختصاصی' : 'Generate Secure Cryptographic Keys'}
+                                  {language === 'fa' ? 'ایجاد کلیدهای امنیتی اختصاصی' : 'Generate Secure Cryptographic Keys'}
                                 </span>
                               </div>
                               <span className="text-[7.5px] sm:text-[8px] font-mono uppercase tracking-widest text-zinc-500 relative z-10 text-center px-1">
-                                {language === 'fa' ? 'ساخت کلید در مرورگر شما' : 'Keypair Generation'}
+                                {language === 'fa' ? 'تولید کلید با استاندارد منحنی بیضوی ۲۵۵۱۹ در مرورگر شما' : 'Elliptic Curve 25519 Ephemeral Keypair Generation'}
                               </span>
                             </motion.button>
                           </div>
@@ -2774,14 +2623,14 @@ export default function App() {
                                   </div>
                                   <div className="min-w-0">
                                     <h5 className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-100' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir text-[11px]' : ''}`}>
-                                      {language === 'fa' ? 'هویت رمزنگاری سرتاسری، اکتیوه!' : 'End-to-End Cryptographic Identity Active'}
+                                      {language === 'fa' ? 'هویت رمزنگاری سرتاسری فعال است' : 'End-to-End Cryptographic Identity Active'}
                                     </h5>
                                   </div>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    if (confirm(language === 'fa' ? ' مطمئنی دیگه؟ با پاک کردن جفت کلید، تموم پیام‌های پیشین، غیر قابل خواندن میشن ها!' : 'Warning: Deleting your keys will make previous encrypted chats unreadable forever.')) {
+                                    if (confirm(language === 'fa' ? 'آیا مطمئن هستید؟ با حذف جفت کلید، تمام پیام‌های قبلی غیر قابل خواندن خواهند شد!' : 'Warning: Deleting your keys will make previous encrypted chats unreadable forever.')) {
                                       localStorage.removeItem('daylock_e2e_keypair');
                                       setE2EKeyPair(null);
                                       setStatus({ type: 'warn', msg: "E2E Keypair deactivated." });
@@ -2795,7 +2644,7 @@ export default function App() {
 
                               <div className="space-y-1.5">
                                 <label className={`text-[8px] font-bold uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-[9px]' : ''}`}>
-                                  {language === 'fa' ? 'شناسه پابلیک شما' : 'Your Public ID'}
+                                  {language === 'fa' ? 'شناسه عمومی شما' : 'Your Public ID'}
                                 </label>
                                 <div className={`flex gap-2 items-center p-3 rounded-2xl border ${isDarkMode ? 'bg-zinc-950/40 border-white/5' : 'bg-white border-zinc-200'}`}>
                                   <span className="flex-1 font-mono text-[9.5px] truncate text-zinc-400 text-left select-all">{e2eKeyPair.publicKey}</span>
@@ -2820,7 +2669,7 @@ export default function App() {
                                     {language === 'fa' ? 'ایجاد کانال گفتگوی دوطرفه' : 'Establish E2E Conversation Channel'}
                                   </h4>
                                   <p className={`text-[9px] sm:text-[10px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} uppercase tracking-wider ${language === 'fa' ? 'font-vazir' : ''}`}>
-                                    {language === 'fa' ? 'یک لینک گفتگو بساز و آن را برای دوست خود بفرس' : 'Generate a chat board, share link, and chat in absolute isolation'}
+                                    {language === 'fa' ? 'یک لینک گفتگو بسازید و آن را برای دوست خود بفرستید' : 'Generate a chat board, share link, and chat in absolute isolation'}
                                   </p>
                                 </div>
                                 <motion.button
@@ -2830,7 +2679,7 @@ export default function App() {
                                   disabled={isE2ELoading}
                                   className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs cursor-pointer shadow-lg transition-all ${isDarkMode ? 'bg-indigo-500 text-black font-extrabold hover:bg-indigo-400' : 'bg-indigo-600 text-white font-extrabold hover:bg-indigo-700'}`}
                                 >
-                                  {isE2ELoading ? (language === 'fa' ? 'در حال راه‌اندازی ...' : 'establishing ...') : (language === 'fa' ? 'ایجاد کانال پیام‌رسانی امن' : 'Spawn Secure E2E Channel')}
+                                  {isE2ELoading ? (language === 'fa' ? 'در حال راه‌اندازی...' : 'establishing...') : (language === 'fa' ? 'ایجاد کانال پیام‌رسانی امن' : 'Spawn Secure E2E Channel')}
                                 </motion.button>
                               </div>
                             ) : (
@@ -2838,12 +2687,12 @@ export default function App() {
                                 <div className="flex items-center gap-2 text-indigo-500">
                                   <Check className="w-4 h-4 shrink-0" />
                                   <span className={`text-[10px] font-black uppercase tracking-widest ${language === 'fa' ? 'font-vazir' : ''}`}>
-                                    {language === 'fa' ? 'کانال گفتگو با پیروزی راه‌اندازی شد!' : 'Channel Initialized!'}
+                                    {language === 'fa' ? 'کانال گفتگو با موفقیت راه‌اندازی شد!' : 'Channel Initialized!'}
                                   </span>
                                 </div>
                                 <p className={`text-xs text-zinc-450 dark:text-zinc-400 leading-relaxed ${language === 'fa' ? 'font-vazir' : ''}`}>
                                   {language === 'fa' 
-                                    ? 'لینک ایجاد شده را با مخاطبت به اشتراک بذار. به محض اینکه او لینک را باز کند، می‌توانید به شکل زنده گفتگو کنید.' 
+                                    ? 'لینک ایجاد شده را با مخاطب خود به اشتراک بگذارید. به محض اینکه او لینک را باز کند، می‌توانید به صورت زنده گفتگو کنید.' 
                                     : 'Share the generated link with your contact. Once they open it, you can chat in real-time.'}
                                 </p>
                               </div>
@@ -2979,7 +2828,7 @@ export default function App() {
                               onClick={() => setAsnMode('block')}
                               className={`px-2.5 py-1 text-[9px] font-bold rounded-md transition-all ${asnMode === 'block' ? 'bg-red-500/25 text-red-400 border border-red-500/30' : 'text-zinc-400 border border-transparent'}`}
                             >
-                              {language === 'fa' ? 'بلاک' : 'BLOCK'}
+                              {language === 'fa' ? 'مسدود' : 'BLOCK'}
                             </button>
                             <button
                               onClick={() => setAsnMode('allow')}
@@ -3129,7 +2978,7 @@ export default function App() {
                             onChange={(e) => handlePasswordChange(e.target.value, setPassword, 'masterPassword')}
                             onKeyDown={(e) => handlePasswordKeyDown(e, 'masterPassword')}
                             disabled={disabledInputs['masterPassword']}
-                            placeholder={disabledInputs['masterPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : t.masterPasswordPlaceholder}
+                            placeholder={disabledInputs['masterPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : t.masterPasswordPlaceholder}
                             dir="ltr"
                             className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-600' : 'bg-white border-zinc-300 text-zinc-800 placeholder:text-zinc-400'} border rounded-2xl h-[42px] ps-11 pe-11 text-xs xl:rounded-[32px] xl:h-auto xl:p-5 xl:ps-12 xl:pe-12 outline-none focus:border-emerald-500/50 transition-all text-left ltr disabled:opacity-40 disabled:cursor-not-allowed disabled:border-amber-500/40`}
                           />
@@ -3174,7 +3023,7 @@ export default function App() {
                                        onChange={(e) => handlePasswordChange(e.target.value, setHoneyPwd, 'honeyPassword')}
                                        onKeyDown={(e) => handlePasswordKeyDown(e, 'honeyPassword')}
                                        disabled={disabledInputs['honeyPassword']}
-                                       placeholder={disabledInputs['honeyPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : t.decoyPassword} 
+                                       placeholder={disabledInputs['honeyPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : t.decoyPassword} 
                                       dir="ltr" 
                                       className={`w-full ${
                                         isDarkMode 
@@ -3191,13 +3040,13 @@ export default function App() {
                                     </button>
                                   </div>
                                  <span className={`block text-[8px] text-zinc-500 mt-1 leading-normal ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
-                                   {language === 'fa' ? 'گذرواژه‌ای که برای گمراه‌کردن فوضولچه ها، میخای بهره ببری' : 'The secondary password you surrender to inspectors under duress'}
+                                   {language === 'fa' ? 'گذرواژه‌ای بی‌خطر که برای گمراه‌کردن بازرسان استفاده می‌کنید' : 'The secondary password you surrender to inspectors under duress'}
                                  </span>
                                </div>
 
                                <div className="space-y-1 text-left">
                                  <label className={`block text-[9px] font-black uppercase tracking-widest text-amber-500/80 mb-1 ${language === 'fa' ? 'font-vazir text-right text-[10px]' : ''}`}>
-                                   {language === 'fa' ? 'کانتنت فریب‌دهنده (تله)' : 'Honey Decoy Payload'}
+                                   {language === 'fa' ? 'محتوای فریب‌دهنده (تله)' : 'Honey Decoy Payload'}
                                  </label>
                                  <textarea 
                                    value={honeyContent} 
@@ -3211,7 +3060,7 @@ export default function App() {
                                    } rounded-2xl p-3 text-xs outline-none resize-none focus:border-amber-500/40 transition-all ${getAutoContainerClass(honeyContent)}`} 
                                  />
                                  <span className={`block text-[8px] text-zinc-500 mt-1 leading-normal ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
-                                   {language === 'fa' ? 'کانتنت بی‌خطر (مانند آدرس خرید یا ...) که نمایش داده خواهد شد' : 'Innocent fake content (e.g., travel guide, recipes) that will be displayed'}
+                                   {language === 'fa' ? 'محتوای بی‌خطر (مانند آدرس خرید یا جاذبه‌های توریستی) که نمایش داده خواهد شد' : 'Innocent fake content (e.g., travel guide, recipes) that will be displayed'}
                                  </span>
                                </div>
                              </div>
@@ -3281,7 +3130,7 @@ export default function App() {
                                   }, 'view-url-input');
                                 }}
                                 disabled={disabledInputs['view-url-input']}
-                                placeholder={disabledInputs['view-url-input'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : t.linkPlaceholder}
+                                placeholder={disabledInputs['view-url-input'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : t.linkPlaceholder}
                                 dir="ltr"
                                 className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-600' : 'bg-white border-zinc-300 text-zinc-800 placeholder:text-zinc-500'} border rounded-2xl h-[42px] ps-11 text-xs xl:rounded-[32px] xl:h-auto xl:p-5 xl:ps-12 outline-none font-mono transition-all focus:border-emerald-500/50 text-left disabled:opacity-40 disabled:cursor-not-allowed disabled:border-amber-500/40`}
                               />
@@ -3380,14 +3229,14 @@ export default function App() {
                               {/* Peer Public Key Input for chat pairing */}
                               <div className="space-y-1.5">
                                 <label className="text-[8px] font-bold uppercase tracking-widest text-zinc-500 px-1">
-                                  {language === 'fa' ? 'شناسه پابلیک طرف مقابل' : 'Peer Public ID'}
+                                  {language === 'fa' ? 'شناسه عمومی طرف مقابل' : 'Peer Public ID'}
                                 </label>
                                 <div className="flex flex-col sm:flex-row gap-2">
                                   <input 
                                     type="text"
                                     value={e2eRecipientPubInput}
                                     onChange={(e) => setE2ERecipientPubInput(e.target.value)}
-                                    placeholder={language === 'fa' ? 'شناسه پابلیک دوستت را وارد کن' : 'Paste your contact\'s public ID here to encrypt'}
+                                    placeholder={language === 'fa' ? 'شناسه عمومی دوست خود را وارد کنید' : 'Paste your contact\'s public ID here to encrypt'}
                                     className={`w-full sm:flex-1 ${isDarkMode ? 'bg-zinc-950/40 border-white/5 text-zinc-200' : 'bg-white border-zinc-200'} rounded-xl p-3 text-[10px] font-mono outline-none border focus:border-indigo-500/50`}
                                   />
                                   {viewData.e2e_public_key && viewData.e2e_public_key !== e2eKeyPair?.publicKey && (
@@ -3396,7 +3245,7 @@ export default function App() {
                                       onClick={() => setE2ERecipientPubInput(viewData.e2e_public_key)}
                                       className={`w-full sm:w-auto px-4 py-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-wider rounded-xl hover:bg-indigo-50/20 dark:hover:bg-indigo-500/20 transition-all cursor-pointer text-center ${language === 'fa' ? 'font-vazir' : ''}`}
                                     >
-                                      {language === 'fa' ? 'بهره از شناسه کانال' : 'Use Channel ID'}
+                                      {language === 'fa' ? 'استفاده از شناسه کانال' : 'Use Channel ID'}
                                     </button>
                                   )}
                                 </div>
@@ -3412,7 +3261,7 @@ export default function App() {
                                     {language === 'fa' ? 'هنوز پیامی وجود ندارد' : 'No messages yet'}
                                   </p>
                                   <p className={`text-[9px] text-zinc-600 mt-1 ${language === 'fa' ? 'font-vazir text-[10px]' : ''}`}>
-                                    {language === 'fa' ? 'گفتگو را در کادر زیر آغاز کن.' : 'Start the conversation below.'}
+                                    {language === 'fa' ? 'گفتگو را در کادر زیر آغاز کنید.' : 'Start the conversation below.'}
                                   </p>
                                 </div>
                               ) : (
@@ -3449,7 +3298,7 @@ export default function App() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') handleSendE2EMessage(viewData.id, e2eRecipientPubInput);
                                 }}
-                                placeholder={language === 'fa' ? 'پیامت رو بنویس ...' : 'Type your encrypted message ...'}
+                                placeholder={language === 'fa' ? 'پیام خود را بنویسید...' : 'Type your encrypted message...'}
                                 className={`flex-1 ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-650' : 'bg-white border-zinc-300 text-zinc-800 placeholder:text-zinc-400'} border rounded-2xl p-3.5 text-xs outline-none transition-all focus:border-indigo-500/50`}
                               />
                               <motion.button
@@ -3513,13 +3362,10 @@ export default function App() {
                                      }, 'viewPassword');
                                    }}
                                    disabled={disabledInputs['viewPassword']}
-                                   placeholder={disabledInputs['viewPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : t.enterMasterPassword}
+                                   placeholder={disabledInputs['viewPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : t.enterMasterPassword}
                                    dir="ltr"
                                    className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'} border rounded-2xl h-[42px] px-4 pe-11 text-xs xl:rounded-[32px] xl:h-auto xl:p-5 xl:ps-12 xl:pe-12 outline-none transition-all focus:border-emerald-500/50 text-left ltr disabled:opacity-40 disabled:cursor-not-allowed disabled:border-amber-500/40`}
-                                   onKeyDown={(e) => {
-                                     handlePasswordKeyDown(e, 'viewPassword');
-                                     if (e.key === 'Enter') performDecryption(viewData, viewPassword, viewData.isFile);
-                                   }}
+                                   onKeyDown={(e) => handlePasswordKeyDown(e, 'viewPassword')}
                                  />
                                  <button
                                    type="button"
@@ -3668,7 +3514,7 @@ export default function App() {
                                   <div className="flex justify-between items-center">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
                                       <Search className="w-4 h-4" />
-                                      {language === 'fa' ? 'پیام پنهان استگانوگرافی' : 'Steganography Hidden Message'}
+                                      {language === 'fa' ? 'پیام پنهان پنهان‌نگاری' : 'Steganography Hidden Message'}
                                     </span>
                                     <button 
                                       onClick={() => {
@@ -3719,7 +3565,7 @@ export default function App() {
                                     </div>
                                     <div>
                                       <h5 className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-100' : 'text-zinc-800'}`}>
-                                        {language === 'fa' ? 'صدای ریکورد شده رمزگشایی شده' : 'Decrypted Voice Message'}
+                                        {language === 'fa' ? 'صدای ضبط شده رمزگشایی شده' : 'Decrypted Voice Message'}
                                       </h5>
                                       <p className="text-[9px] font-mono text-zinc-500 mt-0.5">
                                         {decryptedContent.name || 'voice.webm'}
@@ -3791,7 +3637,7 @@ export default function App() {
                                    onChange={(e) => handlePasswordChange(e.target.value, setStegoExtractPassword, 'stegoExtractPassword')}
                                    onKeyDown={(e) => handlePasswordKeyDown(e, 'stegoExtractPassword')}
                                    disabled={disabledInputs['stegoExtractPassword']}
-                                   placeholder={disabledInputs['stegoExtractPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت ...' : '⚠️ Invalid Keyboard! Temporarily Locked ...') : t.masterPasswordPlaceholder}
+                                   placeholder={disabledInputs['stegoExtractPassword'] ? (language === 'fa' ? '⚠️ کیبورد نامعتبر! قفل موقت...' : '⚠️ INVALID KEYBOARD! TEMPORARILY LOCKED...') : t.masterPasswordPlaceholder}
                                    dir="ltr"
                                    className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'} border rounded-2xl h-[42px] px-4 pe-11 text-xs outline-none transition-all focus:border-emerald-500/50 text-left ltr disabled:opacity-40 disabled:cursor-not-allowed disabled:border-amber-500/40`}
                                  />
@@ -3868,288 +3714,43 @@ export default function App() {
       </div>
 
       {/* Footer Credit */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 2 }}
-        className="mt-8 mb-4 lg:mb-6 flex flex-col items-center justify-center gap-4 text-center select-none"
-      >
-        <div className={`h-px w-32 ${isDarkMode ? 'bg-gradient-to-r from-transparent via-white/10 to-transparent' : 'bg-gradient-to-r from-transparent via-black/5 to-transparent'}`} />
-        
-        <div className="flex flex-col items-center justify-center gap-2 text-center">
-          <div dir="ltr" className="flex items-center justify-center gap-1.5 text-zinc-500/80 dark:text-zinc-600/80 text-center text-[10px] font-bold tracking-wide">
-            <span className="uppercase tracking-widest text-[9px] font-black opacity-80">
-              Powered By :
-            </span>
-            <span>
-              Shervina
-            </span>
-            <Heart className="w-3 h-3 text-zinc-500/40 fill-zinc-500/10 shrink-0" />
-            <span>
-              (IRAN's Girl)
-            </span>
-          </div>
-        </div>
-      </motion.div>
+      <FooterCredit isDarkMode={isDarkMode} />
 
-      {/* Self-Destruct Overlay */}
-      <AnimatePresence>
-        {isSelfDestructed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-6 text-center"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="max-w-md space-y-8"
-            >
-              <div className="relative inline-block">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"
-                />
-                <div className="relative w-24 h-24 bg-red-500 rounded-[32px] flex items-center justify-center shadow-2xl shadow-red-500/50 mx-auto">
-                  <Skull className="w-12 h-12 text-black" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h2 className="text-3xl font-black uppercase tracking-tighter text-red-500">{t.selfDestructTriggered}</h2>
-                <p className="text-zinc-400 text-sm leading-relaxed font-medium">{t.selfDestructMessage}</p>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => window.location.reload()}
-                className="px-10 py-4 bg-zinc-900 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-all"
-              >
-                {t.terminateSession}
-              </motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Self-Destruct Counter (Floating) */}
-      <AnimatePresence>
-        {viewData?.self_destruct_hides && !isSelfDestructed && hidesCount > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-red-500 text-black rounded-full font-black text-xs md:text-sm shadow-2xl shadow-red-500/40 flex items-center gap-3"
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>{localizeDigitsValue(viewData.self_destruct_hides - hidesCount, language)} {t.hidesRemaining}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Self-Destruct Overlay & Counter */}
+      <SelfDestructOverlay
+        isSelfDestructed={isSelfDestructed}
+        viewData={viewData}
+        hidesCount={hidesCount}
+        language={language}
+        t={t}
+      />
 
       {/* Password Warning Modal Popup */}
-      <AnimatePresence>
-        {showPasswordWarning && (
-          <div dir={language === 'fa' ? 'rtl' : 'ltr'} className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            {/* Backdrop with elegant blur */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowPasswordWarning(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-            
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`relative max-w-md w-full p-6 md:p-8 rounded-[32px] border ${
-                isDarkMode 
-                  ? 'bg-zinc-950 border-purple-500/20 shadow-[0_0_50px_rgba(168,85,247,0.1)] text-zinc-100' 
-                  : 'bg-white border-zinc-200 shadow-[0_10px_40px_rgba(0,0,0,0.08)] text-zinc-800'
-              } z-10 space-y-6 flex flex-col items-center text-center`}
-            >
-              {/* Glowing Icon */}
-              <div className="relative">
-                <motion.div
-                  animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-purple-500/20 blur-2xl rounded-full"
-                />
-                <div className={`relative w-16 h-16 rounded-[24px] flex items-center justify-center shadow-lg ${
-                  isDarkMode ? 'bg-purple-500/10 text-purple-400 border border-purple-500/25' : 'bg-purple-50 text-purple-600 border border-purple-200'
-                }`}>
-                  <Lock className="w-8 h-8" />
-                </div>
-              </div>
-
-              {/* Text segment with custom font style */}
-              <div className="space-y-3">
-                <h3 className={`text-lg font-extrabold ${language === 'fa' ? 'font-vazir' : 'font-display'}`}>
-                  {t.passwordWarningTitle}
-                </h3>
-                <p className={`text-xs leading-relaxed font-normal ${
-                  isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-                } ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}>
-                  {t.passwordWarningDesc}
-                </p>
-              </div>
-
-              {/* Action Button */}
-              <motion.button
-                whileHover={{ scale: 1.02, translateY: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowPasswordWarning(false)}
-                className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
-                  isDarkMode 
-                    ? 'bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-500/10' 
-                    : 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/10'
-                }`}
-              >
-                {language === 'fa' ? 'گرفتم' : 'Got it'}
-              </motion.button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <PasswordWarningModal
+        isOpen={showPasswordWarning}
+        onClose={() => setShowPasswordWarning(false)}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+      />
 
       {/* Content Warning Modal Popup */}
-      <AnimatePresence>
-        {showContentWarning && (
-          <div dir={language === 'fa' ? 'rtl' : 'ltr'} className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            {/* Backdrop with elegant blur */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowContentWarning(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-            
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`relative max-w-md w-full p-6 md:p-8 rounded-[32px] border ${
-                isDarkMode 
-                  ? 'bg-zinc-950 border-amber-500/20 shadow-[0_0_50px_rgba(245,158,11,0.1)] text-zinc-100' 
-                  : 'bg-white border-zinc-200 shadow-[0_10px_40px_rgba(0,0,0,0.08)] text-zinc-800'
-              } z-10 space-y-6 flex flex-col items-center text-center`}
-            >
-              {/* Glowing Icon */}
-              <div className="relative">
-                <motion.div
-                  animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"
-                />
-                <div className={`relative w-16 h-16 rounded-[24px] flex items-center justify-center shadow-lg ${
-                  isDarkMode ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' : 'bg-amber-50 text-amber-600 border border-amber-200'
-                }`}>
-                  <AlertCircle className="w-8 h-8" />
-                </div>
-              </div>
-
-              {/* Text segment with custom font style */}
-              <div className="space-y-3">
-                <h3 className={`text-lg font-extrabold ${language === 'fa' ? 'font-vazir' : 'font-display'}`}>
-                  {t.contentWarningTitle}
-                </h3>
-                <p className={`text-xs leading-relaxed font-normal ${
-                  isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-                } ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}>
-                  {t.contentWarningDesc}
-                </p>
-              </div>
-
-              {/* Action Button */}
-              <motion.button
-                whileHover={{ scale: 1.02, translateY: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowContentWarning(false)}
-                className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
-                  isDarkMode 
-                    ? 'bg-amber-600 text-white hover:bg-amber-500 shadow-lg shadow-amber-500/10' 
-                    : 'bg-amber-600 text-white hover:bg-amber-700 shadow-lg shadow-amber-600/10'
-                }`}
-              >
-                {language === 'fa' ? 'گرفتم' : 'Got it'}
-              </motion.button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <ContentWarningModal
+        isOpen={showContentWarning}
+        onClose={() => setShowContentWarning(false)}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+      />
 
       {/* Keyboard Layout Warning Modal Popup */}
-      <AnimatePresence>
-        {showKeyboardWarning && (
-          <div dir={language === 'fa' ? 'rtl' : 'ltr'} className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            {/* Backdrop with elegant blur */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowKeyboardWarning(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-            
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`relative max-w-md w-full p-6 md:p-8 rounded-[32px] border ${
-                isDarkMode 
-                  ? 'bg-zinc-950 border-amber-500/20 shadow-[0_0_50px_rgba(245,158,11,0.1)] text-zinc-100' 
-                  : 'bg-white border-zinc-200 shadow-[0_10px_40px_rgba(0,0,0,0.08)] text-zinc-800'
-              } z-10 space-y-6 flex flex-col items-center text-center`}
-            >
-              {/* Glowing Icon */}
-              <div className="relative">
-                <motion.div
-                  animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"
-                />
-                <div className={`relative w-16 h-16 rounded-[24px] flex items-center justify-center shadow-lg ${
-                  isDarkMode ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' : 'bg-amber-50 text-amber-600 border border-amber-200'
-                }`}>
-                  <Keyboard className="w-8 h-8 animate-pulse" />
-                </div>
-              </div>
-
-              {/* Text segment with custom font style */}
-              <div className="space-y-3">
-                <h3 className={`text-lg font-extrabold ${language === 'fa' ? 'font-vazir' : 'font-display'}`}>
-                  {t.keyboardWarningTitle}
-                </h3>
-                <p className={`text-xs leading-relaxed font-normal ${
-                  isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-                } ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}>
-                  {t.keyboardWarningDesc}
-                </p>
-              </div>
-
-              {/* Action Button */}
-              <motion.button
-                whileHover={{ scale: 1.02, translateY: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowKeyboardWarning(false)}
-                className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
-                  isDarkMode 
-                    ? 'bg-amber-600 text-white hover:bg-amber-500 shadow-lg shadow-amber-500/10' 
-                    : 'bg-amber-600 text-white hover:bg-amber-700 shadow-lg shadow-amber-600/10'
-                }`}
-              >
-                {language === 'fa' ? 'گرفتم' : 'Got it'}
-              </motion.button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <KeyboardWarningModal
+        isOpen={showKeyboardWarning}
+        onClose={() => setShowKeyboardWarning(false)}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+      />
 
       <ShortcutManager 
         onClearEverything={handleClearEverything}
@@ -4173,167 +3774,27 @@ export default function App() {
         defaultTab={manualDefaultTab}
       />
 
-      <AnimatePresence>
-        {showShareConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => {
-                setShowShareConfirm(false);
-                setSharePendingContent('');
-              }}
-              className="absolute inset-0 bg-black/65 backdrop-blur-md"
-            />
-            
-            {/* Modal Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: 'spring', duration: 0.4 }}
-              className={`relative w-full max-w-md overflow-hidden rounded-[32px] border p-6 shadow-2xl ${
-                isDarkMode 
-                  ? 'bg-zinc-950 border-white/10 text-zinc-100 shadow-amber-500/5' 
-                  : 'bg-white border-zinc-200 text-zinc-900 shadow-xl'
-              }`}
-              dir={language === 'fa' ? 'rtl' : 'ltr'}
-            >
-              {/* Header Icon & Alert Glow */}
-              <div className="flex flex-col items-center text-center mt-2 space-y-4">
-                <div className="relative shrink-0">
-                  <div className="absolute inset-0 bg-amber-500/20 blur-[12px] rounded-full animate-pulse" />
-                  <div className={`relative w-14 h-14 rounded-full flex items-center justify-center border ${
-                    isDarkMode 
-                      ? 'bg-zinc-900 border-amber-500/30 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]' 
-                      : 'bg-amber-50 border-amber-500/20 text-amber-600 shadow-sm'
-                  }`}>
-                    <ShieldAlert className="w-7 h-7" />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 px-2">
-                  <h3 className="text-sm font-black uppercase tracking-widest">
-                    {t.shareConfirmTitle || (language === 'fa' ? 'هشدار امنیتی' : 'Security Advisory')}
-                  </h3>
-                  <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    {t.shareConfirmDesc || (language === 'fa' 
-                      ? ' در حال اشتراک‌گذاری دیتای رمزگشایی‌شده حساس هستیا! پیش از فرستادن، مطمئن شو که به مقصد یا برنامه مقصد اعتماد کامل داری.' 
-                      : 'You are about to share decrypted sensitive data. Make sure you trust the destination or application before sending.')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-6 flex flex-col sm:flex-row gap-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const content = sharePendingContent;
-                    setShowShareConfirm(false);
-                    setSharePendingContent('');
-                    if (navigator.share) {
-                      try {
-                        await navigator.share({
-                          text: content,
-                        });
-                      } catch (err) {
-                        console.error("Error sharing:", err);
-                      }
-                    } else {
-                      try {
-                        await copyToClipboardWithAutoClear(content, 30000, (msg) => setStatus({ type: 'warn', msg }), language === 'fa' ? 'fa' : 'en');
-                        setStatus({ type: 'ok', msg: t.copySuccess || (language === 'fa' ? 'کانتنت با پیروزی کپی شد' : "Content copied to clipboard") });
-                      } catch (err) {
-                        console.error("Failed to copy:", err);
-                      }
-                    }
-                  }}
-                  className={`flex-1 py-3 px-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all duration-200 active:scale-[0.98] ${
-                    isDarkMode
-                      ? 'bg-amber-500 text-black hover:bg-amber-400 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                      : 'bg-amber-600 text-white hover:bg-amber-700 shadow-md'
-                  }`}
-                >
-                  {t.shareConfirmBtn || (language === 'fa' ? 'اطمینان دارم، اشتراک‌گذاری' : 'I Trust, Share')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowShareConfirm(false);
-                    setSharePendingContent('');
-                  }}
-                  className={`flex-1 py-3 px-4 rounded-2xl text-xs font-black uppercase tracking-wider border transition-all duration-200 active:scale-[0.98] ${
-                    isDarkMode
-                      ? 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                      : 'border-zinc-200 bg-zinc-50 text-zinc-600 hover:text-zinc-800 hover:bg-zinc-100'
-                  }`}
-                >
-                  {t.cancel || (language === 'fa' ? 'کنسل' : 'Cancel')}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Share Confirmation Modal */}
+      <ShareConfirmModal
+        isOpen={showShareConfirm}
+        onClose={() => {
+          setShowShareConfirm(false);
+          setSharePendingContent('');
+        }}
+        sharePendingContent={sharePendingContent}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+        setStatus={setStatus}
+      />
 
       {/* Floating Toast Notification System */}
-      <AnimatePresence>
-        {status && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: 'spring', duration: 0.35, bounce: 0.2 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-sm px-4"
-          >
-            <div 
-              className={`flex items-center gap-3 p-4 rounded-2xl border backdrop-blur-md shadow-2xl ${
-                isDarkMode 
-                  ? 'bg-zinc-900/95 border-white/10 text-zinc-100 shadow-black/40' 
-                  : 'bg-white/95 border-zinc-200 text-zinc-900 shadow-xl'
-              } ${
-                status.type === 'err' 
-                  ? 'border-l-4 border-l-red-500' 
-                  : status.type === 'warn'
-                    ? 'border-l-4 border-l-amber-500'
-                    : 'border-l-4 border-l-emerald-500'
-              }`}
-              dir={language === 'fa' ? 'rtl' : 'ltr'}
-            >
-              {/* Icon */}
-              <div className="shrink-0">
-                {status.type === 'err' ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : status.type === 'warn' ? (
-                  <ShieldAlert className="w-5 h-5 text-amber-500" />
-                ) : (
-                  <Check className="w-5 h-5 text-emerald-500" />
-                )}
-              </div>
-              
-              {/* Text */}
-              <div className="flex-1 text-[10px] font-black uppercase tracking-widest leading-relaxed">
-                {status.msg.replace(/^([❌⚠️🔒✅📋🛡️]|\ud83c[\udf00-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\udd00-\udfff])\s*/, '').trim()}
-              </div>
-
-              {/* Close Button */}
-              <button 
-                onClick={() => setStatus(null)}
-                className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                  isDarkMode 
-                    ? 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5' 
-                    : 'text-zinc-400 hover:text-zinc-650 hover:bg-black/5'
-                }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ToastNotification
+        status={status}
+        onClose={() => setStatus(null)}
+        isDarkMode={isDarkMode}
+        language={language}
+      />
     </div>
   );
 }

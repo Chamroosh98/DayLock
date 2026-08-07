@@ -72,8 +72,8 @@ export const ExplosionOverlay: React.FC = () => {
       const vx = (dx / dist) * radialPush + (Math.random() - 0.5) * 2.0;
       const vy = -1.5 - Math.random() * 3.5; // Upward liftoff velocity
 
-      // Elegant, fine-grained sand size (Telegram style)
-      const size = 0.8 + Math.random() * 1.8;
+      // Elegant, visible sand size (Thanos snap style)
+      const size = 1.5 + Math.random() * 2.5;
       
       // Select from custom theme colors
       const color = effectiveColors[Math.floor(Math.random() * effectiveColors.length)];

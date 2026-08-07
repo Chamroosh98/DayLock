@@ -1,0 +1,84 @@
+import React from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Skull, ShieldAlert } from 'lucide-react';
+import { Language } from '../../types';
+import { localizeDigitsValue } from '../../utils/numberConverter';
+
+interface SelfDestructOverlayProps {
+  isSelfDestructed: boolean;
+  viewData: any;
+  hidesCount: number;
+  language: Language;
+  t: {
+    selfDestructTriggered: string;
+    selfDestructMessage: string;
+    terminateSession: string;
+    hidesRemaining: string;
+  };
+}
+
+export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
+  isSelfDestructed,
+  viewData,
+  hidesCount,
+  language,
+  t,
+}) => {
+  return (
+    <>
+      <AnimatePresence>
+        {isSelfDestructed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-6 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="max-w-md space-y-8"
+            >
+              <div className="relative inline-block">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"
+                />
+                <div className="relative w-24 h-24 bg-red-500 rounded-[32px] flex items-center justify-center shadow-2xl shadow-red-500/50 mx-auto">
+                  <Skull className="w-12 h-12 text-black" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-black uppercase tracking-tighter text-red-500">{t.selfDestructTriggered}</h2>
+                <p className="text-zinc-400 text-sm leading-relaxed font-medium">{t.selfDestructMessage}</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.reload()}
+                className="px-10 py-4 bg-zinc-900 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-all"
+              >
+                {t.terminateSession}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Self-Destruct Counter (Floating) */}
+      <AnimatePresence>
+        {viewData?.self_destruct_hides && !isSelfDestructed && hidesCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-red-500 text-black rounded-full font-black text-xs md:text-sm shadow-2xl shadow-red-500/40 flex items-center gap-3"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            <span>{localizeDigitsValue(viewData.self_destruct_hides - hidesCount, language)} {t.hidesRemaining}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};

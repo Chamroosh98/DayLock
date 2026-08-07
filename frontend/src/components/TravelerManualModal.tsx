@@ -262,7 +262,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                         <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} />
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold uppercase tracking-wider block">
-                            {language === 'en' ? 'Important Security Warning' : 'هشدار امنیتی خعلی مهم'}
+                            {language === 'en' ? 'Important Security Warning' : 'هشدار امنیتی بسیار مهم'}
                           </span>
                           <p className={`text-[10.5px] leading-relaxed ${isRtl ? 'font-vazir' : 'font-sans'}`}>
                             {t.warningText}
@@ -324,7 +324,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                         </div>
                         <div className="space-y-1">
                           <span className={`text-[10px] font-extrabold uppercase tracking-widest block text-amber-500 ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                            {language === 'en' ? '🔥 PRO-SURVIVAL SUGGESTION' : '🔥 تاکتیک دوام حرفه‌ای'}
+                            {language === 'en' ? '🔥 PRO-SURVIVAL SUGGESTION' : '🔥 تاکتیک بقای حرفه‌ای'}
                           </span>
                           <p className={`text-[11px] font-semibold leading-relaxed ${isRtl ? 'font-vazir' : 'font-sans'}`}>
                             {t.steps[activeTab as Exclude<TabType, 'overview' | 'shortcuts'>].tip}
@@ -368,7 +368,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                         <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
                           {language === 'en' 
                             ? 'Boost your secure workflow efficiency in high-pressure or fast-paced situations with instantaneous tactile shortcuts.' 
-                            : 'کارایی جریان کار امن خود را در شرایط حساس یا پرفشار با بهره از کلیدهای میانبر آنی و لمسی افزایش بده.'}
+                            : 'کارایی جریان کار امن خود را در شرایط حساس یا پرفشار با استفاده از کلیدهای میانبر آنی و لمسی ارتقا دهید.'}
                         </p>
                       </div>
 
@@ -387,7 +387,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                           <p className={`text-[11px] font-semibold leading-relaxed ${isRtl ? 'font-vazir' : 'font-sans'}`}>
                             {language === 'en'
                               ? 'Rehearse these hotkeys under calm conditions so that you can invoke them instinctively in high-threat scenarios.'
-                              : 'این کلیدهای میانبر را در شرایط عادی تمرین کنید تا در زمان بازرسی یا شرایط تهدیدآمیز بتونی آن‌ها را به‌صورت غریزی اجرا کنی.'}
+                              : 'این کلیدهای میانبر را در شرایط عادی تمرین کنید تا در زمان تفتیش یا شرایط تهدیدآمیز بتوانید آن‌ها را به‌صورت غریزی اجرا کنید.'}
                           </p>
                         </div>
                       </div>
@@ -465,7 +465,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                             <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
                               {language === 'en' 
                                 ? 'Wipes all local keys, resets the clipboards, and blanks the viewport to white/black.' 
-                                : 'حذف آنی تمام کلیدها، بازنشانی کلیپ‌بورد و سفید/سیاه کردن فوری صفحه برای جلوگیری از دیدن.'}
+                                : 'حذف آنی تمام کلیدها، بازنشانی کلیپ‌بورد و سفید/سیاه کردن فوری صفحه برای ممانعت از دیدن.'}
                             </p>
                           </div>
                           <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">

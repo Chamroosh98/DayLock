@@ -40,6 +40,8 @@ export async function e2eGenKeypair(): Promise<E2EKeypair> {
   };
 }
 
+export const e2eGenerateKeyPair = e2eGenKeypair;
+
 // Encrypt a message using recipient's public key
 export async function e2eEncrypt(recipientPubKeyStr: string, message: string): Promise<E2EEncrypted> {
   const W = getWasm();
