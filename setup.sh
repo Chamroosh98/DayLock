@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -13,12 +12,32 @@ BLUE="\033[34m"
 CYAN="\033[36m"
 YELLOW="\033[33m"
 RED="\033[31m"
+GREY="\033[90m"
 
 log_info()    { echo -e "   ${BLUE}ℹ️${RESET} $1"; }
 log_step()    { echo -e "   ${CYAN}${BOLD}⚙️ $1${RESET}"; }
 log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
 log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
+
+# خروجی دستورات سیستمی: یک تب + خاکستری
+run_quiet() {
+    local desc="$1"
+    shift
+    log_info "$desc"
+    local tmp ec=0
+    tmp=$(mktemp)
+    if "$@" >"$tmp" 2>&1; then
+        ec=0
+    else
+        ec=$?
+    fi
+    while IFS= read -r line || [ -n "$line" ]; do
+        printf "\t${GREY}%s${RESET}\n" "$line"
+    done <"$tmp"
+    rm -f "$tmp"
+    return $ec
+}
 
 
 # ── Step 1: Toolchain Validation ──
@@ -52,9 +71,7 @@ if [ "$AUTH_MODE" = "2" ]; then
     log_info "API Token permissions required: Workers Scripts Edit + Workers KV Storage Edit"
     log_info "Generate token at: https://dash.cloudflare.com/profile/api-tokens"
     echo ""
-    # Secure silent input (-s) for token to prevent plaintext leakage in terminal logs
     read -r -p "   👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
-
     echo ""
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
         log_error "API Token cannot be empty! Aborting deployment!"
@@ -127,7 +144,7 @@ create_or_find_kv() {
     log_info "Creating ${NAME}..." >&2
     OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
     while IFS= read -r line; do
-        [ -n "$line" ] && log_info "  $line" >&2
+        [ -n "$line" ] && printf "\t${GREY}%s${RESET}\n" "$line" >&2
     done <<< "$OUT"
 
     ID=$(echo "$OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
@@ -164,10 +181,8 @@ log_success "wrangler.toml ready — deploy continues even if KVs already existe
 cd "$ROOT"
 log_step "Building Frontend Assets (Bun + Vite)"
 cd frontend
-log_info "Installing dependencies with Bun ..."
-bun install
-log_info "Building production bundle with Vite ..."
-bun run build
+run_quiet "Installing dependencies with Bun ..." bun install
+run_quiet "Building production bundle with Vite ..." bun run build
 log_success "Frontend assets built into -> frontend/dist."
 
 
@@ -176,7 +191,8 @@ cd "$ROOT"
 log_step "Compiling WebAssembly Core Module (Rust)"
 log_info "Output directory: frontend/dist/pkg"
 cd backend/wasm
-wasm-pack build --release --target web --out-dir ../../frontend/dist/pkg
+run_quiet "Running wasm-pack build ..." \
+    wasm-pack build --release --target web --out-dir ../../frontend/dist/pkg
 log_success "WASM binary compiled and optimized successfully :)"
 
 
@@ -184,8 +200,7 @@ log_success "WASM binary compiled and optimized successfully :)"
 cd "$ROOT"
 log_step "Deploying Application to Cloudflare Edge Network"
 cd backend/worker
-log_info "Executing wrangler deploy ..."
-wrangler deploy
+run_quiet "Executing wrangler deploy ..." wrangler deploy
 
 log_step "Deployment Completed Successfully!"
 log_success "DayLock service is now live on Cloudflare Workers."
