@@ -88,7 +88,7 @@ chmod +x setup.sh
 4. **🏗️ Build Chain** — Compiles frontend -> packages WASM into `frontend/dist/pkg`.
 5. **🌐 Deploy** — Publishes Worker API and static assets to Cloudflare Edge.
 
-> 🎉 **All set!** At the end of execution, you'll receive your live URL :
+🎉 **All set!** At the end of execution, you'll receive your live URL :
 
 > `https://daylock.<subdomain>.workers.dev`
 

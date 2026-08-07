@@ -86,11 +86,13 @@ log_step "Provisioning / Verifying KV Namespaces on Cloudflare"
 
 create_or_find_kv() {
     local NAME="$1"
-    local OUT ID
+    local OUT ID LIST_OUT
 
-    log_info "KV namespace: ${NAME}"
+    log_info "KV namespace: ${NAME}" >&2
     OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
-    echo "$OUT" | while IFS= read -r line; do log_info "  $line"; done || true
+    while IFS= read -r line; do
+        [ -n "$line" ] && log_info "  $line" >&2
+    done <<< "$OUT"
 
     ID=$(echo "$OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
     if [ -z "$ID" ]; then
@@ -98,25 +100,22 @@ create_or_find_kv() {
     fi
 
     if [ -z "$ID" ]; then
-        log_warn "${NAME} already exists (or create failed) — resolving via list..."
-        local LIST_OUT
+        log_warn "${NAME} already exists (or create failed) — resolving via list..." >&2
         LIST_OUT=$(wrangler kv namespace list 2>&1) || true
-        ID=$(echo "$LIST_OUT" | grep -i "\"${NAME}\"" | grep -oE '[a-f0-9]{32}' | head -1 || true)
-        if [ -z "$ID" ]; then
         ID=$(echo "$LIST_OUT" | grep -i "${NAME}" | grep -oE '[a-f0-9]{32}' | head -1 || true)
-        fi
     else
-        log_success "Created ${NAME}"
+        log_success "Created ${NAME}" >&2
     fi
 
     if [ -z "$ID" ]; then
-        log_error "Could not resolve ID for ${NAME}"
-        log_info "create output: $OUT"
+        log_error "Could not resolve ID for ${NAME}" >&2
+        log_info "create output: $OUT" >&2
         return 1
     fi
 
-    log_success "${NAME} ID -> ${ID}"
-    echo "$ID"
+    log_success "${NAME} ID -> ${ID}" >&2
+
+    printf '%s\n' "$ID"
 }
 
 RATE_ID=$(create_or_find_kv "RATE_LIMIT_KV") || exit 1
