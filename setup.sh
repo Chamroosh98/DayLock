@@ -84,11 +84,47 @@ fi
 # ── Step 3: KV Namespace Resolution & Injection ──
 log_step "Provisioning / Verifying KV Namespaces on Cloudflare"
 
+resolve_kv_id_from_list() {
+    local NAME="$1"
+    local LIST_OUT
+    LIST_OUT=$(wrangler kv namespace list 2>&1) || true
+
+    local ID
+    ID=$(printf '%s' "$LIST_OUT" | bun -e '
+        const name = process.argv[1];
+        const raw = await Bun.stdin.text();
+        const start = raw.indexOf("[");
+        const end = raw.lastIndexOf("]") + 1;
+        if (start < 0 || end <= start) process.exit(1);
+        let data;
+        try { data = JSON.parse(raw.slice(start, end)); }
+        catch { process.exit(1); }
+        const hit = data.find(x => x.title === name);
+        if (!hit || !hit.id) process.exit(1);
+        process.stdout.write(hit.id);
+    ' "$NAME" 2>/dev/null) || true
+
+    if [ -z "$ID" ]; then
+        ID=$(printf '%s' "$LIST_OUT" | tr '{' '\n' | grep -F "$NAME" | grep -oE '[a-f0-9]{32}' | head -1 || true)
+    fi
+    printf '%s' "$ID"
+}
+
 create_or_find_kv() {
     local NAME="$1"
-    local OUT ID LIST_OUT
+    local OUT ID
 
     log_info "KV namespace: ${NAME}" >&2
+
+    ID=$(resolve_kv_id_from_list "$NAME" || true)
+    if [ -n "$ID" ]; then
+        log_warn "${NAME} already exists — reusing it." >&2
+        log_success "${NAME} ID -> ${ID}" >&2
+        printf '%s\n' "$ID"
+        return 0
+    fi
+
+    log_info "Creating ${NAME}..." >&2
     OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
     while IFS= read -r line; do
         [ -n "$line" ] && log_info "  $line" >&2
@@ -98,13 +134,8 @@ create_or_find_kv() {
     if [ -z "$ID" ]; then
         ID=$(echo "$OUT" | grep -oE '[a-f0-9]{32}' | head -1 || true)
     fi
-
     if [ -z "$ID" ]; then
-        log_warn "${NAME} already exists (or create failed) — resolving via list..." >&2
-        LIST_OUT=$(wrangler kv namespace list 2>&1) || true
-        ID=$(echo "$LIST_OUT" | grep -i "${NAME}" | grep -oE '[a-f0-9]{32}' | head -1 || true)
-    else
-        log_success "Created ${NAME}" >&2
+        ID=$(resolve_kv_id_from_list "$NAME" || true)
     fi
 
     if [ -z "$ID" ]; then
@@ -113,8 +144,7 @@ create_or_find_kv() {
         return 1
     fi
 
-    log_success "${NAME} ID -> ${ID}" >&2
-
+    log_success "Created ${NAME} ID -> ${ID}" >&2
     printf '%s\n' "$ID"
 }
 
@@ -127,7 +157,7 @@ sed \
     -e "s/REPLACE_WITH_PASTE_KV_ID/$PASTE_ID/" \
     wrangler.toml.example > wrangler.toml
 
-log_success "wrangler.toml ready — continuing deploy even if KVs already existed."
+log_success "wrangler.toml ready — deploy continues even if KVs already existed."
 
 
 # ── Step 4: Frontend Packaging  ──
