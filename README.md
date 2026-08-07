@@ -9,7 +9,7 @@
 </div>
 
 <p align="center">
-  <strong>🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026 (18-19 Dey 1404)</strong>
+  <strong>🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026 (18-19 Day 1404)</strong>
 </p>
 
 ---
@@ -22,7 +22,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-E57300?style=for-the-badge&logo=rust&logoColor=white" alt="Rust"></a>
   <a href="https://bun.sh/"><img src="https://img.shields.io/badge/Bun-FBF0DF?style=for-the-badge&logo=bun&logoColor=black" alt="Bun"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
-  <a href="https://github.com/Chamroosh98/DayLock/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a>
+  <!-- <a href="https://github.com/Chamroosh98/DayLock/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License"></a> -->
 </p>
 
 **DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
