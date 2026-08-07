@@ -27,4 +27,3 @@ backend/worker/wrangler.toml
 backend/worker/Cargo.lock
 backend/worker/.gitignore
 
-.playwright-cli
