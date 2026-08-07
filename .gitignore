@@ -15,9 +15,16 @@ frontend/package.json
 frontend/package-lock.json
 frontend/README.md
 
-backend/worker/pkg/
-backend/worker/build/
 backend/wasm/target/
+backend/wasm/Cargo.lock
+backend/wasm/.gitignore
+
+backend/worker/.wrangler/
+backend/worker/build/
+backend/worker/pkg/
 backend/worker/target/
 backend/worker/wrangler.toml
-backend/worker/.wrangler/
+backend/worker/Cargo.lock
+backend/worker/.gitignore
+
+.playwright-cli
