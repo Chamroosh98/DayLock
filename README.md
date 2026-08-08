@@ -29,11 +29,16 @@
 
 - [✨ Features](#-features)
 - [🛠️ Prerequisites \& Requirements](#️-prerequisites--requirements)
+- [⬆ Back to Top](#-back-to-top)
 - [🚀 Deployment Options](#-deployment-options)
   - [Option 1 : Automated CLI Wizard (Recommended)](#option-1--automated-cli-wizard-recommended)
+- [⬆ Back to Top](#-back-to-top-1)
   - [Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)](#option-2--cloudflare-dashboard--git-integration-manual-deployment)
+- [⬆ Back to Top](#-back-to-top-2)
 - [🔑 API Token Setup *(Optional)*](#-api-token-setup-optional)
+- [⬆ Back to Top](#-back-to-top-3)
 - [💾 Add Backblaze B2 Storage *(Optional)*](#-add-backblaze-b2-storage-optional)
+- [⬆ Back to Top](#-back-to-top-4)
 - [🏗️ Architecture Flow](#️-architecture-flow)
 
 ---
@@ -46,6 +51,8 @@
 - 🛡️ **Built-in Rate Limiting :** Automated IP/Fingerprint rate-limiting leveraging Cloudflare KV.
 - 🎨 **Modern Minimalist UI :** Built with React 19, Vite, and Tailwind CSS.
 - 🚀 **Automated One-Step Setup :** Interactive CLI wizard (`setup.sh`) for seamless local setup & edge deployment.
+
+[⬆ Back to Top](#daylock)
 
 ---
 
@@ -61,6 +68,7 @@ Ensure the following toolchain is installed on your local environment if you cho
 | **[Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)** | `v3.0+` | Cloudflare Workers deployment tool |
 | **Cloudflare Account** | Free Tier | Cloudflare Workers & KV Storage host |
 
+[⬆ Back to Top](#daylock)
 ---
 
 ## 🚀 Deployment Options
@@ -92,6 +100,7 @@ chmod +x setup.sh
 
 > `https://daylock.<subdomain>.workers.dev`
 
+[⬆ Back to Top](#daylock)
 ---
 
 ### Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)
@@ -117,6 +126,7 @@ If you don't have local CLI access or prefer deploying directly via Cloudflare's
 
 7. Click **Save and Deploy**.
 
+[⬆ Back to Top](#daylock)
 ---
 
 ## 🔑 API Token Setup *(Optional)*
@@ -131,6 +141,7 @@ Select the **Edit Cloudflare Workers** template, or manually grant the following
 
 > 💡 **Note:** `Account ID` is optional — only required if your key manages multiple Cloudflare accounts.
 
+[⬆ Back to Top](#daylock)
 ---
 
 ## 💾 Add Backblaze B2 Storage *(Optional)*
@@ -143,6 +154,7 @@ wrangler secret put B2_KEY_ID
 wrangler secret put B2_APP_KEY
 
 ```
+[⬆ Back to Top](#daylock)
 ---
 
 ## 🏗️ Architecture Flow
@@ -165,3 +177,4 @@ Cloudflare KV Storage
   └── DAYLOCK_RATE_LIMIT_KV
 
 ```
+[⬆ Back to Top](#daylock)
