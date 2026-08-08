@@ -13,6 +13,7 @@
 </p>
 
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 <p align="center">
   <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.0.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
@@ -29,16 +30,11 @@
 
 - [✨ Features](#-features)
 - [🛠️ Prerequisites \& Requirements](#️-prerequisites--requirements)
-- [⬆ Back to Top](#-back-to-top)
 - [🚀 Deployment Options](#-deployment-options)
   - [Option 1 : Automated CLI Wizard (Recommended)](#option-1--automated-cli-wizard-recommended)
-- [⬆ Back to Top](#-back-to-top-1)
   - [Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)](#option-2--cloudflare-dashboard--git-integration-manual-deployment)
-- [⬆ Back to Top](#-back-to-top-2)
 - [🔑 API Token Setup *(Optional)*](#-api-token-setup-optional)
-- [⬆ Back to Top](#-back-to-top-3)
 - [💾 Add Backblaze B2 Storage *(Optional)*](#-add-backblaze-b2-storage-optional)
-- [⬆ Back to Top](#-back-to-top-4)
 - [🏗️ Architecture Flow](#️-architecture-flow)
 
 ---
@@ -52,24 +48,26 @@
 - 🎨 **Modern Minimalist UI :** Built with React 19, Vite, and Tailwind CSS.
 - 🚀 **Automated One-Step Setup :** Interactive CLI wizard (`setup.sh`) for seamless local setup & edge deployment.
 
-[⬆ Back to Top](#daylock)
-
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ## 🛠️ Prerequisites & Requirements
 
 Ensure the following toolchain is installed on your local environment if you choose CLI deployment :
 
 | Tool | Recommended Version | Purpose |
-| :--- | :--- | :--- |
+| :---
+<a href="#daylock">⬆ Back to Top</a> | :---
+<a href="#daylock">⬆ Back to Top</a> | :---
+<a href="#daylock">⬆ Back to Top</a> |
 | **[Rust](https://rustup.rs/)** | `stable` | WebAssembly crypto kernel compilation |
 | **[wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)** | `latest` | Rust to WASM bridge & optimization |
 | **[Bun](https://bun.sh/)** | `v1.0+` | Ultra-fast JS runtime & package manager |
 | **[Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)** | `v3.0+` | Cloudflare Workers deployment tool |
 | **Cloudflare Account** | Free Tier | Cloudflare Workers & KV Storage host |
 
-[⬆ Back to Top](#daylock)
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ## 🚀 Deployment Options
 
@@ -100,8 +98,8 @@ chmod +x setup.sh
 
 > `https://daylock.<subdomain>.workers.dev`
 
-[⬆ Back to Top](#daylock)
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ### Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)
 
@@ -126,8 +124,8 @@ If you don't have local CLI access or prefer deploying directly via Cloudflare's
 
 7. Click **Save and Deploy**.
 
-[⬆ Back to Top](#daylock)
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ## 🔑 API Token Setup *(Optional)*
 
@@ -141,8 +139,8 @@ Select the **Edit Cloudflare Workers** template, or manually grant the following
 
 > 💡 **Note:** `Account ID` is optional — only required if your key manages multiple Cloudflare accounts.
 
-[⬆ Back to Top](#daylock)
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ## 💾 Add Backblaze B2 Storage *(Optional)*
 
@@ -154,8 +152,8 @@ wrangler secret put B2_KEY_ID
 wrangler secret put B2_APP_KEY
 
 ```
-[⬆ Back to Top](#daylock)
 ---
+<a href="#daylock">⬆ Back to Top</a>
 
 ## 🏗️ Architecture Flow
 
@@ -177,4 +175,5 @@ Cloudflare KV Storage
   └── DAYLOCK_RATE_LIMIT_KV
 
 ```
-[⬆ Back to Top](#daylock)
+
+<a href="#daylock">⬆ Back to Top</a>
