@@ -150,7 +150,7 @@ pub async fn create(mut req: Request, env: &Env, ip: &str) -> Result<Response> {
         has_decoy,
     };
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
     let json = serde_json::to_string(&paste)
         .map_err(|e| worker::Error::RustError(e.to_string()))?;
 
@@ -176,7 +176,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
             .map(|r| r.with_status(400));
     }
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
 
     let raw = match kv.get(id).text().await? {
         Some(v) => v,
@@ -359,7 +359,7 @@ pub async fn delete(id: &str, env: &Env, ip: &str) -> Result<Response> {
             .map(|r| r.with_status(400));
     }
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
 
     match kv.get(id).text().await? {
         None => {
@@ -390,7 +390,7 @@ pub async fn add_e2e_message(id: &str, mut req: Request, env: &Env) -> Result<Re
     let body: E2EPayload = req.json().await
         .map_err(|_| worker::Error::RustError("❌ [worker handlers ERROR in paste.rs] Invalid body!".to_string()))?;
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
     let raw = match kv.get(id).text().await? {
         Some(v) => v,
         None => return Response::from_json(&ErrorResponse::new("❌ [worker handlers ERROR in paste.rs] Channel not found!"))

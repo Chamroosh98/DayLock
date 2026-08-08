@@ -12,7 +12,7 @@ const FILE_PREFIX:  &str = "/api/file/";
 
 #[event(fetch)]
 async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
-    let rate_kv = env.kv("RATE_LIMIT_KV")?;
+    let rate_kv = env.kv("DAYLOCK_RATE_LIMIT_KV")?;
     let path = req.path();
 
     let ip = req.headers().get("CF-Connecting-IP")?

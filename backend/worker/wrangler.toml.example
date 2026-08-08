@@ -7,12 +7,12 @@ compatibility_date = "2026-02-22"
 command = "cargo install -q worker-build && worker-build --release"
 
 [[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "REPLACE_WITH_RATE_LIMIT_KV_ID"
+binding = "DAYLOCK_RATE_LIMIT_KV"
+id = "REPLACE_WITH_DAYLOCK_RATE_LIMIT_KV_ID"
 
 [[kv_namespaces]]
-binding = "PASTE_KV"
-id = "REPLACE_WITH_PASTE_KV_ID"
+binding = "DAYLOCK_PASTE_KV"
+id = "REPLACE_WITH_DAYLOCK_PASTE_KV_ID"
 
 [assets]
 directory = "../../frontend/dist"

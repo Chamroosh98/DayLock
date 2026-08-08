@@ -20,7 +20,6 @@ log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
 log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
 
-# خروجی دستورات سیستمی: یک تب + خاکستری
 run_quiet() {
     local desc="$1"
     shift
@@ -69,7 +68,7 @@ AUTH_MODE="${AUTH_MODE:-1}"
 if [ "$AUTH_MODE" = "2" ]; then
     echo ""
     log_info "API Token permissions required: Workers Scripts Edit + Workers KV Storage Edit"
-    log_info "Generate token at: https://dash.cloudflare.com/profile/api-tokens"
+    log_info "Generate token at : https://dash.cloudflare.com/profile/api-tokens"
     echo ""
     read -r -p "   👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
     echo ""
@@ -131,7 +130,7 @@ create_or_find_kv() {
     local NAME="$1"
     local OUT ID
 
-    log_info "KV namespace: ${NAME}" >&2
+    log_info "KV namespace : ${NAME}" >&2
 
     ID=$(resolve_kv_id_from_list "$NAME" || true)
     if [ -n "$ID" ]; then
@@ -141,7 +140,7 @@ create_or_find_kv() {
         return 0
     fi
 
-    log_info "Creating ${NAME}..." >&2
+    log_info "Creating ${NAME} ..." >&2
     OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
     while IFS= read -r line; do
         [ -n "$line" ] && printf "\t${GREY}%s${RESET}\n" "$line" >&2
@@ -157,7 +156,7 @@ create_or_find_kv() {
 
     if [ -z "$ID" ]; then
         log_error "Could not resolve ID for ${NAME}" >&2
-        log_info "create output: $OUT" >&2
+        log_info "create output : $OUT" >&2
         return 1
     fi
 
@@ -165,16 +164,16 @@ create_or_find_kv() {
     printf '%s\n' "$ID"
 }
 
-RATE_ID=$(create_or_find_kv "RATE_LIMIT_KV") || exit 1
-PASTE_ID=$(create_or_find_kv "PASTE_KV") || exit 1
+RATE_ID=$(create_or_find_kv "DAYLOCK_RATE_LIMIT_KV") || exit 1
+PASTE_ID=$(create_or_find_kv "DAYLOCK_PASTE_KV") || exit 1
 
 log_info "Generating wrangler.toml from wrangler.toml.example ..."
 sed \
-    -e "s/REPLACE_WITH_RATE_LIMIT_KV_ID/$RATE_ID/" \
-    -e "s/REPLACE_WITH_PASTE_KV_ID/$PASTE_ID/" \
+    -e "s/REPLACE_WITH_DAYLOCK_RATE_LIMIT_KV_ID/$RATE_ID/" \
+    -e "s/REPLACE_WITH_DAYLOCK_PASTE_KV_ID/$PASTE_ID/" \
     wrangler.toml.example > wrangler.toml
 
-log_success "wrangler.toml ready — deploy continues even if KVs already existed."
+log_success "wrangler.toml ready — deploy continues even if KVs already existed!"
 
 
 # ── Step 4: Frontend Packaging  ──

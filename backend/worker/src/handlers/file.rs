@@ -74,7 +74,7 @@ pub async fn upload(mut req: Request, env: &Env, ip: &str) -> Result<Response> {
         },
     };
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
     let meta_json = serde_json::to_string(&meta)
         .map_err(|e| worker::Error::RustError(e.to_string()))?;
 
@@ -96,7 +96,7 @@ pub async fn download(id: &str, env: &Env, ip: &str) -> Result<Response> {
             .map(|r| r.with_status(400));
     }
 
-    let kv = env.kv("PASTE_KV")?;
+    let kv = env.kv("DAYLOCK_PASTE_KV")?;
     let meta_key = format!("file:{}", id);
 
     let raw = match kv.get(&meta_key).text().await? {
