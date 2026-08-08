@@ -13,7 +13,6 @@
 </p>
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 <p align="center">
   <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.0.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
@@ -49,17 +48,13 @@
 - 🚀 **Automated One-Step Setup :** Interactive CLI wizard (`setup.sh`) for seamless local setup & edge deployment.
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ## 🛠️ Prerequisites & Requirements
 
 Ensure the following toolchain is installed on your local environment if you choose CLI deployment :
 
 | Tool | Recommended Version | Purpose |
-| :---
-<a href="#daylock">⬆ Back to Top</a> | :---
-<a href="#daylock">⬆ Back to Top</a> | :---
-<a href="#daylock">⬆ Back to Top</a> |
+| :--- | :--- | :--- |
 | **[Rust](https://rustup.rs/)** | `stable` | WebAssembly crypto kernel compilation |
 | **[wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)** | `latest` | Rust to WASM bridge & optimization |
 | **[Bun](https://bun.sh/)** | `v1.0+` | Ultra-fast JS runtime & package manager |
@@ -67,7 +62,6 @@ Ensure the following toolchain is installed on your local environment if you cho
 | **Cloudflare Account** | Free Tier | Cloudflare Workers & KV Storage host |
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ## 🚀 Deployment Options
 
@@ -99,7 +93,6 @@ chmod +x setup.sh
 > `https://daylock.<subdomain>.workers.dev`
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ### Option 2 : Cloudflare Dashboard / Git Integration (Manual Deployment)
 
@@ -125,7 +118,6 @@ If you don't have local CLI access or prefer deploying directly via Cloudflare's
 7. Click **Save and Deploy**.
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ## 🔑 API Token Setup *(Optional)*
 
@@ -140,7 +132,6 @@ Select the **Edit Cloudflare Workers** template, or manually grant the following
 > 💡 **Note:** `Account ID` is optional — only required if your key manages multiple Cloudflare accounts.
 
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ## 💾 Add Backblaze B2 Storage *(Optional)*
 
@@ -153,7 +144,6 @@ wrangler secret put B2_APP_KEY
 
 ```
 ---
-<a href="#daylock">⬆ Back to Top</a>
 
 ## 🏗️ Architecture Flow
 
@@ -175,5 +165,3 @@ Cloudflare KV Storage
   └── DAYLOCK_RATE_LIMIT_KV
 
 ```
-
-<a href="#daylock">⬆ Back to Top</a>
