@@ -22,6 +22,12 @@
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
 </p>
 
+<p align="center">
+  <a href="../../README.md"><strong>English Guide</strong></a>
+</p>
+
+---
+
 - [🚀 ابزار DayLock چیه؟](#-ابزار-daylock-چیه)
 - [✨ قابلیت‌ها و ویژگی‌ها](#-قابلیت‌ها-و-ویژگی‌ها)
 - [🛠️ پیش‌نیازها و ابزارهای مورد نیاز](#️-پیش‌نیازها-و-ابزارهای-مورد-نیاز)

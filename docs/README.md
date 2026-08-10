@@ -21,6 +21,12 @@
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
 </p>
 
+<p align="center">
+  <a href="i18n/README_Fa.md"><strong>🦁☀️ راهنمای پارسی</strong></a>
+</p>
+
+---
+
 - [🚀 What is DayLock?](#-what-is-daylock)
 - [✨ Features](#-features)
 - [🛠️ Prerequisites \& Requirements](#️-prerequisites--requirements)
