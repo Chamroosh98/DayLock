@@ -1,7 +1,7 @@
 
 
 <div align="center">
-  <img src="../../frontend/public/daylock.svg" alt="DayLock Logo" width="87" height="87" style="vertical-align: middle; margin-right: 8px;">
+  <img src="../../frontend/public/daylock.svg" alt="DayLock Logo" width="107" height="107" style="vertical-align: middle; margin-right: 8px;">
   <h1>
     <span style="vertical-align: middle;">DayLock</span>
   </h1>
