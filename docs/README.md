@@ -2,7 +2,7 @@
 <br>
 
 <div align="center">
-  <img src="frontend/public/dl.svg" alt="DayLock Logo" width="77" height="77" style="vertical-align: middle; margin-right: 8px;">
+  <img src="frontend/public/daylock.svg" alt="DayLock Logo" width="77" height="77" style="vertical-align: middle; margin-right: 8px;">
   <h1>
     <span style="vertical-align: middle;">DayLock</span>
   </h1>
@@ -23,10 +23,7 @@
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
 </p>
 
-**DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
-
----
-
+- [🚀 What is DayLock?](#-what-is-daylock)
 - [✨ Features](#-features)
 - [🛠️ Prerequisites \& Requirements](#️-prerequisites--requirements)
 - [🚀 Deployment Options](#-deployment-options)
@@ -35,6 +32,11 @@
 - [🔑 API Token Setup *(Optional)*](#-api-token-setup-optional)
 - [💾 Add Backblaze B2 Storage *(Optional)*](#-add-backblaze-b2-storage-optional)
 - [🏗️ Architecture Flow](#️-architecture-flow)
+
+
+## 🚀 What is DayLock?
+
+**DayLock** is an open-source, client-side encrypted paste service. Plaintext data and decryption keys **never** reach the server or Cloudflare network. Encryption and key derivation happen entirely within your browser via high-performance Rust WebAssembly (WASM).
 
 ---
 
@@ -163,5 +165,4 @@ Cloudflare Worker (Edge API)
 Cloudflare KV Storage
   ├── DAYLOCK_PASTE_KV
   └── DAYLOCK_RATE_LIMIT_KV
-
 ```

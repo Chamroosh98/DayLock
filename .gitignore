@@ -1,7 +1,6 @@
 
 temp/
 test/ 
-docs/
 .directory
 .git/
 *.log
