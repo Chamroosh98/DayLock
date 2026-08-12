@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-pub const MAX_PASTE_SIZE: usize = 512 * 1024;
+pub const MAX_PASTE_SIZE: usize = 10 * 1024 * 1024; // 10_485_760 bytes == 10 MB
 pub const MAX_TTL: u64 = 30 * 24 * 3600;
 pub const MIN_TTL: u64 = 3600;
 

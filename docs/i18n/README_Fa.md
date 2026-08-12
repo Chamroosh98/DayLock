@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.0.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
-  <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers"></a>
+  <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>
   <a href="https://bun.sh/"><img src="https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=FBF0DF" alt="Bun"></a>
@@ -125,10 +125,7 @@ chmod +x setup.sh
 * `DAYLOCK_RATE_LIMIT_KV`
 * `DAYLOCK_PASTE_KV`
 
-
-
-
-۶. **ست کردن بایدینگ ها (Bindings):**
+۶. **ست کردن بایدینگ ها (Bindings) :**
 * توی تنظیمات پروژه 
 
 (**Settings** -> **Functions** / **Bindings** -> **KV Namespace Bindings**)
@@ -142,7 +139,9 @@ chmod +x setup.sh
 
 ## 🔑 تنظیمات API Token کلودفلر (اختیاری)
 
-اگه موقع اجرای اسکریپتCLI دوست نداری با لاگین مرورگر احراز هویت کنی، می‌تونی یه توکن از بخش [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) بسازی.
+اگه هنگام اجرای اسکریپت CLI دوست نداری با لاگین در مرورگر احراز هویت کنی، می‌تونی یه توکن از لینک زیر بسازی :
+
+☁️ [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
 
 قالب **Edit Cloudflare Workers** رو انتخاب کن یا دسترسی‌های زیر رو بهش بده:
 
@@ -169,14 +168,14 @@ wrangler secret put B2_APP_KEY
 
 ## 🏗️ معماری داده‌ها (Architecture Flow)
 
-جریان داده‌ها طوری طراحی شده که امنیت و حریم‌خصوصی بدون دسترسی سرور، تضمین بشه! یعنی کل دیتا **فقط و فقط** داخل مرورگر کاربر می‌مونن!
+جریان داده‌ها طوری طراحی شده که امنیت و حریم‌خصوصی بدون دسترسی سرور، تضمین بشه! یعنی کل دیتا **تنها** داخل مرورگر کاربر می‌مونن!
 
 ```text
 مرورگر کاربر (Browser Client)
   ├── رابط کاربری (React 19 Static Assets)
   └── هسته رمزنگاری (Rust/WASM - Encrypt & Decrypt)
         │
-        ▼  [فقط داده‌های رمزنگاری‌شده / Ciphertext]
+        ▼  [تنها داده‌های رمزنگاری‌شده / Ciphertext]
 ورکر کلودفلر (Cloudflare Worker API)
   ├── /api/*  
   └── /*     

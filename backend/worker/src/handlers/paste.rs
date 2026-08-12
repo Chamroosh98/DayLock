@@ -190,7 +190,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
     let mut paste: PasteStore = serde_json::from_str(&raw)
         .map_err(|e| worker::Error::RustError(e.to_string()))?;
 
-    // ──  انقضا ──
+    // ──  Expire ──
     let now = Date::now().as_millis() / 1000;
     if now >= paste.expires_at {
         let _ = kv.delete(id).await;
@@ -235,7 +235,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
         dms::DeadMansResult::Alive | dms::DeadMansResult::Disabled => {}
     }
 
-    // ──  Geo-Lock — قبل از increment views ──
+    // ──  Geo-Lock — before increment views ──
     match geo_lock::check(req, &paste.allowed_countries) {
         geo_lock::GeoCheckResult::Blocked { country, allowed } => {
             worker::console_log!(
@@ -253,7 +253,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
             }).map(|r| r.with_status(403));
         }
         geo_lock::GeoCheckResult::UnknownCountry => {
-            // اگه Geo-Lock فعاله و کشور ناشناسه → بلاک
+            // if Geo-Lock is blocked
             if paste.allowed_countries.as_ref().map_or(false, |l| !l.is_empty()) {
                 worker::console_log!("📂 [worker log in paste.rs] [GEO-LOCK] unknown country, blocking id={}", id);
                 return Response::from_json(&GeoBlockedResponse {
@@ -352,7 +352,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
     })
 }
 
-/// حذف paste — برای Self-Destruct on Screenshot
+/// remove paste — for Self-Destruct on Screenshot
 pub async fn delete(id: &str, env: &Env, ip: &str) -> Result<Response> {
     if !is_valid_id(id) {
         return Response::from_json(&ErrorResponse::new("❌ [worker handlers ERROR in paste.rs] The ID is invalid!"))
@@ -377,7 +377,7 @@ pub async fn delete(id: &str, env: &Env, ip: &str) -> Result<Response> {
     }
 }
 
-/// اضافه کردن پیام E2E به channel
+/// Add E2E into channel
 pub async fn add_e2e_message(id: &str, mut req: Request, env: &Env) -> Result<Response> {
     if !is_valid_id(id) {
         return Response::from_json(&ErrorResponse::new("❌ [worker handlers ERROR in paste.rs] The ID is invalid!"))
