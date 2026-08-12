@@ -175,7 +175,7 @@ async function startServer() {
         canary_url, unlock_at, self_destruct_hides, self_destruct_triggers,
         block_asns, allow_asns, is_e2e_channel, e2e_public_key,
         // Pre-encrypted variables:
-        is_pre_encrypted, iv, salt: clientSalt,
+        is_pre_encrypted, is_wasm_encrypted, custom_id, iv, salt: clientSalt,
         honey_iv, honey_salt: clientHoneySalt,
         has_decoy, decoy_content
       } = req.body;
@@ -191,8 +191,10 @@ async function startServer() {
       let encResult = { data: "", iv: "" };
       let finalSalt = "";
 
+      const isPreEncrypted = Boolean(is_pre_encrypted || is_wasm_encrypted);
+
       if (!is_e2e_channel) {
-        if (is_pre_encrypted) {
+        if (isPreEncrypted) {
           const normData = Array.isArray(data) ? Buffer.from(data).toString("base64") : (data || "");
           const normIv = Array.isArray(iv) ? Buffer.from(iv).toString("base64") : (iv || "");
           const normSalt = Array.isArray(clientSalt) ? Buffer.from(clientSalt).toString("base64") : (clientSalt || "");
@@ -268,7 +270,7 @@ async function startServer() {
         allow_asns: allow_asns ? JSON.stringify(allow_asns) : null,
         is_e2e_channel: is_e2e_channel ? 1 : 0,
         e2e_public_key: e2e_public_key || null,
-        is_pre_encrypted: is_pre_encrypted ? 1 : 0,
+        is_pre_encrypted: isPreEncrypted ? 1 : 0,
         has_decoy: has_decoy ? 1 : 0,
         decoy_content: decoy_content || null
       };

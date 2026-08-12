@@ -313,7 +313,8 @@ export function useCreateForm({
           block_asns: hasAsnLock && asnMode === 'block' && asnSelected ? asnSelected.split(',').map(s => s.trim()).filter(Boolean) : null,
           allow_asns: hasAsnLock && asnMode === 'allow' && asnSelected ? asnSelected.split(',').map(s => s.trim()).filter(Boolean) : null,
           custom_id: cid,
-          is_wasm_encrypted: true
+          is_wasm_encrypted: true,
+          is_pre_encrypted: true
         };
 
         const res = await fetch('/api/paste', {
