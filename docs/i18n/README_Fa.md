@@ -1,7 +1,7 @@
 
 
 <div align="center">
-  <img src="../../frontend/public/daylock.svg" alt="DayLock Logo" width="107" height="107" style="vertical-align: middle; margin-right: 8px;">
+  <img src="../../frontend/public/dl.svg" alt="DayLock Logo" width="107" height="107" style="vertical-align: middle; margin-right: 8px;">
   <h1>
     <span style="vertical-align: middle;">DayLock</span>
   </h1>
@@ -96,7 +96,7 @@ chmod +x setup.sh
 
 **⚙️ کانفیگ خودکار** — فایل `backend/worker/wrangler.toml` رو با ID های اختصاصی دیتابیس‌هایت رندر می‌کنه.
 
-**🏗️ زنجیره بیلد** — فرانت‌اند رو بیلد می‌کنه و پکیج WASM رو تزریق می‌کنه به `frontend/dist/pkg`.
+**🏗️ زنجیره ساخت** — فرانت‌اند رو بیلد می‌کنه و پکیج WASM رو تزریق می‌کنه به `frontend/dist/pkg`.
 
 **🌐 انتشار روی Edge** — در نهایت وب‌سایت و API ورکرت رو روی کلودفلر دیپلوی می‌کنه.
 
