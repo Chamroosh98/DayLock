@@ -147,7 +147,6 @@ git clone [https://github.com/Chamroosh98/DayLock.git](https://github.com/Chamro
 cd DayLock
 chmod +x setup.sh
 ./setup.sh
-
 ```
 
 **`setup.sh` 脚本自动执行的操作：**

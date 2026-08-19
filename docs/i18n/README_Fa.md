@@ -215,7 +215,7 @@
 
 ### روش اول : اسکریپت خودکار CLI (پیشنهادی)
 
-توی این روش کامپایل WASM، ساخت KVها روی کلودفلر، تنظیم کانفیگ‌ها و دپلوی به صورت خودکار انجام میشه!
+در این روش کامپایل WASM، ساخت KV ها روی کلودفلر، ستینگ کانفیگ‌ها و دپلوی به شکل خودکار انجام میشه!
 
 ```bash
 git clone https://github.com/Chamroosh98/DayLock.git
@@ -240,11 +240,9 @@ chmod +x setup.sh
 
 5. **انتشار :** پروژه و API ورکر رو روی کلودفلر دیپلوی می‌کنه .
 
-
-
 ---
 
-### روش دوم: دپلوی دستی (Cloudflare Dashboard / Git)
+### روش دوم : دپلوی دستی (Cloudflare Dashboard / Git)
 
 ۱. وارد [داشبورد کلودفلر](https://dash.cloudflare.com/) شو .
 ۲. به بخش **Workers & Pages** برو .
@@ -252,9 +250,7 @@ chmod +x setup.sh
 ۴. در بخش **Workers & Pages -> KV** دو Namespace با نام‌های زیر بساز :
 
 * `DAYLOCK_RATE_LIMIT_KV`
-
 * `DAYLOCK_PASTE_KV`
-
 
 ۵. در ستینگ پروژه (**Settings -> Bindings**) دو KV ساخته‌شده را به متغیرهای هم‌نام کانکت کن .
 ۶. دکمه **Save and Deploy** رو بزن و تموم!
@@ -268,7 +264,6 @@ chmod +x setup.sh
 * 📜 **Workers Scripts** -> `Edit`
 
 * 🗄️ **Workers KV Storage** -> `Edit`
-
 
 ---
 
