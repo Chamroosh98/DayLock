@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Skull, ShieldAlert } from 'lucide-react';
 import { Language } from '../../types';
@@ -24,6 +24,19 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
   language,
   t,
 }) => {
+  useEffect(() => {
+    if (!isSelfDestructed) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.reload();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isSelfDestructed]);
+
   return (
     <>
       <AnimatePresence>
@@ -31,32 +44,32 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-6 text-center"
+            className="fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 text-center"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="max-w-md space-y-8"
+              className="max-w-xs sm:max-w-md space-y-5 sm:space-y-8"
             >
               <div className="relative inline-block">
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                   transition={{ repeat: Infinity, duration: 2 }}
-                  className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"
+                  className="absolute inset-0 bg-red-500/20 blur-2xl sm:blur-3xl rounded-full"
                 />
-                <div className="relative w-24 h-24 bg-red-500 rounded-[32px] flex items-center justify-center shadow-2xl shadow-red-500/50 mx-auto">
-                  <Skull className="w-12 h-12 text-black" />
+                <div className="relative w-16 h-16 sm:w-24 sm:h-24 bg-red-500 rounded-2xl sm:rounded-[32px] flex items-center justify-center shadow-2xl shadow-red-500/50 mx-auto">
+                  <Skull className="w-8 h-8 sm:w-12 sm:h-12 text-black" />
                 </div>
               </div>
-              <div className="space-y-4">
-                <h2 className="text-3xl font-black uppercase tracking-tighter text-red-500">{t.selfDestructTriggered}</h2>
-                <p className="text-zinc-400 text-sm leading-relaxed font-medium">{t.selfDestructMessage}</p>
+              <div className="space-y-2 sm:space-y-4">
+                <h2 className="text-xl sm:text-3xl font-black uppercase tracking-tighter text-red-500">{t.selfDestructTriggered}</h2>
+                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed font-medium">{t.selfDestructMessage}</p>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.reload()}
-                className="px-10 py-4 bg-zinc-900 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-white transition-all"
+                className="px-6 sm:px-10 py-3 sm:py-4 bg-zinc-900 border border-white/10 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-zinc-400 hover:text-white transition-all"
               >
                 {t.terminateSession}
               </motion.button>

@@ -30,7 +30,7 @@ export function useAutoSaveForm<T extends FormDraftData>(
         restoreCallback(parsed);
       }
     } catch (e) {
-      console.error('Failed to restore form draft:', e);
+      console.error('Failed to restore form draft :', e);
     }
   }, []);
 
@@ -39,7 +39,7 @@ export function useAutoSaveForm<T extends FormDraftData>(
     try {
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
     } catch (e) {
-      console.error('Failed to auto-save form draft:', e);
+      console.error('Failed to auto-save form draft :', e);
     }
   }, [formData]);
 
@@ -47,7 +47,7 @@ export function useAutoSaveForm<T extends FormDraftData>(
     try {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch (e) {
-      console.error('Failed to clear form draft:', e);
+      console.error('Failed to clear form draft :', e);
     }
   };
 

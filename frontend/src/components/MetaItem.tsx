@@ -5,6 +5,7 @@ import { Eye, Clock, Key } from 'lucide-react';
 
 export const MetaItem: React.FC<MetaItemProps> = ({ label, value, isDarkMode, language, iconType }) => {
   const displayValue = localizeDigitsValue(value, language || 'en');
+  const isFa = language === 'fa';
 
   // Choose icon based on type
   let IconComponent = Eye;
@@ -22,28 +23,27 @@ export const MetaItem: React.FC<MetaItemProps> = ({ label, value, isDarkMode, la
   }
 
   return (
-    <div className={`w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 ${
-      isDarkMode 
-        ? 'bg-zinc-900/35 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' 
-        : 'bg-white border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50/50'
-    } shadow-sm group`}>
-      <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-105 ${iconBgClass}`}>
-          <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass}`} />
+    <div
+      dir={isFa ? 'rtl' : 'ltr'}
+      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-zinc-950/40 border-white/10 hover:border-white/15 shadow-inner' 
+          : 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm'
+      }`}
+    >
+      <div className="flex items-center gap-2.5">
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center border shrink-0 ${iconBgClass}`}>
+          <IconComponent className={`w-4 h-4 ${iconColorClass}`} />
         </div>
-        <div className="flex flex-col text-left">
-          <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] ${
-            isDarkMode ? 'text-zinc-500 group-hover:text-zinc-400' : 'text-zinc-400 group-hover:text-zinc-500'
-          } transition-colors`}>
-            {label}
-          </span>
-        </div>
+        <span className={`text-[11px] font-bold ${
+          isFa ? 'font-vazir text-zinc-400' : 'text-zinc-400 uppercase tracking-wider'
+        }`}>
+          {label}
+        </span>
       </div>
-      <div className="text-right">
-        <span className={`text-xs sm:text-sm font-black font-mono transition-colors ${
-          isDarkMode 
-            ? 'text-zinc-100 group-hover:text-emerald-400' 
-            : 'text-zinc-800 group-hover:text-emerald-600'
+      <div className="flex items-center">
+        <span className={`text-xs sm:text-sm font-black ${
+          isFa ? 'font-vazir text-zinc-200' : 'font-mono text-zinc-200'
         }`}>
           {displayValue}
         </span>

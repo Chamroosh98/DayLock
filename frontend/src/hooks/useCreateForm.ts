@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ContentType, Language, StatusState, Country } from '../types';
-import { gregorianToJalali, jalaliToGregorian } from '../utils/jalaliConverter';
 import { getFileBase64, b64toBlob } from '../utils/fileHelpers';
 import { audioStegoEmbed } from '../utils/audioStego';
 import { getWasm, b64url_encode } from '../utils/wasmLoader';
 import { isAsciiChar } from '../utils/formatters';
+import { useVaultState } from './useVaultState';
 
 interface UseCreateFormProps {
   language: Language;
@@ -30,76 +30,79 @@ export function useCreateForm({
   audioMode,
   t,
 }: UseCreateFormProps) {
-  const [contentType, setContentType] = useState<ContentType>('text');
-  const [message, setMessage] = useState('');
-  const [password, setPassword] = useState('');
-  const [hasPassword, setHasPassword] = useState(true);
-  const [burnAfterRead, setBurnAfterRead] = useState(false);
-  const [maxViews, setMaxViews] = useState<number | ''>('');
-  const [expiresIn, setExpiresIn] = useState<number>(86400);
+  const vault = useVaultState({ language, initialContentType: 'text' });
 
-  const [hasHoney, setHasHoney] = useState(false);
-  const [honeyPwd, setHoneyPwd] = useState('');
-  const [honeyContent, setHoneyContent] = useState('');
-
-  const [hasGeoLock, setHasGeoLock] = useState(false);
-  const [allowedCountries, setAllowedCountries] = useState<string[]>([]);
-
-  const [hasDeadMans, setHasDeadMans] = useState(false);
-  const [deadMansInterval, setDeadMansInterval] = useState<number>(86400);
-
-  const [hasCanary, setHasCanary] = useState(false);
-  const [canaryUrl, setCanaryUrl] = useState('');
-
-  const [hasTimeLock, setHasTimeLock] = useState(false);
-  const [unlockAt, setUnlockAt] = useState<number | null>(null);
-
-  // Jalali Date Picker internal states
-  const [jYear, setJYear] = useState<number>(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    const [jy] = gregorianToJalali(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    return jy;
-  });
-  const [jMonth, setJMonth] = useState<number>(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    const [, jm] = gregorianToJalali(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    return jm;
-  });
-  const [jDay, setJDay] = useState<number>(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    const [, , jd] = gregorianToJalali(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    return jd;
-  });
-  const [jHour, setJHour] = useState<number>(() => new Date().getHours());
-  const [jMinute, setJMinute] = useState<number>(() => new Date().getMinutes());
-
-  // Keep Jalali picker in sync with unlockAt
-  useEffect(() => {
-    if (language === 'fa' && hasTimeLock) {
-      try {
-        const [gy, gm, gd] = jalaliToGregorian(jYear, jMonth, jDay);
-        const gDate = new Date(gy, gm - 1, gd, jHour, jMinute, 0);
-        setUnlockAt(Math.floor(gDate.getTime() / 1000));
-      } catch (err) {
-        console.error('Error converting Jalali to Gregorian:', err);
-      }
-    }
-  }, [jYear, jMonth, jDay, jHour, jMinute, language, hasTimeLock]);
-
-  const [hasSelfDestruct, setHasSelfDestruct] = useState(false);
-  const [selfDestructHides, setSelfDestructHides] = useState(3);
-  const [selfDestructTriggers, setSelfDestructTriggers] = useState<string[]>(['tab']);
-
-  const [hasAsnLock, setHasAsnLock] = useState(false);
-  const [asnMode, setAsnMode] = useState<'block' | 'allow'>('block');
-  const [asnSelected, setAsnSelected] = useState('');
-
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [stegoImage, setStegoImage] = useState<string | null>(null);
-  const [stegoCapacity, setStegoCapacity] = useState(0);
+  const {
+    contentType,
+    setContentType,
+    message,
+    setMessage,
+    password,
+    setPassword,
+    showMasterPwd,
+    setShowMasterPwd,
+    hasPassword,
+    setHasPassword,
+    burnAfterRead,
+    setBurnAfterRead,
+    maxViews,
+    setMaxViews,
+    expiresIn,
+    setExpiresIn,
+    hasHoney,
+    setHasHoney,
+    honeyPwd,
+    setHoneyPwd,
+    showHoneyPwd,
+    setShowHoneyPwd,
+    honeyContent,
+    setHoneyContent,
+    hasGeoLock,
+    setHasGeoLock,
+    allowedCountries,
+    setAllowedCountries,
+    hasDeadMans,
+    setHasDeadMans,
+    deadMansInterval,
+    setDeadMansInterval,
+    hasCanary,
+    setHasCanary,
+    canaryUrl,
+    setCanaryUrl,
+    hasTimeLock,
+    setHasTimeLock,
+    unlockAt,
+    setUnlockAt,
+    jYear,
+    setJYear,
+    jMonth,
+    setJMonth,
+    jDay,
+    setJDay,
+    jHour,
+    setJHour,
+    jMinute,
+    setJMinute,
+    hasSelfDestruct,
+    setHasSelfDestruct,
+    selfDestructHides,
+    setSelfDestructHides,
+    selfDestructTriggers,
+    setSelfDestructTriggers,
+    hasAsnLock,
+    setHasAsnLock,
+    asnMode,
+    setAsnMode,
+    asnSelected,
+    setAsnSelected,
+    selectedFile,
+    setSelectedFile,
+    stegoImage,
+    setStegoImage,
+    stegoCapacity,
+    setStegoCapacity,
+    resetVaultState,
+  } = vault;
 
   const [isLoading, setIsLoading] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -170,7 +173,7 @@ export function useCreateForm({
           const cap = W.stego_capacity_png(pngBytes);
           setStegoCapacity(cap);
         } catch (e) {
-          console.error("WASM stego_capacity_png error:", e);
+          console.error("WASM stego_capacity_png error :", e);
         }
       }
       const reader = new FileReader();
@@ -428,32 +431,8 @@ export function useCreateForm({
   };
 
   const resetCreateForm = () => {
-    setMessage('');
-    setPassword('');
-    setHasPassword(true);
-    setBurnAfterRead(false);
-    setMaxViews('');
-    setExpiresIn(86400);
-    setHasHoney(false);
-    setHoneyPwd('');
-    setHoneyContent('');
-    setHasGeoLock(false);
-    setAllowedCountries([]);
-    setHasDeadMans(false);
-    setDeadMansInterval(86400);
-    setHasCanary(false);
-    setCanaryUrl('');
-    setHasTimeLock(false);
-    setUnlockAt(null);
-    setHasSelfDestruct(false);
-    setSelfDestructHides(3);
-    setSelfDestructTriggers(['tab']);
-    setSelectedFile(null);
-    setStegoImage(null);
+    resetVaultState();
     setResultUrl(null);
-    setHasAsnLock(false);
-    setAsnMode('block');
-    setAsnSelected('');
   };
 
   return {

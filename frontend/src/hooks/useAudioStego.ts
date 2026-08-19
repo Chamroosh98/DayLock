@@ -80,14 +80,14 @@ export function useAudioStego({ setStatus, t }: UseAudioStegoProps) {
       const samples = wavToFloat32(wavBytes);
       setAudioWaveformSamples(samples);
     } catch (err: any) {
-      setStatus({ type: 'err', msg: err.message || "Failed to load WAV audio file." });
+      setStatus({ type: 'err', msg: err.message || "Failed to load WAV audio file!" });
     }
   };
 
   const handleAudioExtract = async () => {
     if (!audioExtractFile) return;
     setIsAudioExtracting(true);
-    setStatus({ type: 'warn', msg: "Decoding hidden data from WAV audio cover..." });
+    setStatus({ type: 'warn', msg: "Decoding hidden data from WAV audio cover ..." });
     try {
       const arrayBuffer = await audioExtractFile.arrayBuffer();
       const wavBytes = new Uint8Array(arrayBuffer);

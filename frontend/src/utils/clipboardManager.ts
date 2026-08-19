@@ -1,3 +1,5 @@
+import { Language } from '../types';
+
 let activeClearTimeout: NodeJS.Timeout | null = null;
 let lastCopiedValue: string | null = null;
 
@@ -9,7 +11,7 @@ export const copyToClipboardWithAutoClear = async (
   text: string,
   timeoutMs: number = 30000,
   onClearNotify?: (msg: string) => void,
-  language: 'en' | 'fa' = 'en'
+  language: Language = 'en'
 ): Promise<boolean> => {
   try {
     let success = false;

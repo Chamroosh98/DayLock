@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { forceClearClipboard } from '../utils/clipboardManager';
 import { isBiometricsSupported, registerBiometrics, verifyBiometrics } from '../utils/webAuthn';
+import { translations } from '../data/translations';
 
 const toPersianNum = (numStr: string) => {
   const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -37,6 +38,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
   isOpen,
   onClose,
 }) => {
+  const t = translations[language] || translations.en;
   // Config state with localStorage persistence
   const [blurActive, setBlurActive] = useState(() => {
     return localStorage.getItem('vault_security_blur') !== 'false';
@@ -169,19 +171,11 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
       try {
         await navigator.clipboard.writeText(text);
         if (!copyActive) {
-          triggerToast(
-            language === 'fa'
-              ? '📋 محتوا کپی شد.'
-              : '📋 Copied to clipboard.'
-          );
+          triggerToast(t.copiedToClipboard);
           return true;
         }
 
-        triggerToast(
-          language === 'fa'
-            ? '📋 محتوا کپی شد. پاکسازی خودکار پس از ۳۰ ثانیه.'
-            : '📋 Copied to clipboard. Self-destruct in 30 seconds.'
-        );
+        triggerToast(t.copiedSelfDestruct);
 
         // Schedule self-destruct in 30 seconds
         selfDestructTimer = setTimeout(() => {
@@ -259,11 +253,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
           setIsEnrolled(true);
           setIsScreenLocked(false);
           setLockStatus('success');
-          triggerToast(
-            language === 'fa'
-              ? '✅ قفل اثرانگشت/چهره با موفقیت فعال شد!'
-              : '✅ Fingerprint/FaceID lock enabled successfully!'
-          );
+          triggerToast(t.fingerprintEnabledSuccess);
         } else {
           setLockStatus('error');
         }
@@ -307,11 +297,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
       } else {
         setPinError(true);
         setEnteredPin('');
-        triggerToast(
-          language === 'fa'
-            ? '❌ پین‌کد اشتباه است'
-            : '❌ Incorrect PIN'
-        );
+        triggerToast(t.incorrectPinToast);
         setTimeout(() => setPinError(false), 500);
       }
     }
@@ -410,7 +396,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
       if (e.key === 'PrintScreen' || e.keyCode === 44) {
         e.preventDefault();
         setTempBlur(true);
-        triggerToast(language === 'fa' ? '⚠️ تلاش برای عکس‌برداری مسدود شد! سپر فعال کلاینت.' : '⚠️ PrintScreen blocked! Vault visual shielding active.');
+        triggerToast(t.printScreenBlocked);
         
         // Scrub clipboard
         try {
@@ -423,13 +409,13 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
       // Ctrl + P or Cmd + P
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
-        triggerToast(language === 'fa' ? '❌ پرینت مستقیم صفحات گاوصندوق مسدود است.' : '❌ Direct document printing is blocked.');
+        triggerToast(t.directPrintBlocked);
       }
 
       // Ctrl + S or Cmd + S
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        triggerToast(language === 'fa' ? '❌ ذخیره‌سازی لوکال قالب کد وب مسدود است.' : '❌ Local document cloning is blocked.');
+        triggerToast(t.localCloningBlocked);
       }
     };
 
@@ -475,7 +461,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
       // If it is within a text view container or decrypted payload, don't show the warning toast (prevent whistle)
       if (target.closest('.no-whistle-menu')) return;
       
-      triggerToast(language === 'fa' ? '🔒 راست‌کلیک جهت بازرسی منبع مسدود است.' : '🔒 Menu access blocked to prevent reverse-engineering.');
+      triggerToast(t.menuAccessBlocked);
     };
 
     const handleCopy = (e: ClipboardEvent) => {
@@ -499,7 +485,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
     setCopyActive(true);
     setBiometricLockActive(true);
     setNoiseActive(true);
-    triggerToast(language === 'fa' ? 'سپر حفاظتی روی حداکثر تنظیم شد!' : 'Security Level set to Maximum Protection!');
+    triggerToast(t.securityLevelMax);
   };
 
   const presetStandard = () => {
@@ -509,7 +495,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
     setCopyActive(true);
     setBiometricLockActive(true);
     setNoiseActive(false);
-    triggerToast(language === 'fa' ? 'محافظت استاندارد فعال شد.' : 'Standard Protection Profile enabled.');
+    triggerToast(t.securityLevelStandard);
   };
 
   const presetNone = () => {
@@ -519,8 +505,22 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
     setCopyActive(false);
     setBiometricLockActive(false);
     setNoiseActive(false);
-    triggerToast(language === 'fa' ? 'تمامی سپرهای امنیتی غیرفعال شدند!' : 'All protective shields disabled.');
+    triggerToast(t.securityLevelOff);
   };
+
+  // Listen for Escape key to close security drawer when open
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isOpen, onClose]);
 
   return (
     <>
@@ -537,10 +537,10 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
           <div className="text-center p-6 text-zinc-100 max-w-md">
             <Lock className="w-12 h-12 text-rose-500 mx-auto mb-4 animate-bounce" />
             <h2 className="text-lg font-black uppercase tracking-wider">
-              {language === 'fa' ? 'سپر اسکرین‌شات فعال شد' : 'Screenshot Shield Triggered'}
+              {t.screenshotShieldTriggered}
             </h2>
             <p className="text-xs text-zinc-400 mt-2">
-              {language === 'fa' ? 'صفحه موقتاً مسدود گردید تا از سرقت بصری داده‌ها جلوگیری شود.' : 'Display temporarily hidden to secure dynamic sensitive parameters.'}
+              {t.screenshotShieldDesc}
             </p>
           </div>
         </div>
@@ -573,7 +573,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                           handleUnlock();
                         }}
                         className="w-20 h-20 rounded-full bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.05)] relative cursor-pointer active:scale-95 transition-all group hover:border-emerald-500/30"
-                        title={language === 'fa' ? 'اسکن اثرانگشت / چهره' : 'Scan Fingerprint / FaceID'}
+                        title={t.scanFingerprintFace}
                       >
                         <div className="absolute inset-0 rounded-full border border-emerald-500/10 animate-ping opacity-35" style={{ animationDuration: '3s' }} />
                         <Lock className={`w-10 h-10 transition-all duration-300 ${
@@ -593,7 +593,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                           handleUnlock(); // triggers registration
                         }}
                         className="w-20 h-20 rounded-full bg-zinc-500/5 border border-dashed border-zinc-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.2)] cursor-pointer active:scale-95 transition-all group hover:border-emerald-500/30 animate-pulse"
-                        title={language === 'fa' ? 'فعال‌سازی اثرانگشت' : 'Enroll Fingerprint'}
+                        title={t.enrollFingerprint}
                       >
                         <Lock className="w-10 h-10 text-zinc-500 group-hover:text-emerald-500 transition-colors" />
                       </button>
@@ -606,12 +606,12 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                 )}
 
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-300/80 mb-1">
-                  {language === 'fa' ? 'فضای کاری قفل شده است' : 'Workspace Suspended'}
+                  {t.workspaceSuspended}
                 </h2>
                 <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest mb-6">
                   {biometricsSupported
-                    ? (language === 'fa' ? 'با اثرانگشت یا پین‌کد قفل‌گشایی کنید' : 'Unlock with Biometrics or PIN')
-                    : (language === 'fa' ? 'پین‌کد امنیتی را وارد نمایید' : 'Enter workspace 4-digit PIN')
+                    ? t.unlockBiometricOrPin
+                    : t.enter4DigitPin
                   }
                 </p>
 
@@ -647,11 +647,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                       key={num}
                       onClick={() => {
                         if (!pinCode) {
-                          triggerToast(
-                            language === 'fa'
-                              ? '⚠️ ابتدا پین‌کد را در تنظیمات امنیتی تعریف کنید'
-                              : '⚠️ Please set a PIN code in security settings first'
-                          );
+                          triggerToast(t.pleaseSetPinFirstToast);
                           return;
                         }
                         handlePinDigit(num);
@@ -667,18 +663,14 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                     onClick={handlePinBackspace}
                     className="w-14 h-14 rounded-full text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:text-zinc-300 transition-colors flex items-center justify-center cursor-pointer"
                   >
-                    {language === 'fa' ? 'حذف' : 'Del'}
+                    {t.delBtn}
                   </button>
 
                   {/* Zero */}
                   <button
                     onClick={() => {
                       if (!pinCode) {
-                        triggerToast(
-                          language === 'fa'
-                            ? '⚠️ ابتدا پین‌کد را در تنظیمات امنیتی تعریف کنید'
-                            : '⚠️ Please set a PIN code in security settings first'
-                        );
+                        triggerToast(t.pleaseSetPinFirstToast);
                         return;
                       }
                       handlePinDigit('0');
@@ -698,7 +690,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                       className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
                         isEnrolled ? 'text-emerald-500 hover:text-emerald-400' : 'text-zinc-600 hover:text-emerald-500'
                       }`}
-                      title={language === 'fa' ? 'اسکن اثرانگشت' : 'Scan Fingerprint'}
+                      title={t.scanFingerprintFace}
                     >
                       <Fingerprint className={`w-6 h-6 ${isEnrolled ? 'animate-pulse' : ''}`} />
                     </button>
@@ -720,24 +712,25 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className={`w-full max-w-lg rounded-[32px] p-8 border shadow-2xl relative ${
+              dir={language === 'fa' ? 'rtl' : 'ltr'}
+              className={`w-full max-w-sm sm:max-w-lg rounded-2xl sm:rounded-[32px] p-5 sm:p-8 border shadow-2xl relative max-h-[90vh] overflow-y-auto ${
                 isDarkMode 
                   ? 'bg-zinc-950 border-white/10 text-zinc-200' 
                   : 'bg-white border-zinc-200 text-zinc-800'
               }`}
             >
               {/* Header */}
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 shrink-0">
-                    <Shield className="w-5 h-5 text-emerald-500 animate-pulse" />
+              <div className="flex items-start justify-between gap-4 mb-5 sm:mb-6">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 shrink-0">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black uppercase tracking-widest leading-none">
-                      {language === 'fa' ? 'مدیریت ترافیک بصری گاوصندوق' : 'Shield Security Center'}
+                    <h3 className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest leading-none">
+                      {t.shieldCenterTitle}
                     </h3>
-                    <p className={`text-[10px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'} mt-1`}>
-                      {language === 'fa' ? 'کنترل سیستم‌های حفاظتی ضد اسکرین‌شات و مهندسی کپی' : 'Active anti-capture and screenshot hardware defenses'}
+                    <p className={`text-[9px] sm:text-[10px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'} mt-1`}>
+                      {t.shieldCenterDesc}
                     </p>
                   </div>
                 </div>
@@ -763,7 +756,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   }`}
                 >
                   <Flame className="w-3.5 h-3.5" />
-                  {language === 'fa' ? 'حداکثر دفاع' : 'Maximum'}
+                  {t.presetMax}
                 </button>
                 <button
                   onClick={presetStandard}
@@ -774,7 +767,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   }`}
                 >
                   <UserCheck className="w-3.5 h-3.5" />
-                  {language === 'fa' ? 'استاندارد' : 'Standard'}
+                  {t.presetStandard}
                 </button>
                 <button
                   onClick={presetNone}
@@ -785,7 +778,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   }`}
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  {language === 'fa' ? 'غیرفعال' : 'Off'}
+                  {t.presetOff}
                 </button>
               </div>
 
@@ -804,19 +797,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {language === 'fa' ? 'تاری خودکار در پس‌زمینه گوشی' : 'App-Switcher Blur Shield'}
+                        {t.appSwitcherBlurTitle}
                       </span>
                       <button 
+                        type="button"
+                        dir="ltr"
                         onClick={() => setBlurActive(!blurActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${blurActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                        className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${blurActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                       >
                         <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${blurActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
                     </div>
                     <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {language === 'fa' 
-                        ? 'تار کردن کل صفحه گاوصندوق هنگام جابه‌جایی بین برنامه‌ها جهت جلوگیری از ذخیره اسکرین‌شات پس‌زمینه توسط گوشی.'
-                        : 'Obscures entire screen when switching apps, blocking display frame buffer leakage on system switchers.'}
+                      {t.appSwitcherBlurDesc}
                     </p>
                   </div>
                 </div>
@@ -834,19 +827,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                     <div className="flex-1">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                          {language === 'fa' ? 'قفل هوشمند کلاینت هنگام خروج' : 'Smart Workspace App Lock'}
+                          {t.smartWorkspaceAppLockTitle}
                         </span>
                         <button 
+                          type="button"
+                          dir="ltr"
                           onClick={() => setBiometricLockActive(!biometricLockActive)}
-                          className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${biometricLockActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                          className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${biometricLockActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                         >
                           <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${biometricLockActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                         </button>
                       </div>
                       <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                        {language === 'fa' 
-                          ? 'تایید هویت بیومتریک یا پین‌کد هنگام بازگشت به برنامه پس از خروج موقت.'
-                          : 'Enforces biometric verification or custom PIN passcode when returning to the application tab.'}
+                        {t.smartWorkspaceAppLockDesc}
                       </p>
                     </div>
                   </div>
@@ -855,7 +848,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                     <div className="pl-10 space-y-3.5 border-t border-zinc-500/10 pt-3 text-left">
                       <div className="flex gap-4 items-center justify-between">
                         <span className="text-[9px] uppercase font-black tracking-wider text-zinc-500">
-                          {language === 'fa' ? 'روش قفل‌گشایی:' : 'Unlock Method:'}
+                          {t.unlockMethodLabel}
                         </span>
                         <div className="flex bg-zinc-950/60 p-0.5 rounded-lg border border-white/5">
                           {biometricsSupported && (
@@ -870,7 +863,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                                   : 'text-zinc-400 hover:text-zinc-200'
                               }`}
                             >
-                              {language === 'fa' ? 'بیومتریک' : 'Biometric'}
+                              {t.biometricOption}
                             </button>
                           )}
                           <button
@@ -884,7 +877,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                                 : 'text-zinc-400 hover:text-zinc-200'
                             }`}
                           >
-                            {language === 'fa' ? 'پین‌کد (PIN)' : 'PIN Code'}
+                            {t.pinOption}
                           </button>
                         </div>
                       </div>
@@ -894,7 +887,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                           {pinCode ? (
                             <div className="flex items-center justify-between bg-zinc-950/20 p-2 rounded-xl border border-white/5">
                               <span className="text-[9px] text-zinc-400 font-medium">
-                                {language === 'fa' ? '🔐 پین‌کد فعال است' : '🔐 4-Digit PIN is active'}
+                                {t.pinActiveStatus}
                               </span>
                               <button
                                 onClick={() => {
@@ -904,13 +897,13 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                                 }}
                                 className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-wider cursor-pointer"
                               >
-                                {language === 'fa' ? 'تغییر پین‌کد' : 'Change PIN'}
+                                {t.changePinBtn}
                               </button>
                             </div>
                           ) : (
                             <div className="bg-rose-500/5 p-2 rounded-xl border border-rose-500/10 flex flex-col sm:flex-row items-center justify-between gap-2">
                               <span className="text-[9px] text-rose-400 font-semibold leading-relaxed">
-                                {language === 'fa' ? '⚠️ ابتدا یک پین‌کد ۴ رقمی تعریف کنید' : '⚠️ Please set a 4-digit PIN first'}
+                                {t.pleaseSetPinFirst}
                               </span>
                               <button
                                 onClick={() => {
@@ -920,7 +913,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                                 }}
                                 className="px-2 py-1 bg-rose-500/10 border border-rose-500/25 text-rose-500 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-rose-500/20 transition-all cursor-pointer shrink-0"
                               >
-                                {language === 'fa' ? 'تنظیم پین‌کد' : 'Set PIN'}
+                                {t.setPinBtn}
                               </button>
                             </div>
                           )}
@@ -942,19 +935,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {language === 'fa' ? 'بستن پرینت و ذخیره صفحه' : 'PDF / Print Blocker'}
+                        {t.pdfPrintBlockerTitle}
                       </span>
                       <button 
+                        type="button"
+                        dir="ltr"
                         onClick={() => setPrintActive(!printActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${printActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                        className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${printActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                       >
                         <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${printActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
                     </div>
                     <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {language === 'fa' 
-                        ? 'محتوا را به طور کامل در پرینت یا دکمه‌های پرینت مرورگر پنهان و خالی می‌کند.'
-                        : 'Forces the document print spool to render blank, guarding against physical print triggers or virtual PDF saves.'}
+                      {t.pdfPrintBlockerDesc}
                     </p>
                   </div>
                 </div>
@@ -971,19 +964,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {language === 'fa' ? 'شنود کلیدهای اسکرین‌شات' : 'Keyboard Hook Protector'}
+                        {t.keyboardHookProtectorTitle}
                       </span>
                       <button 
+                        type="button"
+                        dir="ltr"
                         onClick={() => setKeysActive(!keysActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${keysActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                        className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${keysActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                       >
                         <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${keysActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
                     </div>
                     <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {language === 'fa' 
-                        ? 'رهگیری کلید PrintScreen و شورت‌کات پرینت در کلاینت برای ایجاد وقفه تاری موقت و پاک کردن بافر کلیپ‌بورد.'
-                        : 'Intercepts print-screen keys, blurring content instantly on triggers and flushing clipboard buffer dynamically.'}
+                      {t.keyboardHookProtectorDesc}
                     </p>
                   </div>
                 </div>
@@ -1000,19 +993,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {language === 'fa' ? 'قفل کپی و منوی راست‌کلیک' : 'Copy & Right-Click Lock'}
+                        {t.copyRightClickLockTitle}
                       </span>
                       <button 
+                        type="button"
+                        dir="ltr"
                         onClick={() => setCopyActive(!copyActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${copyActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                        className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${copyActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                       >
                         <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${copyActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
                     </div>
                     <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {language === 'fa' 
-                        ? 'غیرفعال‌سازی راست‌کلیک و کپی کردن داده‌های گاوصندوق جهت خنثی‌سازی اسکریپت‌های کپی اتوماتیک.'
-                        : 'Disables document highlights and right-click inspectors to block scrapers, bot scrapers, and quick copy-paste.'}
+                      {t.copyRightClickLockDesc}
                     </p>
                   </div>
                 </div>
@@ -1029,19 +1022,19 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {language === 'fa' ? 'نویز پالس متحرک (ضد ضبط ویدئو)' : 'Dynamic Codec Recording Jammer'}
+                        {t.dynamicCodecJammerTitle}
                       </span>
                       <button 
+                        type="button"
+                        dir="ltr"
                         onClick={() => setNoiseActive(!noiseActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none ${noiseActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                        className={`w-7 h-4 rounded-full relative inline-flex items-center shrink-0 transition-colors duration-200 focus:outline-none cursor-pointer ${noiseActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
                       >
                         <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${noiseActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
                     </div>
                     <p className={`text-[9px] mt-1 leading-normal ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {language === 'fa' 
-                        ? 'ایجاد نویزهای میکروسکوپی در پس‌زمینه برای مختل کردن ضبط کدهای فشرده‌ساز ضبط ویدئوی سیستم.'
-                        : 'Injects faint pulsating visual gradients to maximize dynamic complexity, degrading screen-record video encoder quality.'}
+                      {t.dynamicCodecJammerDesc}
                     </p>
                   </div>
                 </div>
@@ -1052,7 +1045,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                 onClick={onClose}
                 className="mt-6 w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold tracking-widest uppercase rounded-2xl transition-all shadow-lg shadow-emerald-500/10"
               >
-                {language === 'fa' ? 'ذخیره و بستن سپر' : 'Lock Shield Configuration'}
+                {t.lockShieldConfigBtn}
               </button>
             </motion.div>
           </div>
@@ -1067,25 +1060,25 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className={`w-full max-w-xs rounded-[32px] p-6 text-center border ${
+              className={`w-full max-w-[270px] sm:max-w-xs rounded-2xl sm:rounded-[32px] p-5 sm:p-6 text-center border ${
                 isDarkMode ? 'bg-zinc-950 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'
               }`}
             >
-              <h3 className="text-xs font-black uppercase tracking-widest mb-4">
+              <h3 className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest mb-3 sm:mb-4">
                 {pinSetupStep === 'enter'
-                  ? (language === 'fa' ? 'یک پین‌کد ۴ رقمی وارد کنید' : 'Enter 4-Digit PIN')
-                  : (language === 'fa' ? 'پین‌کد را تایید کنید' : 'Confirm 4-Digit PIN')
+                  ? t.enter4DigitPinTitle
+                  : t.confirm4DigitPinTitle
                 }
               </h3>
 
-              <div dir="ltr" className="flex justify-center gap-3 mb-6">
+              <div dir="ltr" className="flex justify-center gap-2.5 sm:gap-3 mb-4 sm:mb-6">
                 {Array.from({ length: 4 }).map((_, i) => {
                   const val = pinSetupStep === 'enter' ? setupPin : setupConfirmPin;
                   const filled = val.length > i;
                   return (
                     <div 
                       key={i} 
-                      className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
+                      className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full transition-all duration-200 ${
                         filled 
                           ? 'bg-emerald-500 scale-110 shadow-[0_0_10px_rgba(16,185,129,0.8)]' 
                           : 'border border-zinc-700'
@@ -1096,7 +1089,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
               </div>
 
               {/* Setup PIN Keypad */}
-              <div dir="ltr" className="grid grid-cols-3 gap-3 max-w-[200px] mx-auto">
+              <div dir="ltr" className="grid grid-cols-3 gap-2 sm:gap-3 max-w-[190px] sm:max-w-[200px] mx-auto">
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
                   <button
                     key={num}
@@ -1116,17 +1109,9 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                             localStorage.setItem('vault_app_pin_code', nextVal);
                             setPinCode(nextVal);
                             setPinSetupStep('idle');
-                            triggerToast(
-                              language === 'fa'
-                                ? '✅ پین‌کد با موفقیت ذخیره شد!'
-                                : '✅ PIN Code successfully saved!'
-                            );
+                            triggerToast(t.pinSetSuccess);
                           } else {
-                            triggerToast(
-                              language === 'fa'
-                                ? '❌ پین‌کدها همخوانی ندارند. دوباره تلاش کنید.'
-                                : '❌ PINs do not match. Start over.'
-                            );
+                            triggerToast(t.pinMismatch);
                             setSetupPin('');
                             setSetupConfirmPin('');
                             setPinSetupStep('enter');
@@ -1152,7 +1137,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   }}
                   className={`w-12 h-12 rounded-full text-[9px] font-black uppercase tracking-wider text-rose-500 hover:text-rose-400 transition-colors cursor-pointer`}
                 >
-                  {language === 'fa' ? 'انصراف' : 'Cancel'}
+                  {t.cancelBtn}
                 </button>
 
                 <button
@@ -1172,17 +1157,9 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                           localStorage.setItem('vault_app_pin_code', nextVal);
                           setPinCode(nextVal);
                           setPinSetupStep('idle');
-                          triggerToast(
-                            language === 'fa'
-                              ? '✅ پین‌کد با موفقیت ذخیره شد!'
-                              : '✅ PIN Code successfully saved!'
-                          );
+                          triggerToast(t.pinSetSuccess);
                         } else {
-                          triggerToast(
-                            language === 'fa'
-                              ? '❌ پین‌کدها همخوانی ندارند. دوباره تلاش کنید.'
-                              : '❌ PINs do not match. Start over.'
-                          );
+                          triggerToast(t.pinMismatch);
                           setSetupPin('');
                           setSetupConfirmPin('');
                           setPinSetupStep('enter');
@@ -1211,7 +1188,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
                   }}
                   className="w-12 h-12 rounded-full text-[9px] font-black uppercase tracking-wider text-zinc-500 hover:text-zinc-400 transition-colors cursor-pointer"
                 >
-                  {language === 'fa' ? 'حذف' : 'Del'}
+                  {t.delBtn}
                 </button>
               </div>
             </motion.div>

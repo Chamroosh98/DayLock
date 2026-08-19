@@ -30,6 +30,24 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     };
   }, [stream]);
 
+  // Handle keyboard Escape to exit camera and Enter to capture frame
+  useEffect(() => {
+    if (!isLive) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        stopCamera();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        captureFrame();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isLive, stream]);
+
   const startCamera = async () => {
     setErrorMsg(null);
     setCapturedImg(null);

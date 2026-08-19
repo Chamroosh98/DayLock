@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShieldAlert, Eye, EyeOff, Lock, Unlock } from 'lucide-react';
+import { Eye, Lock, Unlock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { translations } from '../data/translations';
+import { Language } from '../types';
 
 interface DecryptedPayloadShieldProps {
   children: React.ReactNode;
   isDarkMode: boolean;
-  language: 'en' | 'fa';
+  language: Language;
 }
 
 export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
@@ -13,6 +15,7 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
   isDarkMode,
   language,
 }) => {
+  const t = (translations as any)[language] || translations.en;
   const [isRevealed, setIsRevealed] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
@@ -73,11 +76,11 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
 
   return (
     <div className="relative w-full rounded-[32px] overflow-hidden no-whistle-menu">
-      {/* Decrypted Payload Container */}
+      {/* Decrypted Payload Container with subtle blur backdrop when unrevealed */}
       <div 
         className="transition-all duration-500 ease-out select-all"
         style={{ 
-          filter: finalRevealed ? 'none' : 'blur(20px)',
+          filter: finalRevealed ? 'none' : 'blur(14px)',
           pointerEvents: finalRevealed ? 'auto' : 'none',
           userSelect: finalRevealed ? 'text' : 'none'
         }}
@@ -85,56 +88,72 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
         {children}
       </div>
 
-      {/* Dynamic Security Overlay (Blocks view completely when not revealed) */}
+      {/* Polished Glassmorphism Privacy Card */}
       <AnimatePresence>
         {!finalRevealed && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center bg-black/85 backdrop-blur-xl rounded-[32px] border border-dashed border-emerald-500/20"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className={`absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center backdrop-blur-md rounded-[28px] sm:rounded-[32px] border ${
+              isDarkMode 
+                ? 'bg-zinc-950/60 border-white/10 shadow-2xl' 
+                : 'bg-white/75 border-zinc-200/90 shadow-2xl'
+            }`}
           >
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-emerald-400 animate-pulse" />
+            {/* Lock Badge */}
+            <div className="relative w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-3">
+              <div className="absolute inset-0 rounded-2xl bg-[#00ff87]/15 animate-ping opacity-75" />
+              <Lock className="w-5 h-5 text-[#00ff87] relative z-10" />
             </div>
 
-            <h4 className="text-xs font-black uppercase tracking-widest text-zinc-100 mb-1.5">
-              {language === 'fa' ? 'سپر حفاظتی رمزگشایی فعال است' : 'Decrypted Shield Active'}
+            <h4 className={`text-xs font-black uppercase tracking-widest mb-1.5 ${
+              isDarkMode ? 'text-zinc-100' : 'text-zinc-800'
+            } ${language === 'fa' ? 'font-vazir' : ''}`}>
+              {t.decryptedShieldActive}
             </h4>
             
-            <p className="text-[10px] text-zinc-400 mt-1 max-w-xs leading-relaxed mb-6">
-              {language === 'fa'
-                ? 'محتوا برای جلوگیری از اسکرین‌شات‌های ناخواسته تار گردیده است. از کلیدهای کنترل زیر برای مشاهده موقت یا دائم استفاده کنید.'
-                : 'Sensitive payload is masked to secure visual frames. Use the active controls below to display securely.'}
+            <p className={`text-[10px] ${
+              isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
+            } max-w-xs leading-relaxed mb-5 ${language === 'fa' ? 'font-vazir' : ''}`}>
+              {t.decryptedShieldDesc}
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-sm px-4">
-              {/* Press & Hold Action Button */}
-              <button
+            {/* Action Buttons Row */}
+            <div className="flex flex-row items-center justify-center gap-2.5 w-full max-w-sm px-2">
+              {/* Primary Action: Hold to Reveal with pulsing emerald accent (#00ff87) */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
                 onMouseDown={handleHoldStart}
                 onMouseUp={handleHoldEnd}
                 onMouseLeave={handleHoldEnd}
                 onTouchStart={handleHoldStart}
                 onTouchEnd={handleHoldEnd}
-                className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold text-[10px] tracking-widest uppercase rounded-2xl transition-all shadow-lg shadow-emerald-500/15 select-none cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                {language === 'fa' ? 'نگه دارید تا دیده شود' : 'Press & Hold'}
-              </button>
-
-              {/* Sticky Eye Toggle Button */}
-              <button
-                onClick={toggleSticky}
-                className={`py-3 px-4 rounded-2xl font-extrabold text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
-                  isDarkMode
-                    ? 'bg-zinc-900 border border-white/5 text-zinc-400 hover:text-zinc-200'
-                    : 'bg-zinc-100 border border-zinc-200 text-zinc-600 hover:text-zinc-900'
+                className={`flex-1 h-[44px] px-4 bg-[#00ff87] hover:bg-[#00e67a] active:bg-[#00cc6c] text-black font-black text-xs tracking-wider rounded-2xl transition-all shadow-lg shadow-[#00ff87]/25 hover:shadow-[#00ff87]/40 select-none cursor-pointer flex items-center justify-center gap-2 ${
+                  language === 'fa' ? 'font-vazir' : ''
                 }`}
-                title={language === 'fa' ? 'نمایش دائم' : 'Keep Visible'}
               >
-                <Eye className="w-3.5 h-3.5" />
-                {language === 'fa' ? 'باز کردن قفل' : 'Toggle lock'}
-              </button>
+                <Eye className="w-4 h-4 animate-pulse" />
+                <span>{t.pressAndHold}</span>
+              </motion.button>
+
+              {/* Secondary Action: Unlock / Toggle Sticky */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={toggleSticky}
+                className={`h-[44px] px-4 sm:px-5 rounded-2xl font-black text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+                  isDarkMode
+                    ? 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-200 hover:border-emerald-500/30'
+                    : 'bg-zinc-100 hover:bg-zinc-200 border-zinc-200 text-zinc-700'
+                } ${language === 'fa' ? 'font-vazir' : ''}`}
+                title={t.keepVisible}
+              >
+                <Unlock className="w-4 h-4" />
+                <span>{t.toggleLock}</span>
+              </motion.button>
             </div>
           </motion.div>
         )}
@@ -146,10 +165,10 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
           {isSticky && (
             <button
               onClick={toggleSticky}
-              className="px-3 py-1.5 bg-rose-950/90 hover:bg-rose-900/90 text-rose-400 border border-rose-500/20 rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-xl backdrop-blur-md"
+              className="px-3 py-1.5 bg-rose-950/90 hover:bg-rose-900/90 text-rose-400 border border-rose-500/20 rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 shadow-xl backdrop-blur-md cursor-pointer"
             >
               <Unlock className="w-3 h-3" />
-              {language === 'fa' ? 'قفله کردن مجدد' : 'Lock Payload'}
+              {t.lockPayload}
             </button>
           )}
         </div>
@@ -165,9 +184,7 @@ export const DecryptedPayloadShield: React.FC<DecryptedPayloadShieldProps> = ({
             className="absolute top-16 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs p-3 bg-amber-500/10 border border-amber-500/20 backdrop-blur-md rounded-2xl text-center shadow-2xl"
           >
             <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wider">
-              ⚠️ {language === 'fa' 
-                ? 'هشدار: رمزگشایی مداوم فعال است. صفحه اکنون در برابر اسکرین‌شات آسیب‌پذیر می‌باشد!' 
-                : 'Warning: Sticky view active. Content is vulnerable to screenshot triggers!'}
+              ⚠️ {t.stickyWarning}
             </p>
           </motion.div>
         )}

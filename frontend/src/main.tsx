@@ -1,6 +1,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
+import { AppProviders } from './context/AppProviders';
 import './index.css';
 import { loadWasm } from './utils/wasmLoader';
 
@@ -9,6 +10,9 @@ loadWasm().catch(console.error);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </StrictMode>,
 );
+

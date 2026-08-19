@@ -11,24 +11,42 @@ export const getFileBase64 = (file: File | Blob): Promise<string> => {
   });
 };
 
-export const b64toBlob = (b64: string, type: string) => {
-  const byteChars = atob(b64);
-  const byteNumbers = new Array(byteChars.length);
-  for (let i = 0; i < byteChars.length; i++) {
-    byteNumbers[i] = byteChars.charCodeAt(i);
+export const b64toUint8Array = (input: any): Uint8Array => {
+  if (!input) return new Uint8Array(0);
+  if (input instanceof Uint8Array) return input;
+  if (Array.isArray(input)) return new Uint8Array(input);
+  if (typeof input !== 'string') {
+    try {
+      return new Uint8Array(input);
+    } catch (_) {
+      return new Uint8Array(0);
+    }
   }
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type });
+  let s = input.trim();
+  if (s.includes(',')) {
+    s = s.split(',')[1];
+  }
+  s = s.replace(/-/g, '+').replace(/_/g, '/').replace(/\s+/g, '');
+  while (s.length % 4) {
+    s += '=';
+  }
+  try {
+    const binary = atob(s);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  } catch (err) {
+    console.error("b64toUint8Array error on input:", s.slice(0, 40), err);
+    return new Uint8Array(0);
+  }
 };
 
-export const b64toUint8Array = (b64: string): Uint8Array => {
-  const binary = atob(b64);
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
+export const b64toBlob = (input: any, type: string) => {
+  const byteArray = b64toUint8Array(input);
+  return new Blob([byteArray], { type });
 };
 
 export const uint8ArrayToB64 = (uint8: Uint8Array): string => {

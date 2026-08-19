@@ -36,3 +36,9 @@ export const isAsciiChar = (char: string) => {
   const code = char.charCodeAt(0);
   return code >= 32 && code <= 126;
 };
+
+export const JALALI_MONTH_NAMES = [
+  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+];
+

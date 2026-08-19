@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Calendar as CalendarIcon, Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import { jalaliToGregorian, gregorianToJalali, isJalaliLeapYear } from '../utils/jalaliConverter';
 import { localizeDigitsValue } from '../utils/numberConverter';
+import { translations } from '../data/translations';
+import { Language } from '../types';
 
 interface DateTimePickerProps {
   value: number | null; // epoch timestamp in seconds
   onChange: (value: number) => void;
-  language: 'en' | 'fa';
+  language: Language;
   isDarkMode: boolean;
 }
 
@@ -314,29 +316,31 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
     triggerChange(year, month, day, hour12, minute, val);
   };
 
+  const t = translations[language] || translations.en;
+
   // Helper translations base
   const tTab = {
-    date: isJalali ? 'تاریخ بازگشایی' : 'Unlock Date',
-    time: isJalali ? 'زمان بازگشایی' : 'Unlock Time',
-    timePill: isJalali ? 'ساعت بازگشایی' : 'Time Selection',
-    datePill: isJalali ? 'انتخاب تاریخ' : 'Date Selection',
-    year: isJalali ? 'سال' : 'Year',
-    month: isJalali ? 'ماه' : 'Month',
-    day: isJalali ? 'روز' : 'Day',
-    hour: isJalali ? 'ساعت' : 'Hour',
-    minute: isJalali ? 'دقیقه' : 'Minute',
-    period: isJalali ? 'بخش روز' : 'AM/PM',
+    date: t.unlockDate || 'Date',
+    time: t.unlockTime || 'Time',
+    timePill: t.timeSelection || t.unlockTime || 'Time',
+    datePill: t.dateSelection || t.unlockDate || 'Date',
+    year: t.year || 'Year',
+    month: t.month || 'Month',
+    day: t.day || 'Day',
+    hour: t.hours || 'Hour',
+    minute: t.minutes || 'Minute',
+    period: t.period || 'AM/PM',
   };
 
   // Formatting strings
   const formatTimeStr = () => {
     const formattedMin = minute < 10 ? `0${minute}` : `${minute}`;
     const displayHour = hour12;
+    const ampmStr = ampm === 'AM' ? (t.am || 'AM') : (t.pm || 'PM');
     if (isJalali) {
-      const ampmStr = ampm === 'AM' ? 'قبل از ظهر (AM)' : 'بعد از ظهر (PM)';
       return localizeDigitsValue(`${displayHour}:${formattedMin} ${ampmStr}`, 'fa');
     }
-    return `${displayHour}:${formattedMin} ${ampm}`;
+    return `${displayHour}:${formattedMin} ${ampmStr}`;
   };
 
   const formatDateStr = () => {
@@ -353,9 +357,9 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
       isDarkMode 
         ? 'bg-zinc-950/40 border-purple-500/10 shadow-2xl shadow-purple-950/5' 
         : 'bg-white border-zinc-100 shadow-xl shadow-zinc-200/50'
-    }`} dir={isJalali ? 'rtl' : 'ltr'}>
+    }`} dir="ltr">
       
-      {/* Dynamic Header mimicking the premium look in sample */}
+      {/* Dynamic Header */}
       <div className="flex items-center justify-between border-b border-zinc-500/10 pb-4">
         <div className="flex items-center gap-2.5">
           <div className={`p-2 rounded-xl ${isDarkMode ? 'bg-purple-500/10 text-purple-400' : 'bg-purple-50 text-purple-600'}`}>
@@ -422,14 +426,8 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
           </span>
         </div>
 
-        {/* Wheel wrapper with a single, precisely aligned absolute selection border */}
+        {/* Wheel wrapper */}
         <div className="relative">
-          <div className={`absolute top-1/2 -translate-y-1/2 left-1 right-1 h-11 pointer-events-none rounded-2xl border ${
-            isDarkMode 
-              ? 'bg-white/[0.06] border-white/10 shadow-lg' 
-              : 'bg-purple-500/[0.05] border-purple-500/25 shadow-sm'
-          }`} />
-
           {/* Top Mask Gradient */}
           <div className={`absolute top-0 left-0 right-0 h-12 pointer-events-none z-10 bg-gradient-to-b ${
             isDarkMode 
@@ -534,7 +532,7 @@ interface PickerScrollColProps<T> {
   displayFormatter?: (val: T) => string;
   onChange: (val: T) => void;
   isDarkMode: boolean;
-  language: 'en' | 'fa';
+  language: Language;
 }
 
 function PickerScrollCol<T extends string | number>({
@@ -732,11 +730,11 @@ function PickerScrollCol<T extends string | number>({
               className={`w-full text-center font-bold transition-all duration-200 ease-out pointer-events-auto leading-none cursor-pointer flex items-center justify-center whitespace-nowrap truncate px-1 ${
                 isActive 
                   ? isDarkMode 
-                    ? `text-purple-400 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-sans' : 'font-mono'}` 
-                    : `text-purple-600 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-sans' : 'font-mono'}`
+                    ? `text-purple-400 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-vazir' : 'font-mono'}` 
+                    : `text-purple-600 font-extrabold text-base sm:text-lg md:text-xl ${language === 'fa' ? 'font-vazir' : 'font-mono'}`
                   : isDarkMode 
-                    ? 'text-zinc-400 text-xs sm:text-sm font-semibold' 
-                    : 'text-zinc-500 text-xs sm:text-sm font-semibold'
+                    ? `text-zinc-400 text-xs sm:text-sm font-semibold ${language === 'fa' ? 'font-vazir' : ''}` 
+                    : `text-zinc-500 text-xs sm:text-sm font-semibold ${language === 'fa' ? 'font-vazir' : ''}`
               }`}
             >
               {localizedDisplay}

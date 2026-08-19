@@ -164,14 +164,14 @@ export function useViewSecret({
 
       const hash = (viewInput.includes('#') ? viewInput.split('#')[1] : viewInput).trim();
       if (!hash || hash === 'undefined') {
-        setStatus({ type: 'err', msg: language === 'fa' ? 'لطفاً شناسه یا لینک معتبر وارد کنید' : 'Please enter a valid link or paste ID' });
+        setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه یا لینک معتبر وارد کن!' : 'Please enter a valid link or paste ID' });
         return;
       }
       
       if (hash.startsWith('e2e-')) {
         const id = hash.replace('e2e-', '').trim();
         if (!id || id === 'undefined') {
-          setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه کانال معتبر نیست' : 'Invalid channel ID' });
+          setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه کانال معتبر نیس!' : 'Invalid channel ID' });
           return;
         }
         const res = await fetch(`/api/paste/${id}`);
@@ -198,7 +198,7 @@ export function useViewSecret({
         isFile = true;
       }
       if (!id || id === 'undefined') {
-        setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه پاست معتبر نیست' : 'Invalid paste ID' });
+        setStatus({ type: 'err', msg: language === 'fa' ? 'شناسه پِیستت معتبر نیس!' : 'Invalid paste ID' });
         return;
       }
       const res = await fetch(`/api/paste/${id}?key=${keyPart || ''}`);

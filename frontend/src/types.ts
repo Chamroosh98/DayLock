@@ -4,7 +4,7 @@ export * from './types/app';
 
 export type ContentType = 'text' | 'file' | 'voice' | 'image' | 'stego' | 'shamir' | 'audio' | 'e2e';
 export type MainTab = 'create' | 'view';
-export type Language = 'en' | 'fa';
+export type Language = 'en' | 'fa' | 'ru' | 'zh';
 
 export interface Country {
   code: string;
@@ -37,7 +37,8 @@ export interface OptionToggleProps {
   icon: React.ReactNode;
   title: string;
   isDarkMode: boolean;
-  variant?: 'default' | 'danger' | 'warning';
+  language?: string;
+  variant?: 'default' | 'danger' | 'warning' | 'cyan' | 'purple' | 'blue' | 'indigo';
 }
 
 export interface CustomSelectProps {

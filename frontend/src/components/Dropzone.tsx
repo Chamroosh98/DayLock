@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { DropzoneProps } from '../types';
+import { localizeDigitsValue } from '../utils/numberConverter';
+import { translations } from '../data/translations';
 
 export const Dropzone: React.FC<DropzoneProps> = ({ 
   onSelect, 
@@ -12,6 +14,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   previewUrl,
   language
 }) => {
+  const t = translations[language || 'en'] || translations.en;
   const inputRef = useRef<HTMLInputElement>(null);
   const [internalPreview, setInternalPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -78,12 +81,12 @@ export const Dropzone: React.FC<DropzoneProps> = ({
               }
             } as any);
           }}
-          className={`absolute top-4 right-4 z-20 w-8 h-8 rounded-full border flex items-center justify-center backdrop-blur-md transition-all scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 ${
+          className={`absolute top-4 right-4 z-20 w-8 h-8 rounded-full border flex items-center justify-center backdrop-blur-md transition-all opacity-80 hover:opacity-100 group-hover:opacity-100 cursor-pointer ${
             isDarkMode 
               ? 'bg-zinc-900/80 border-white/10 text-zinc-400 hover:text-red-400 hover:bg-zinc-800' 
               : 'bg-white/80 border-zinc-200 text-zinc-600 hover:text-red-600 hover:bg-zinc-100'
           }`}
-          title="Remove File"
+          title={t.removeFile || "Remove File"}
         >
           <X className="w-4 h-4" />
         </button>
@@ -108,21 +111,21 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         {icon}
       </div>
 
-      <div className="relative z-10 text-center max-w-xs px-2 space-y-1">
-        <p className={`text-[11px] font-black uppercase tracking-widest truncate ${
+      <div className="relative z-10 text-center max-w-xs sm:max-w-sm px-4 space-y-1.5">
+        <p className={`text-xs sm:text-[13px] font-bold tracking-normal leading-relaxed ${
           selectedFile 
-            ? (isDarkMode ? 'text-zinc-150' : 'text-zinc-900') 
-            : (isDarkMode ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600 group-hover:text-zinc-900')
-        }`}>
+            ? (isDarkMode ? 'text-zinc-100 truncate' : 'text-zinc-900 truncate') 
+            : (isDarkMode ? 'text-zinc-300 group-hover:text-zinc-100' : 'text-zinc-700 group-hover:text-zinc-950')
+        } ${language === 'fa' ? 'font-vazir' : ''}`}>
           {selectedFile ? selectedFile.name : label}
         </p>
         {selectedFile ? (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-mono text-emerald-400 font-bold">
-            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+          <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] text-emerald-400 font-bold ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}>
+            {localizeDigitsValue((selectedFile.size / 1024 / 1024).toFixed(2), language || 'en')} {t.mbUnit}
           </div>
         ) : (
-          <p className="text-[8px] uppercase tracking-wider text-zinc-500 opacity-80">
-            {language === 'fa' ? 'بکشید و رها کنید یا کلیک کنید' : 'Drag & Drop or Tap to Browse'}
+          <p className={`text-[9px] sm:text-[10px] tracking-wider text-zinc-500 opacity-80 ${language === 'fa' ? 'font-vazir' : 'uppercase'}`}>
+            {t.dragDropHint}
           </p>
         )}
       </div>

@@ -37,15 +37,30 @@ export function b64url_encode(buf: Uint8Array): string {
 }
 
 // Helper to decode base64url string to Uint8Array
-export function b64url_decode(str: string): Uint8Array {
-  let s = str.replace(/-/g, '+').replace(/_/g, '/');
-  while (s.length % 4) s += '=';
-  const binary = atob(s);
-  const out = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    out[i] = binary.charCodeAt(i);
+export function b64url_decode(str: any): Uint8Array {
+  if (!str) return new Uint8Array(0);
+  if (str instanceof Uint8Array) return str;
+  if (Array.isArray(str)) return new Uint8Array(str);
+  if (typeof str !== 'string') {
+    try {
+      return new Uint8Array(str);
+    } catch (_) {
+      return new Uint8Array(0);
+    }
   }
-  return out;
+  let s = str.trim().replace(/-/g, '+').replace(/_/g, '/').replace(/\s+/g, '');
+  while (s.length % 4) s += '=';
+  try {
+    const binary = atob(s);
+    const out = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      out[i] = binary.charCodeAt(i);
+    }
+    return out;
+  } catch (err) {
+    console.error("b64url_decode error on input:", str, err);
+    return new Uint8Array(0);
+  }
 }
 
 // Helper to decode standard base64 string to Uint8Array
@@ -54,14 +69,29 @@ export function b64toUint8Array(input: any): Uint8Array {
   if (input instanceof Uint8Array) return input;
   if (Array.isArray(input)) return new Uint8Array(input);
   if (typeof input !== 'string') {
-    return new Uint8Array(input);
+    try {
+      return new Uint8Array(input);
+    } catch (_) {
+      return new Uint8Array(0);
+    }
   }
-  const binary = atob(input.includes(',') ? input.split(',')[1] : input);
-  const out = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    out[i] = binary.charCodeAt(i);
+  let s = input.trim();
+  if (s.includes(',')) {
+    s = s.split(',')[1];
   }
-  return out;
+  s = s.replace(/-/g, '+').replace(/_/g, '/').replace(/\s+/g, '');
+  while (s.length % 4) s += '=';
+  try {
+    const binary = atob(s);
+    const out = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      out[i] = binary.charCodeAt(i);
+    }
+    return out;
+  } catch (err) {
+    console.error("b64toUint8Array error on input:", input, err);
+    return new Uint8Array(0);
+  }
 }
 
 // Helper to convert Uint8Array to standard base64 string

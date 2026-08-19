@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { QrCode, Copy, Download, Check, Zap, Layers } from 'lucide-react';
 import QRCode from 'qrcode';
 import { copyToClipboardWithAutoClear } from '../utils/clipboardManager';
+import { localizeDigitsValue } from '../utils/numberConverter';
 
 interface QrCodeHubProps {
   decryptedContent: any;
@@ -157,6 +158,8 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
 
   }, [extractedConfigs, selectedConfigIndex, isVpnConfig]);
 
+  const isRtl = language === 'fa';
+
   if (!decryptedContent || !isVpnConfig) return null;
 
   const currentConfig = extractedConfigs[selectedConfigIndex] || '';
@@ -186,7 +189,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
     try {
       const allText = extractedConfigs.join('\n');
       await copyToClipboardWithAutoClear(allText, 30000, (msg) => setStatus({ type: 'warn', msg }), language === 'fa' ? 'fa' : 'en');
-      setStatus({ type: 'ok', msg: language === 'fa' ? "تمامی کانفیگ‌ها در حافظه کپی شدند!" : "All configurations copied to clipboard!" });
+      setStatus({ type: 'ok', msg: t.allConfigsCopied });
     } catch (err) {
       console.error("Failed to copy all configs", err);
     }
@@ -213,14 +216,17 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
       ]);
-      setStatus({ type: 'ok', msg: language === 'fa' ? "تصویر کد QR با موفقیت کپی شد!" : "QR Image copied to clipboard!" });
+      setStatus({ type: 'ok', msg: t.qrImageCopied });
     } catch (err) {
       handleDownload();
     }
   };
 
   return (
-    <div className={`p-6 rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/20 border-white/5' : 'bg-zinc-50/50 border-zinc-200'} space-y-6 mt-4`}>
+    <div 
+      dir={isRtl ? 'rtl' : 'ltr'} 
+      className={`p-6 rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/20 border-white/5' : 'bg-zinc-50/50 border-zinc-200'} space-y-6 mt-4 ${isRtl ? 'font-vazir' : ''}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
@@ -233,12 +239,15 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
               <AnonymousIcon className="w-5.5 h-5.5 text-emerald-500 animate-pulse" />
             </div>
           </div>
-          <div>
-            <h3 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>{t.qrCode}</h3>
-            <p className={`text-[9px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} mt-0.5 leading-snug`}>
-              {language === 'fa' 
-                ? 'برای وارد کردن مستقیم کانفیگ VPN در موبایل خود، اسکن کنید.' 
-                : 'Scan to import the VPN configuration directly to your device.'}
+          <div className={isRtl ? 'text-right' : 'text-left'}>
+            <h3 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>
+              QR Code
+            </h3>
+            <p 
+              dir={isRtl ? 'rtl' : 'ltr'}
+              className={`text-[9px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} mt-0.5 leading-snug`}
+            >
+              {t.qrDesc}
             </p>
           </div>
         </div>
@@ -248,8 +257,8 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
       {extractedConfigs.length > 1 && (
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>
-              {language === 'fa' ? 'کانفیگ‌های شناسایی شده' : 'Detected Configurations'} ({extractedConfigs.length})
+            <span className={`text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : ''}`}>
+              {t.detectedConfigs} ({localizeDigitsValue(extractedConfigs.length, language)})
             </span>
             <button
               onClick={handleCopyAllConfigs}
@@ -259,8 +268,17 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
                   : 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
               }`}
             >
-              <Layers className="w-3.5 h-3.5" />
-              {language === 'fa' ? 'کپی همه کانفیگ‌ها' : 'Copy All Configs'}
+              {isRtl ? (
+                <>
+                  <span dir="rtl">{t.copyAllConfigs}</span>
+                  <Layers className="w-3.5 h-3.5" />
+                </>
+              ) : (
+                <>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>{t.copyAllConfigs}</span>
+                </>
+              )}
             </button>
           </div>
           
@@ -285,7 +303,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-emerald-500' : 'bg-zinc-500'} ${isSelected ? 'animate-pulse' : ''}`} />
-                  <div className="flex flex-col text-left">
+                  <div className={`flex flex-col ${isRtl ? 'text-right' : 'text-left'}`}>
                     <span className="text-[10px] font-black tracking-wide leading-none">{name}</span>
                     <span className={`text-[8px] opacity-75 font-mono leading-none mt-1 uppercase tracking-wider`}>{protocol}</span>
                   </div>
@@ -301,7 +319,7 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
         <div className="flex flex-col items-center gap-2">
           <div 
             onClick={handleCopy}
-            title={language === 'fa' ? "برای کپی کردن کانفیگ کلیک کنید" : "Click to Copy Config"}
+            title={t.clickToCopyConfig}
             className={`group relative p-4 rounded-3xl border ${isDarkMode ? 'bg-white border-white/10' : 'bg-white border-zinc-200'} shadow-2xl cursor-pointer overflow-hidden transition-transform duration-300 hover:scale-[1.03] active:scale-95`}
           >
             {secretQrUrl ? (
@@ -313,8 +331,17 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
             {/* Hover overlay with CTA to Copy */}
             <div className="absolute inset-x-0 bottom-0 bg-black/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center py-1.5 gap-0.5">
               <span className="text-[7.5px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
-                <Copy className="w-2.5 h-2.5" />
-                {language === 'fa' ? "کپی مستقیم کانفیگ" : "Copy Config Only"}
+                {isRtl ? (
+                  <>
+                    <span dir="rtl">{t.copyConfigOnly}</span>
+                    <Copy className="w-2.5 h-2.5" />
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-2.5 h-2.5" />
+                    <span>{t.copyConfigOnly}</span>
+                  </>
+                )}
               </span>
             </div>
 
@@ -326,8 +353,11 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
               </div>
             )}
           </div>
-          <span className={`text-[8.5px] font-bold ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'} select-none uppercase tracking-widest`}>
-            {language === 'fa' ? "برای کپی روی QR کلیک کنید" : "Click QR to Copy Data"}
+          <span 
+            dir={isRtl ? 'rtl' : 'ltr'}
+            className={`text-[8.5px] font-bold ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'} select-none uppercase tracking-widest text-center`}
+          >
+            {t.clickQrToCopyData}
           </span>
         </div>
 
@@ -335,18 +365,36 @@ export const QrCodeHub: React.FC<QrCodeHubProps> = ({
         <div className="flex flex-col gap-2 w-full sm:w-auto">
           <button
             onClick={handleCopyQrImage}
-            className={`px-5 py-3 ${isDarkMode ? 'bg-zinc-900 border-white/5 text-zinc-200 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-800 hover:bg-zinc-200'} border rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer`}
+            className={`px-5 py-3 ${isDarkMode ? 'bg-zinc-900 border-white/5 text-zinc-200 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-800 hover:bg-zinc-200'} border rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 cursor-pointer`}
           >
-            <Copy className="w-3.5 h-3.5 text-emerald-500" />
-            {t.copyQr}
+            {isRtl ? (
+              <>
+                <span dir="rtl" className="font-vazir">{t.copyQr}</span>
+                <Copy className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>{t.copyQr}</span>
+              </>
+            )}
           </button>
 
           <button
             onClick={handleDownload}
-            className={`px-5 py-3 ${isDarkMode ? 'bg-zinc-900 border-white/5 text-zinc-200 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-800 hover:bg-zinc-200'} border rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer`}
+            className={`px-5 py-3 ${isDarkMode ? 'bg-zinc-900 border-white/5 text-zinc-200 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-800 hover:bg-zinc-200'} border rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 cursor-pointer`}
           >
-            <Download className="w-3.5 h-3.5 text-emerald-500" />
-            {t.downloadQr}
+            {isRtl ? (
+              <>
+                <span dir="rtl" className="font-vazir">{t.downloadQr}</span>
+                <Download className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>{t.downloadQr}</span>
+              </>
+            )}
           </button>
         </div>
       </div>

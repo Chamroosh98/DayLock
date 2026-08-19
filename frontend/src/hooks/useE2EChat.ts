@@ -37,7 +37,7 @@ export function useE2EChat({
       const kp = await e2eGenerateKeyPair();
       setE2EKeyPair(kp);
       localStorage.setItem('daylock_e2e_keypair', JSON.stringify(kp));
-      setStatus({ type: 'ok', msg: language === 'fa' ? 'کلیدهای RSA-2048 با موفقیت تولید شدند' : 'E2E RSA-2048 identity generated!' });
+      setStatus({ type: 'ok', msg: language === 'fa' ? 'کلیدهای RSA-2048 با پیروزی ساخته شدن!' : 'E2E RSA-2048 identity generated!' });
     } catch (err: any) {
       setStatus({ type: 'err', msg: err.message || 'Failed to generate E2E keys' });
     }
@@ -106,7 +106,7 @@ export function useE2EChat({
             }
           } else {
             text = language === 'fa'
-              ? "[رمزگذاری شده: برای رمزگشایی ابتدا هویت E2E بسازید]"
+              ? "[رمزگذاری شده: برای رمزگشایی ابتدا هویت E2E بساز]"
               : "[Encrypted: Generate E2E identity to decrypt]";
           }
           decryptedMsgs.push({

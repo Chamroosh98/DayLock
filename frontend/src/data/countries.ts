@@ -41,7 +41,7 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
     return (
       React.createElement('svg', {
         viewBox: "0 0 1200 800",
-        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle ${className}`,
+        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 ${className}`,
         xmlns: "http://www.w3.org/2000/svg"
       }, 
         React.createElement('rect', { width: "1200", height: "266.67", fill: "#239f40" }),
@@ -55,5 +55,52 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
       )
     );
   }
-  return React.createElement('span', { className }, emoji);
+
+  if (code === 'US') {
+    return (
+      React.createElement('svg', {
+        viewBox: "0 0 1235 650",
+        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 border border-black/10 ${className}`,
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+        React.createElement('rect', { width: "1235", height: "650", fill: "#b22234" }),
+        React.createElement('path', { d: "M0,50H1235M0,150H1235M0,250H1235M0,350H1235M0,450H1235M0,550H1235", stroke: "#fff", strokeWidth: "50" }),
+        React.createElement('rect', { width: "494", height: "350", fill: "#3c3b6e" }),
+        React.createElement('circle', { cx: "247", cy: "175", r: "35", fill: "#fff" })
+      )
+    );
+  }
+
+  if (code === 'RU') {
+    return (
+      React.createElement('svg', {
+        viewBox: "0 0 900 600",
+        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 border border-black/10 ${className}`,
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+        React.createElement('rect', { width: "900", height: "200", fill: "#ffffff" }),
+        React.createElement('rect', { y: "200", width: "900", height: "200", fill: "#0039a6" }),
+        React.createElement('rect', { y: "400", width: "900", height: "200", fill: "#d52b1e" })
+      )
+    );
+  }
+
+  if (code === 'CN') {
+    return (
+      React.createElement('svg', {
+        viewBox: "0 0 900 600",
+        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 border border-black/10 ${className}`,
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+        React.createElement('rect', { width: "900", height: "600", fill: "#de2910" }),
+        React.createElement('polygon', { points: "150,90 162,126 200,126 169,148 181,184 150,162 119,184 131,148 100,126 138,126", fill: "#ffde00" }),
+        React.createElement('circle', { cx: "250", cy: "60", r: "10", fill: "#ffde00" }),
+        React.createElement('circle', { cx: "280", cy: "110", r: "10", fill: "#ffde00" }),
+        React.createElement('circle', { cx: "280", cy: "170", r: "10", fill: "#ffde00" }),
+        React.createElement('circle', { cx: "250", cy: "220", r: "10", fill: "#ffde00" })
+      )
+    );
+  }
+
+  return React.createElement('span', { className: `inline-flex items-center justify-center w-5 h-3.5 leading-none select-none text-xs ${className}` }, emoji);
 };

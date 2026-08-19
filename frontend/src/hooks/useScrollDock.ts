@@ -2,23 +2,23 @@ import { useState, useEffect } from 'react';
 
 export function useScrollDock() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showDock, setShowDock] = useState(false);
+  const [showDock, setShowDock] = useState(true);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 20);
+      setIsScrolled(currentScrollY > 50);
 
-      if (currentScrollY > 100) {
-        if (currentScrollY < lastScrollY) {
-          setShowDock(true);
-        } else if (currentScrollY - lastScrollY > 10) {
-          setShowDock(false);
-        }
-      } else {
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setShowDock(false);
+      } else if (currentScrollY < lastScrollY) {
+        setShowDock(true);
+      }
+
+      if (currentScrollY < 10) {
+        setShowDock(true);
       }
 
       lastScrollY = currentScrollY;
@@ -28,5 +28,5 @@ export function useScrollDock() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return { isScrolled, showDock };
+  return { isScrolled, showDock, setIsScrolled, setShowDock };
 }
