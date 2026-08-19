@@ -20,7 +20,9 @@
 </p>
 
 <p align="center">
-  <a href="i18n/README_Fa.md"><strong>Persian</strong></a>
+  <a href="i18n/README_Fa.md"><strong>Persian</strong></a> | 
+  <a href="i18n/README_Zh.md"><strong>中文指南</strong></a> | 
+  <a href="i18n/README_Ru.md"><strong>Русский</strong></a>
 </p>
 
 ---
