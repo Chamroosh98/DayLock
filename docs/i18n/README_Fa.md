@@ -283,5 +283,4 @@ chmod +x setup.sh
 دیتابیس‌های کلودفلر (Cloudflare KV Storage)
   ├── DAYLOCK_PASTE_KV
   └── DAYLOCK_RATE_LIMIT_KV
-
 ```

@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <strong>🕊️ Remembering the Bloody Events in Iran on Jan 8-9, 2026</strong>
+  <strong>🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026</strong>
 </p>
 
 ---
@@ -201,7 +201,4 @@ Cloudflare Worker Edge API
 Cloudflare KV Storage
   ├── DAYLOCK_PASTE_KV
   └── DAYLOCK_RATE_LIMIT_KV
-
-```
-
 ```
