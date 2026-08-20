@@ -33,6 +33,7 @@ interface AudioSectionProps {
   disabledInputs: Record<string, boolean>;
   handlePasswordChange: (value: string, setValue: (v: string) => void, inputId: string) => void;
   handlePasswordKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, inputId: string) => void;
+  setStatus?: (status: { type: 'ok' | 'err' | 'warn'; msg: string } | null) => void;
 }
 
 export const AudioSection: React.FC<AudioSectionProps> = ({
@@ -63,6 +64,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
   disabledInputs,
   handlePasswordChange,
   handlePasswordKeyDown,
+  setStatus,
 }) => {
   return (
     <div className="space-y-6 animate-fade-in">
@@ -151,6 +153,13 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
                 onSelect={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
+                    if (!file.name.toLowerCase().endsWith('.wav')) {
+                      setStatus?.({ type: 'err', msg: t.audioWavRequired || "Audio file must be uncompressed WAV format!" });
+                      return;
+                    }
+                    if (file.size > 20 * 1024 * 1024) {
+                      setStatus?.({ type: 'warn', msg: t.audioSizeWarning || "Audio file exceeds 20 MB." });
+                    }
                     setAudioFilename(file.name);
                     const buf = await file.arrayBuffer();
                     const bytes = new Uint8Array(buf);
@@ -163,7 +172,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
                 }}
                 selectedFile={null}
                 icon={<Headphones className="w-10 h-10" />}
-                accept="audio/wav,audio/x-wav"
+                accept="audio/wav,audio/x-wav,.wav"
                 isDarkMode={isDarkMode}
                 label={t.uploadWavUncompressed}
                 language={language}
@@ -228,9 +237,18 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
               className={`w-full h-28 ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-600' : 'bg-white border-zinc-300 text-zinc-800 placeholder:text-zinc-500'} border rounded-2xl p-4 focus:outline-none text-xs leading-relaxed resize-none transition-smooth ${getAutoContainerClass(audioText, language)}`}
             />
             {audioWavCapacity > 0 && (
-              <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest text-zinc-400 px-1">
-                <span>Usage</span>
-                <span>{audioText.length} / {audioWavCapacity} chars</span>
+              <div className="space-y-1">
+                <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest text-zinc-400 px-1">
+                  <span>Usage</span>
+                  <span className={audioText.length > audioWavCapacity ? 'text-red-500 font-bold' : ''}>
+                    {audioText.length} / {audioWavCapacity} chars
+                  </span>
+                </div>
+                {audioText.length > audioWavCapacity && (
+                  <p className={`text-[10px] text-red-500 font-bold ${language === 'fa' ? 'font-vazir text-right' : 'text-left'} px-1`}>
+                    {t.audioCapacityExceeded}
+                  </p>
+                )}
               </div>
             )}
           </div>

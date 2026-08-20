@@ -39,6 +39,8 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
 
   if (!status || !status.msg) return null;
 
+  const isFa = language === 'fa';
+
   const getIcon = () => {
     switch (status.type) {
       case 'ok':
@@ -52,44 +54,34 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
     }
   };
 
-  const getBorderColor = () => {
-    switch (status.type) {
-      case 'ok':
-        return 'border-emerald-500/30';
-      case 'err':
-        return 'border-red-500/30';
-      case 'warn':
-        return 'border-amber-500/30';
-      default:
-        return 'border-blue-500/30';
-    }
-  };
-
   return (
     <AnimatePresence>
       {status && (
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, y: 16, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[calc(100%-2rem)] px-1"
+          exit={{ opacity: 0, y: 10, scale: 0.96 }}
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] max-w-[min(460px,calc(100vw-24px))] w-fit px-2"
+          dir={isFa ? 'rtl' : 'ltr'}
         >
           <div
-            className={`flex items-center justify-between gap-3 p-3.5 rounded-2xl border backdrop-blur-md shadow-2xl transition-all ${getBorderColor()} ${
+            className={`flex items-center justify-between gap-2.5 py-2.5 px-3.5 sm:py-3 sm:px-4 rounded-2xl border backdrop-blur-md shadow-xl transition-all ${
               isDarkMode
-                ? 'bg-zinc-900/90 text-zinc-100'
-                : 'bg-white/90 text-zinc-800'
+                ? 'bg-zinc-900/95 border-white/10 text-zinc-100'
+                : 'bg-white/95 border-zinc-200 text-zinc-800'
             }`}
           >
-            <div className={`flex items-center gap-2.5 min-w-0 ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
               {getIcon()}
-              <span className="text-xs font-medium truncate">{status.msg}</span>
+              <span className={`text-[11.5px] sm:text-xs font-medium leading-snug break-words ${isFa ? 'font-vazir text-right' : 'text-left'}`}>
+                {status.msg}
+              </span>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                isDarkMode ? 'hover:bg-white/10 text-zinc-400' : 'hover:bg-zinc-100 text-zinc-500'
+              className={`p-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                isDarkMode ? 'hover:bg-white/10 text-zinc-400' : 'hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600'
               }`}
             >
               <X className="w-3.5 h-3.5" />

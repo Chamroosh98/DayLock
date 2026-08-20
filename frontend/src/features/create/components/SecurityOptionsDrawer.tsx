@@ -200,7 +200,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
   ];
 
   return (
-    <div className="space-y-4">
+    <div id="options-grid" className="space-y-4">
       {/* Mobile: Horizontal Snap Carousel (Zero Truncation, Snap-X Mandatory, Peek-Ahead) */}
       <div className="block sm:hidden">
         <SecuritySnapCarousel
@@ -310,9 +310,21 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         {hasGeoLock && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
             <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-              <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-                {t.allowedGeoLocations}
-              </label>
+              <div className="flex items-center gap-2 px-1" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.12, 1],
+                    filter: ["drop-shadow(0 0 0px rgba(6,182,212,0))", "drop-shadow(0 0 8px rgba(6,182,212,0.8))", "drop-shadow(0 0 0px rgba(6,182,212,0))"]
+                  }}
+                  transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                  className="w-4 h-4 text-cyan-400 flex items-center justify-center shrink-0"
+                >
+                  <Globe className="w-4 h-4" />
+                </motion.div>
+                <label className={`font-bold text-cyan-400 dark:text-cyan-300 block ${language === 'fa' ? 'font-vazir text-right text-[11px] sm:text-xs' : 'text-[11px] sm:text-xs tracking-wide'}`}>
+                  {t.allowedGeoLocations}
+                </label>
+              </div>
 
               <div className="relative">
                 <Search className={`w-4 h-4 absolute top-1/2 -translate-y-1/2 text-zinc-500 ${language === 'fa' ? 'right-3.5' : 'left-3.5'}`} />
@@ -322,7 +334,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                   onChange={(e) => setCountrySearch(e.target.value)}
                   placeholder={t.searchCountry}
                   dir={language === 'fa' ? 'rtl' : 'ltr'}
-                  className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl ${language === 'fa' ? 'pr-10 pl-4 text-right font-vazir placeholder:text-right' : 'pl-10 pr-4 text-left font-sans placeholder:text-left'} py-3 text-xs outline-none focus:border-cyan-500/50`}
+                  className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl ${language === 'fa' ? 'pr-10 pl-4 text-right font-vazir placeholder:text-right text-xs placeholder:text-[11px]' : 'pl-10 pr-4 text-left font-sans placeholder:text-left text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-[13px]'} py-3 outline-none focus:border-cyan-500/50`}
                 />
 
                 {countryResults.length > 0 && (
@@ -337,7 +349,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                           }
                           setCountrySearch('');
                         }}
-                        className={`w-full p-2.5 rounded-xl flex items-center justify-between text-xs transition-colors ${isDarkMode ? 'hover:bg-white/5 text-zinc-200' : 'hover:bg-zinc-100 text-zinc-800'} ${language === 'fa' ? 'text-right font-vazir' : 'text-left font-sans'}`}
+                        className={`w-full p-2.5 rounded-xl flex items-center justify-between text-xs sm:text-sm transition-colors ${isDarkMode ? 'hover:bg-white/5 text-zinc-200' : 'hover:bg-zinc-100 text-zinc-800'} ${language === 'fa' ? 'text-right font-vazir' : 'text-left font-sans'}`}
                       >
                         <div className="flex items-center gap-2">
                           <Flag code={c.code} className="w-4 h-3 rounded-sm object-cover" />
@@ -354,7 +366,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                 {(allowedCountries || []).map((code) => {
                   const countryObj = COUNTRIES?.find(c => c.code === code);
                   return (
-                    <div key={code} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium">
+                    <div key={code} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs sm:text-[13px] font-medium">
                       <Flag code={code} className="w-3.5 h-2.5 rounded-sm object-cover" />
                       <span className={language === 'fa' ? 'font-vazir' : ''}>{language === 'fa' ? countryObj?.fa || code : countryObj?.name || code}</span>
                       <button
@@ -362,7 +374,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                         onClick={() => setAllowedCountries(allowedCountries.filter(c => c !== code))}
                         className="hover:text-red-400 p-0.5 cursor-pointer"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   );
@@ -378,34 +390,46 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         {hasAsnLock && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
             <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-              <div className="flex items-center justify-between" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
+              <div className="flex items-center gap-2 px-1">
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.15, 1],
+                    filter: ["drop-shadow(0 0 0px rgba(99,102,241,0))", "drop-shadow(0 0 8px rgba(99,102,241,0.8))", "drop-shadow(0 0 0px rgba(99,102,241,0))"]
+                  }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  className="w-4 h-4 text-indigo-400 flex items-center justify-center shrink-0"
+                >
+                  <RadioTower className="w-4 h-4" />
+                </motion.div>
+                <label className={`text-[11px] sm:text-xs font-bold text-indigo-400 dark:text-indigo-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
                   {t.asnNetworkRestriction}
                 </label>
-                <div className="flex gap-1 p-0.5 rounded-xl bg-zinc-900 border border-white/5" dir="ltr">
-                  <button
-                    type="button"
-                    onClick={() => setAsnMode('block')}
-                    className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${asnMode === 'block' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-zinc-500'}`}
-                  >
-                    Block
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAsnMode('allow')}
-                    className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${asnMode === 'allow' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-zinc-500'}`}
-                  >
-                    Allow
-                  </button>
-                </div>
               </div>
+
+              <div className="flex gap-1 p-1 rounded-xl bg-zinc-900 border border-white/10 w-full sm:w-fit" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <button
+                  type="button"
+                  onClick={() => setAsnMode('block')}
+                  className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all text-center ${language === 'fa' ? 'font-vazir' : 'uppercase'} ${asnMode === 'block' ? 'bg-red-500/20 text-red-400 border border-red-500/30 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                >
+                  {t.asnBlock}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAsnMode('allow')}
+                  className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all text-center ${language === 'fa' ? 'font-vazir' : 'uppercase'} ${asnMode === 'allow' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                >
+                  {t.asnAllow}
+                </button>
+              </div>
+
               <input
                 type="text"
                 value={asnSelected}
                 onChange={(e) => setAsnSelected(e.target.value)}
                 placeholder="AS15169, AS13335 (comma separated)..."
                 dir="ltr"
-                className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl p-3 text-xs outline-none focus:border-indigo-500/50 font-mono ${language === 'fa' ? 'text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
+                className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl p-3 text-xs sm:text-sm placeholder:text-[10.5px] sm:placeholder:text-xs outline-none focus:border-indigo-500/50 ${asnSelected ? 'font-mono' : 'font-sans'} text-left placeholder:text-left`}
               />
             </div>
           </motion.div>
@@ -417,9 +441,21 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         {hasDeadMans && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
             <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-              <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-                {t.inactivityTriggerInterval}
-              </label>
+              <div className="flex items-center gap-2 px-1" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <motion.div 
+                  animate={{ 
+                  scale: [1, 1.15, 1],
+                  filter: ["drop-shadow(0 0 0px rgba(239,68,68,0))", "drop-shadow(0 0 10px rgba(239,68,68,0.8))", "drop-shadow(0 0 0px rgba(239,68,68,0))"]
+                  }}
+                  transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                  className="w-4 h-4 text-red-400 flex items-center justify-center shrink-0"
+                >
+                  <Skull className="w-4 h-4" />
+                </motion.div>
+                <label className={`text-[11px] sm:text-xs font-bold text-red-400 dark:text-red-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                  {t.inactivityTriggerInterval}
+                </label>
+              </div>
               <div className="grid grid-cols-3 gap-2" dir={language === 'fa' ? 'rtl' : 'ltr'}>
                 {[
                   { label: t.preset24h, sec: 86400 },
@@ -430,13 +466,13 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     key={preset.sec}
                     type="button"
                     onClick={() => setDeadMansInterval(preset.sec)}
-                    className={`py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                    className={`py-2 px-1.5 rounded-xl text-[10.5px] sm:text-xs font-bold border transition-all cursor-pointer flex flex-col items-center justify-center leading-tight min-h-[44px] ${
                       deadMansInterval === preset.sec
-                        ? 'bg-red-500/20 border-red-500/40 text-red-400'
+                        ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-sm'
                         : isDarkMode
                         ? 'bg-zinc-900 border-white/5 text-zinc-400 hover:text-zinc-200'
                         : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:text-zinc-950'
-                    } ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}
+                    } ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}
                   >
                     {preset.label}
                   </button>
@@ -452,10 +488,22 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         {hasSelfDestruct && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
             <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-              <div className="flex items-center justify-between" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
-                  {t.maxHidesLimit}
-                </label>
+              <div className="flex items-center justify-between gap-2" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <div className="flex items-center gap-2 px-1">
+                  <motion.div 
+                    animate={{ 
+                      scale: [1, 1.18, 1],
+                      filter: ["drop-shadow(0 0 0px rgba(239,68,68,0))", "drop-shadow(0 0 10px rgba(239,68,68,0.9))", "drop-shadow(0 0 0px rgba(239,68,68,0))"]
+                    }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+                    className="w-4 h-4 text-red-400 flex items-center justify-center shrink-0"
+                  >
+                    <Bomb className="w-4 h-4" />
+                  </motion.div>
+                  <label className={`text-[11px] sm:text-xs font-bold text-red-400 dark:text-red-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                    {t.maxHidesLimit}
+                  </label>
+                </div>
                 <input
                   type={language === 'fa' ? 'text' : 'number'}
                   min={1}
@@ -466,14 +514,26 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     setSelfDestructHides(parseInt(eng) || 3);
                   }}
                   dir="ltr"
-                  className={`w-16 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-xl p-2 text-center text-xs ${language === 'fa' ? 'font-vazir' : 'font-mono'} font-bold`}
+                  className={`w-18 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-xl py-2 px-3 text-center text-xs sm:text-sm ${language === 'fa' ? 'font-vazir' : 'font-mono'} font-bold`}
                 />
               </div>
 
-              <div className="space-y-1.5 pt-2 border-t border-white/5" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                <label className={`text-[8px] font-black uppercase tracking-widest text-zinc-500 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-                  {t.destructionTriggerEvents}
-                </label>
+              <div className="space-y-2 pt-2 border-t border-white/5" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <div className="flex items-center gap-2 px-1">
+                  <motion.div 
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      opacity: [0.7, 1, 0.7]
+                    }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    className="w-3.5 h-3.5 text-zinc-400 flex items-center justify-center shrink-0"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                  </motion.div>
+                  <label className={`text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                    {t.destructionTriggerEvents}
+                  </label>
+                </div>
                 <div className="flex gap-2" dir={language === 'fa' ? 'rtl' : 'ltr'}>
                   {[
                     { id: 'tab', label: t.tabBlur },
@@ -493,12 +553,12 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                             setSelfDestructTriggers([...selfDestructTriggers, trig.id]);
                           }
                         }}
-                        className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase border transition-all cursor-pointer ${
+                        className={`flex-1 py-2 px-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase leading-tight border transition-all cursor-pointer text-center flex items-center justify-center min-h-[42px] ${
                           active
-                            ? 'bg-red-500/20 border-red-500/30 text-red-400'
+                            ? 'bg-red-500/20 border-red-500/30 text-red-400 shadow-sm'
                             : isDarkMode
-                            ? 'bg-zinc-900 border-white/5 text-zinc-500'
-                            : 'bg-zinc-100 border-zinc-200 text-zinc-600'
+                            ? 'bg-zinc-900 border-white/5 text-zinc-500 hover:text-zinc-300'
+                            : 'bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-zinc-900'
                         } ${language === 'fa' ? 'font-vazir' : ''}`}
                       >
                         {trig.label}
@@ -516,16 +576,29 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
       <AnimatePresence>
         {hasCanary && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
-            <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-2`}>
-              <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-                {t.canaryAlertWebhook}
-              </label>
+            <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+              <div className="flex items-center gap-2 px-1">
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.15, 1],
+                    filter: ["drop-shadow(0 0 0px rgba(59,130,246,0))", "drop-shadow(0 0 8px rgba(59,130,246,0.8))", "drop-shadow(0 0 0px rgba(59,130,246,0))"]
+                  }}
+                  transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                  className="w-4 h-4 text-blue-400 flex items-center justify-center shrink-0"
+                >
+                  <Bird className="w-4 h-4" />
+                </motion.div>
+                <label className={`text-[11px] sm:text-xs font-bold text-blue-400 dark:text-blue-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                  {t.canaryAlertWebhook}
+                </label>
+              </div>
               <input
                 type="url"
                 value={canaryUrl}
                 onChange={(e) => setCanaryUrl(e.target.value)}
                 placeholder="https://discord.com/api/webhooks/..."
-                className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl p-3.5 text-xs outline-none focus:border-blue-500/50 font-mono`}
+                dir="ltr"
+                className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl p-3.5 text-xs sm:text-sm placeholder:text-[10.5px] sm:placeholder:text-xs outline-none focus:border-blue-500/50 ${canaryUrl ? 'font-mono' : 'font-sans'} text-left placeholder:text-left`}
               />
             </div>
           </motion.div>
@@ -536,14 +609,12 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
       <AnimatePresence>
         {hasTimeLock && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
-            <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`}>
-              <DateTimePicker
-                value={unlockAt}
-                onChange={setUnlockAt}
-                isDarkMode={isDarkMode}
-                language={language}
-              />
-            </div>
+            <DateTimePicker
+              value={unlockAt}
+              onChange={setUnlockAt}
+              isDarkMode={isDarkMode}
+              language={language}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -601,11 +672,10 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
               >
                 {/* Honey Decoy Password */}
                 <div className="space-y-1.5">
-                  <label className={`text-[9px] font-black uppercase tracking-wider text-amber-500/90 block px-1 ${language === 'fa' ? 'font-vazir text-right' : 'text-left'}`}>
+                  <label className={`text-[10px] sm:text-[11px] font-bold text-amber-500 block px-1 ${language === 'fa' ? 'font-vazir text-right' : 'text-left tracking-wider uppercase'}`}>
                     {t.honeyDecoyPasswordLabel}
                   </label>
                   <div className="relative flex items-center">
-                    <HoneyPotIcon className="w-4 h-4 absolute left-3.5 text-amber-500 pointer-events-none" />
                     <input
                       id="honey-password-input"
                       type={showHoneyPwd ? 'text' : 'password'}
@@ -619,7 +689,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                         isDarkMode
                           ? 'bg-zinc-900/80 border-amber-500/30 text-amber-100 placeholder:text-zinc-500'
                           : 'bg-white border-amber-200 text-amber-950 placeholder:text-zinc-400'
-                      } border rounded-full pl-10 pr-10 py-3 min-h-[46px] text-xs outline-none focus:border-amber-500 transition-all text-left placeholder:text-left ${
+                      } border rounded-full pl-4 pr-10 py-3 min-h-[46px] text-xs outline-none focus:border-amber-500 transition-all text-left placeholder:text-left placeholder:text-[10px] sm:placeholder:text-[11px] ${
                         language === 'fa' ? 'font-vazir' : 'font-sans'
                       }`}
                     />
@@ -635,7 +705,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
 
                 {/* Honey Decoy Payload */}
                 <div className="space-y-1.5">
-                  <label className={`text-[9px] font-black uppercase tracking-wider text-amber-500/90 block px-1 ${language === 'fa' ? 'font-vazir text-right' : 'text-left'}`}>
+                  <label className={`text-[10px] sm:text-[11px] font-bold text-amber-500 block px-1 ${language === 'fa' ? 'font-vazir text-right' : 'text-left tracking-wider uppercase'}`}>
                     {t.honeyDecoyPayloadLabel}
                   </label>
                   <textarea
@@ -647,7 +717,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                       isDarkMode
                         ? 'bg-zinc-900/80 border-amber-500/30 text-amber-100 placeholder:text-zinc-500'
                         : 'bg-white border-amber-200 text-amber-950 placeholder:text-zinc-400'
-                    } border rounded-2xl p-3.5 text-xs outline-none resize-none focus:border-amber-500 transition-all ${language === 'fa' ? 'font-vazir text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
+                    } border rounded-2xl p-3.5 text-xs outline-none resize-none focus:border-amber-500 transition-all placeholder:text-[10px] sm:placeholder:text-[11px] ${language === 'fa' ? 'font-vazir text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
                   />
                 </div>
               </motion.div>

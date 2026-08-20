@@ -44,7 +44,13 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
       <div id="main-text-input" className={`flex flex-col rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'} overflow-hidden shadow-lg transition-all focus-within:ring-2 focus-within:ring-emerald-500/10`}>
         <textarea
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setMessage(val);
+            if (val.length > 500000) {
+              setStatus({ type: 'warn', msg: t.textLengthWarning || "Text length exceeds 500,000 characters." });
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder={t.payloadPlaceholder}
           dir={getAutoDir(message, language)}
@@ -52,10 +58,15 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
         />
         {/* Rich Nested Bottom Toolbar */}
         <div className={`flex items-center justify-between px-6 py-4 border-t ${isDarkMode ? 'bg-zinc-900/40 border-white/5' : 'bg-zinc-50 border-zinc-200'}`}>
-          <div className={`flex gap-2 text-[9px] text-zinc-500 tracking-wider ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}>
+          <div className={`flex items-center gap-2 text-[9px] ${message.length > 500000 ? 'text-amber-500 font-bold' : 'text-zinc-500'} tracking-wider ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}>
             <span>{localizeDigitsValue(message.length.toString(), language)} {t.charsLabel}</span>
             <span className="opacity-40">•</span>
             <span>{localizeDigitsValue((message.trim() === '' ? 0 : message.trim().split(/\s+/).length).toString(), language)} {t.wordsLabel}</span>
+            {message.length > 500000 && (
+              <span className="text-amber-500 text-[8.5px] font-bold">
+                ⚠️ ({localizeDigitsValue('500k', language)} max)
+              </span>
+            )}
           </div>
           <div className="flex gap-2">
             {message && (

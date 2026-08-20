@@ -251,6 +251,7 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
             disabledInputs={disabledInputs}
             handlePasswordChange={handlePasswordChange}
             handlePasswordKeyDown={handlePasswordKeyDown}
+            setStatus={setStatus}
           />
         )}
 

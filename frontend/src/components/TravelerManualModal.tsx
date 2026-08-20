@@ -100,7 +100,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
   };
 
   const getTabIcon = (tab: TabType, isActive: boolean) => {
-    const iconClass = "w-4 h-4 transition-transform duration-300 group-hover:scale-110";
+    const iconClass = "w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110";
     let icon = <BookOpen className={iconClass} />;
     switch (tab) {
       case 'overview': icon = <BookOpen className={iconClass} />; break;
@@ -113,7 +113,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
     }
 
     return (
-      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+      <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all ${
         isActive
           ? isDarkMode
             ? 'bg-emerald-500/20 text-emerald-400'
@@ -191,7 +191,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                     </div>
                   </div>
                   <div className={isRtl ? 'text-right' : 'text-left'}>
-                    <h2 className={`font-black text-xs sm:text-sm tracking-tight leading-tight ${isRtl ? 'font-vazir' : 'font-display'}`}>
+                    <h2 className="font-sans font-black text-xs sm:text-sm tracking-tight leading-tight">
                       {t.title}
                     </h2>
                   </div>
@@ -209,7 +209,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         dir={isRtl ? 'rtl' : 'ltr'}
-                        className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${isRtl ? 'text-right font-vazir' : 'text-left font-sans'} ${
+                        className={`group flex items-center gap-2 px-2.5 py-1.5 sm:py-2 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${isRtl ? 'text-right font-vazir' : 'text-left font-sans'} ${
                           isActive 
                             ? isDarkMode
                               ? 'bg-emerald-500/10 text-emerald-400 shadow-sm border border-emerald-500/20'

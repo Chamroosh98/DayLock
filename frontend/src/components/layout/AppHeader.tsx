@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Shield } from 'lucide-react';
 import { TrashIcon } from '../TrashIcon';
 import { MainTab, Language } from '../../types';
 
@@ -38,14 +37,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <>
       {/* Header */}
-      <div className={`p-5 sm:p-8 pb-4 sm:pb-6 flex items-center justify-between border-b ${isDarkMode ? 'border-white/10' : 'border-zinc-200'}`}>
+      <div 
+        dir={language === 'fa' ? 'rtl' : 'ltr'}
+        className={`p-5 sm:p-8 pb-4 sm:pb-6 flex items-center justify-between border-b ${isDarkMode ? 'border-white/10' : 'border-zinc-200'}`}
+      >
         <div className="flex items-center gap-3 sm:gap-4">
-          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${isDarkMode ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} rounded-2xl flex items-center justify-center border shadow-inner shrink-0`}>
-            <Shield className={`w-5 h-5 sm:w-6 sm:h-6 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
+            <img src="/dl.svg" alt="DayLock Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <h1 className={`text-lg sm:text-xl ${language === 'fa' ? 'font-vazir font-bold' : 'lg:font-display lg:italic lg:tracking-tight font-sans font-black tracking-wide'}`}>{t.title}</h1>
+              <h1 className="text-lg sm:text-xl font-sans font-black tracking-tight">{t.title}</h1>
             </div>
           </div>
         </div>
@@ -77,7 +79,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
 
       {/* Main Tabs - Desktop Only */}
-      <div className={`hidden lg:flex p-1 border-b gap-1 ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-zinc-100/90 border-zinc-200'}`}>
+      <div 
+        dir={language === 'fa' ? 'rtl' : 'ltr'}
+        className={`hidden lg:flex p-1 border-b gap-1 ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-zinc-100/90 border-zinc-200'}`}
+      >
         <button 
           onClick={() => setMainTab('create')}
           className={`flex-1 py-2 px-4 text-xs font-bold transition-all rounded-xl cursor-pointer ${

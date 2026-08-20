@@ -352,59 +352,66 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
     return `${monthObj} ${day}, ${year}`;
   };
 
+  const isRtl = language === 'fa';
+
   return (
-    <div className={`flex flex-col gap-5 p-5 md:p-6 rounded-3xl border transition-all duration-300 ${
+    <div className={`p-5 rounded-[28px] border transition-all duration-300 space-y-4 ${
       isDarkMode 
-        ? 'bg-zinc-950/40 border-purple-500/10 shadow-2xl shadow-purple-950/5' 
-        : 'bg-white border-zinc-100 shadow-xl shadow-zinc-200/50'
-    }`} dir="ltr">
+        ? 'bg-zinc-950/40 border-white/10' 
+        : 'bg-white border-zinc-300'
+    }`} dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* Dynamic Header */}
-      <div className="flex items-center justify-between border-b border-zinc-500/10 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className={`p-2 rounded-xl ${isDarkMode ? 'bg-purple-500/10 text-purple-400' : 'bg-purple-50 text-purple-600'}`}>
+      <div className="flex items-center justify-between border-b border-zinc-500/10 pb-3" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="flex items-center gap-2 px-1">
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.15, 1],
+              filter: ["drop-shadow(0 0 0px rgba(168,85,247,0))", "drop-shadow(0 0 8px rgba(168,85,247,0.8))", "drop-shadow(0 0 0px rgba(168,85,247,0))"]
+            }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="w-4 h-4 text-purple-400 flex items-center justify-center shrink-0"
+          >
             {activeTab === 'date' ? <CalendarIcon className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-          </div>
-          <div>
-            <h4 className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-              {activeTab === 'date' ? tTab.datePill : tTab.timePill}
-            </h4>
-          </div>
+          </motion.div>
+          <h4 className={`font-bold text-purple-400 dark:text-purple-300 whitespace-nowrap ${isRtl ? 'font-vazir text-right text-[11px] sm:text-xs' : 'text-xs sm:text-[13px] tracking-wide'}`}>
+            {activeTab === 'date' ? tTab.datePill : tTab.timePill}
+          </h4>
         </div>
       </div>
 
       {/* Tabs / Segments */}
       <div 
-        className={`grid grid-cols-2 p-1 rounded-2xl ${isDarkMode ? 'bg-zinc-900/60' : 'bg-zinc-100/80'} gap-1`}
-        dir="ltr"
+        className={`grid grid-cols-2 p-1 rounded-2xl ${isDarkMode ? 'bg-zinc-900 border border-white/5' : 'bg-zinc-100 border border-zinc-200'} gap-1`}
+        dir={isRtl ? 'rtl' : 'ltr'}
       >
         <button
           type="button"
           onClick={() => setActiveTab('date')}
-          className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-2 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'date'
               ? isDarkMode 
-                ? 'bg-zinc-800 text-white shadow-md' 
+                ? 'bg-zinc-800 text-white shadow-sm' 
                 : 'bg-white text-zinc-900 shadow-sm'
-              : 'text-zinc-500 hover:text-zinc-300'
-          }`}
+              : 'text-zinc-400 hover:text-zinc-200'
+          } ${isRtl ? 'font-vazir text-[11px] sm:text-xs' : 'text-xs sm:text-[13px]'}`}
         >
           <CalendarIcon className="w-3.5 h-3.5" />
-          <span>{tTab.date}</span>
+          <span className="whitespace-nowrap">{tTab.date}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('time')}
-          className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-2 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'time'
               ? isDarkMode 
-                ? 'bg-zinc-800 text-white shadow-md' 
+                ? 'bg-zinc-800 text-white shadow-sm' 
                 : 'bg-white text-zinc-900 shadow-sm'
-              : 'text-zinc-500 hover:text-zinc-300'
-          }`}
+              : 'text-zinc-400 hover:text-zinc-200'
+          } ${isRtl ? 'font-vazir text-[11px] sm:text-xs' : 'text-xs sm:text-[13px]'}`}
         >
           <Clock className="w-3.5 h-3.5" />
-          <span>{tTab.time}</span>
+          <span className="whitespace-nowrap">{tTab.time}</span>
         </button>
       </div>
 
@@ -415,13 +422,13 @@ export function DateTimePicker({ value, onChange, language, isDarkMode }: DateTi
           className={`grid ${activeTab === 'date' ? 'grid-cols-[1.1fr_1.4fr_0.9fr]' : 'grid-cols-[1fr_1fr_1fr]'} gap-2 px-1 text-center select-none`}
           dir={isJalali ? 'ltr' : undefined}
         >
-          <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pointer-events-none">
+          <span className="text-[10px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pointer-events-none whitespace-nowrap">
             {activeTab === 'date' ? tTab.year : tTab.hour}
           </span>
-          <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pointer-events-none">
+          <span className="text-[10px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pointer-events-none whitespace-nowrap">
             {activeTab === 'date' ? tTab.month : tTab.minute}
           </span>
-          <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pointer-events-none">
+          <span className="text-[10px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pointer-events-none whitespace-nowrap">
             {activeTab === 'date' ? tTab.day : tTab.period}
           </span>
         </div>

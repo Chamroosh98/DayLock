@@ -1043,7 +1043,7 @@ export const ScreenSecurityGuard: React.FC<ScreenSecurityGuardProps> = ({
 
               <button
                 onClick={onClose}
-                className="mt-6 w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold tracking-widest uppercase rounded-2xl transition-all shadow-lg shadow-emerald-500/10"
+                className={`mt-6 w-full py-3 px-3 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-bold ${language === 'fa' ? 'font-vazir' : 'uppercase tracking-wider'} rounded-2xl transition-all shadow-lg shadow-emerald-500/10 text-center flex items-center justify-center leading-tight`}
               >
                 {t.lockShieldConfigBtn}
               </button>

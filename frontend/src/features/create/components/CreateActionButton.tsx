@@ -23,11 +23,12 @@ export const CreateActionButton: React.FC<CreateActionButtonProps> = ({
   return (
     <motion.button
       id="encrypt-submit-button"
+      dir={language === 'fa' ? 'rtl' : 'ltr'}
       whileHover={isLoading ? {} : { scale: 1.005 }}
       whileTap={isLoading ? {} : { scale: 0.995 }}
       onClick={handleCreate}
       disabled={isLoading}
-      className={`w-full py-3.5 sm:py-4.5 min-h-[48px] rounded-2xl sm:rounded-[28px] font-bold text-xs sm:text-sm tracking-tight flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+      className={`w-full py-3.5 sm:py-4.5 px-3 sm:px-4 min-h-[48px] rounded-2xl sm:rounded-[28px] font-bold text-[11.5px] sm:text-sm tracking-tight flex items-center justify-center gap-2 transition-all cursor-pointer text-center leading-tight ${
         isLoading
           ? 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
           : isDarkMode

@@ -75,6 +75,28 @@ export const SecuritySnapCarousel: React.FC<SecuritySnapCarouselProps> = ({
     default: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
   };
 
+  const langDimensions = {
+    ru: {
+      col: 'auto-cols-[minmax(245px,max-content)] sm:auto-cols-[minmax(260px,max-content)]',
+      btn: 'min-w-[245px] sm:min-w-[260px] px-4 gap-3.5',
+    },
+    fa: {
+      col: 'auto-cols-[minmax(185px,max-content)] sm:auto-cols-[minmax(195px,max-content)]',
+      btn: 'min-w-[185px] sm:min-w-[195px] px-3.5 gap-2.5',
+    },
+    en: {
+      col: 'auto-cols-[minmax(180px,max-content)] sm:auto-cols-[minmax(190px,max-content)]',
+      btn: 'min-w-[180px] sm:min-w-[190px] px-3.5 gap-2.5',
+    },
+    zh: {
+      col: 'auto-cols-[minmax(150px,max-content)] sm:auto-cols-[minmax(160px,max-content)]',
+      btn: 'min-w-[150px] sm:min-w-[160px] px-3 gap-2',
+    },
+  }[language] || {
+    col: 'auto-cols-[minmax(180px,max-content)] sm:auto-cols-[minmax(190px,max-content)]',
+    btn: 'min-w-[180px] sm:min-w-[190px] px-3.5 gap-2.5',
+  };
+
   return (
     <div className="w-full relative select-none" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* 2-Row Horizontal Scroll Matrix */}
@@ -84,9 +106,9 @@ export const SecuritySnapCarousel: React.FC<SecuritySnapCarouselProps> = ({
         tabIndex={0}
         role="region"
         aria-label="Security Options Matrix"
-        className="grid grid-rows-2 grid-flow-col auto-cols-[minmax(162px,max-content)] gap-2.5 
-                   overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 pt-0.5 px-1 pe-4 scroll-pe-4
-                   scrollbar-none focus:outline-none"
+        className={`grid grid-rows-2 grid-flow-col ${langDimensions.col} gap-2.5 
+        overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 pt-0.5 px-0.5
+        scrollbar-none focus:outline-none`}
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {items.map((item) => {
@@ -104,19 +126,21 @@ export const SecuritySnapCarousel: React.FC<SecuritySnapCarouselProps> = ({
               type="button"
               whileTap={{ scale: 0.96 }}
               onClick={item.onClick}
-              className={`snap-start flex items-center gap-2.5 px-4 py-3 min-h-[46px] rounded-2xl border transition-all cursor-pointer whitespace-nowrap min-w-[162px] ${
+              className={`snap-start flex items-center justify-between ${langDimensions.btn} py-2.5 sm:py-3 min-h-[46px] rounded-2xl border transition-all cursor-pointer whitespace-nowrap ${
                 isActive 
                   ? activeStyles 
                   : (isDarkMode ? 'bg-zinc-900/50 border-white/10 text-zinc-300 hover:border-white/20' : 'bg-zinc-100/90 border-zinc-200 text-zinc-600 hover:border-zinc-300')
               }`}
             >
-              <div className="flex items-center justify-center shrink-0 w-4 h-4">
-                {item.icon}
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="flex items-center justify-center shrink-0 w-4 h-4">
+                  {item.icon}
+                </div>
+                <span className={`text-[11px] sm:text-xs font-semibold tracking-tight whitespace-nowrap ${isRtl ? 'font-vazir text-right' : 'font-sans text-left'}`}>
+                  {item.title}
+                </span>
               </div>
-              <span className={`text-[11px] font-semibold tracking-tight ${isRtl ? 'font-vazir text-right text-[11.5px]' : 'font-sans text-left'}`}>
-                {item.title}
-              </span>
-              <div className={`ms-auto w-2 h-2 rounded-full shrink-0 ${isActive ? dotColor : (isDarkMode ? 'bg-zinc-700' : 'bg-zinc-300')}`} />
+              <div className={`w-2 h-2 rounded-full shrink-0 ${isActive ? dotColor : (isDarkMode ? 'bg-zinc-700' : 'bg-zinc-300')}`} />
             </motion.button>
           );
         })}

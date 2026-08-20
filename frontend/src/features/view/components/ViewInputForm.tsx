@@ -80,7 +80,7 @@ export const ViewInputForm: React.FC<ViewInputFormProps> = ({
           dir="ltr"
           className={`w-full ${
             isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200 placeholder:text-zinc-600' : 'bg-white border-zinc-200 text-zinc-800 placeholder:text-zinc-500'
-          } border rounded-2xl h-[46px] ps-11 pe-14 text-xs outline-none font-mono transition-all focus:border-emerald-500/50 text-left disabled:opacity-40 disabled:cursor-not-allowed shadow-sm`}
+          } border rounded-2xl h-[46px] ps-10 pe-11 text-xs outline-none ${viewInput ? 'font-mono' : (isFa ? 'font-vazir' : 'font-sans')} transition-all focus:border-emerald-500/50 text-left disabled:opacity-40 disabled:cursor-not-allowed shadow-sm`}
         />
 
         {/* Paste from Clipboard Button (Icon Only, Borderless) */}

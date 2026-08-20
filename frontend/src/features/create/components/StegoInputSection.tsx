@@ -177,15 +177,26 @@ export const StegoInputSection: React.FC<StegoInputSectionProps> = ({
             <div className="space-y-1.5 px-1 animate-fade-in">
               <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest text-zinc-400">
                 <span className={language === 'fa' ? 'font-vazir' : ''}>{t.stegoCapacity}</span>
-                <span>{Math.round(Math.min(100, (new TextEncoder().encode(message).length / Math.max(1, stegoCapacity)) * 100))}%</span>
+                <span className={new TextEncoder().encode(message).length > stegoCapacity && stegoCapacity > 0 ? 'text-red-500 font-black' : ''}>
+                  {Math.round(Math.min(100, (new TextEncoder().encode(message).length / Math.max(1, stegoCapacity)) * 100))}%
+                </span>
               </div>
               <div className="h-1.5 bg-zinc-800/10 dark:bg-zinc-800/50 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(100, (new TextEncoder().encode(message).length / Math.max(1, stegoCapacity)) * 100)}%` }}
-                  className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
+                  className={`h-full ${
+                    new TextEncoder().encode(message).length > stegoCapacity && stegoCapacity > 0
+                      ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
+                      : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                  }`} 
                 />
               </div>
+              {stegoCapacity > 0 && new TextEncoder().encode(message).length > stegoCapacity && (
+                <p className={`text-[10px] text-red-500 font-bold ${language === 'fa' ? 'font-vazir text-right' : 'text-left'}`}>
+                  {t.stegoCapacityExceeded}
+                </p>
+              )}
             </div>
           )}
 

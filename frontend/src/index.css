@@ -104,10 +104,27 @@
 
 /* Ensure Persian font & alignment are used on driver.js elements */
 .lang-fa .driver-popover,
-.lang-fa .driver-popover * {
+.lang-fa .driver-popover *,
+[dir="rtl"] .driver-popover,
+[dir="rtl"] .driver-popover * {
   font-family: "Vazirmatn", sans-serif !important;
   direction: rtl !important;
   text-align: right !important;
+}
+
+/* Close button positioning for Persian / RTL - Must be on the LEFT side */
+.lang-fa .driver-popover .driver-popover-close-btn,
+[dir="rtl"] .driver-popover .driver-popover-close-btn,
+.driver-popover-dark[dir="rtl"] .driver-popover-close-btn,
+.driver-popover-light[dir="rtl"] .driver-popover-close-btn {
+  right: auto !important;
+  left: 1rem !important;
+}
+
+.lang-fa .driver-popover .driver-popover-title,
+[dir="rtl"] .driver-popover .driver-popover-title {
+  padding-left: 28px !important;
+  padding-right: 0 !important;
 }
 
 /* Active Highlight element styling: clean cybernetic emerald focus glow (no blurry text) */
@@ -132,7 +149,8 @@
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 20px !important;
   box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(16, 185, 129, 0.12) !important;
-  padding: 24px !important;
+  padding: 20px !important;
+  max-width: min(340px, calc(100vw - 32px)) !important;
 }
 
 .driver-popover-dark .driver-popover-title {
@@ -147,8 +165,18 @@
   @apply !text-zinc-500 hover:!text-zinc-300 !transition-colors !right-4 !top-4;
 }
 
+.driver-popover-dark .driver-popover-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+}
+
 .driver-popover-dark .driver-popover-footer button {
-  @apply !bg-zinc-800 !text-zinc-200 !border-none !rounded-xl !px-4 !py-2 !text-xs !font-medium !normal-case !tracking-wide !transition-all hover:!bg-zinc-700;
+  @apply !bg-zinc-800 !text-zinc-200 !border-none !rounded-xl !px-3 sm:!px-4 !py-1.5 sm:!py-2 !text-[11px] sm:!text-xs !font-medium !normal-case !tracking-wide !transition-all hover:!bg-zinc-700;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .driver-popover-dark .driver-popover-footer .driver-popover-next-btn {
@@ -175,7 +203,8 @@
   border: 1px solid rgba(9, 9, 11, 0.08) !important;
   border-radius: 20px !important;
   box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 30px -10px rgba(16, 185, 129, 0.06) !important;
-  padding: 24px !important;
+  padding: 20px !important;
+  max-width: min(340px, calc(100vw - 32px)) !important;
 }
 
 .driver-popover-light .driver-popover-title {
@@ -190,8 +219,18 @@
   @apply !text-zinc-400 hover:!text-zinc-600 !transition-colors !right-4 !top-4;
 }
 
+.driver-popover-light .driver-popover-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+}
+
 .driver-popover-light .driver-popover-footer button {
-  @apply !bg-zinc-100 !text-zinc-800 !border-none !rounded-xl !px-4 !py-2 !text-xs !font-medium !normal-case !tracking-wide !transition-all hover:!bg-zinc-200;
+  @apply !bg-zinc-100 !text-zinc-800 !border-none !rounded-xl !px-3 sm:!px-4 !py-1.5 sm:!py-2 !text-[11px] sm:!text-xs !font-medium !normal-case !tracking-wide !transition-all hover:!bg-zinc-200;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .driver-popover-light .driver-popover-footer .driver-popover-next-btn {
@@ -214,6 +253,26 @@
 
 .driver-popover-progress-text {
   @apply !text-zinc-500 !text-xs !font-medium;
+  white-space: nowrap !important;
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+}
+
+/* Close button positioning for Persian / RTL - Must be on the LEFT side */
+.lang-fa .driver-popover .driver-popover-close-btn,
+[dir="rtl"] .driver-popover .driver-popover-close-btn,
+.driver-popover-dark[dir="rtl"] .driver-popover-close-btn,
+.driver-popover-light[dir="rtl"] .driver-popover-close-btn,
+.lang-fa.driver-popover .driver-popover-close-btn {
+  right: auto !important;
+  left: 1rem !important;
+}
+
+.lang-fa .driver-popover .driver-popover-title,
+[dir="rtl"] .driver-popover .driver-popover-title,
+.lang-fa.driver-popover .driver-popover-title {
+  padding-left: 28px !important;
+  padding-right: 0 !important;
 }
 
 /* Clickable elements use standard system-style default arrow cursor instead of pointing hand cursor */

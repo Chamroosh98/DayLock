@@ -38,7 +38,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       overlayColor: isDarkMode ? '#030409' : '#f4f4f5',
       overlayOpacity: 0.85,
       stagePadding: 6,
-      popoverClass: isDarkMode ? 'driver-popover-dark' : 'driver-popover-light',
+      popoverClass: `${isDarkMode ? 'driver-popover-dark' : 'driver-popover-light'} ${language === 'fa' ? 'lang-fa' : ''}`,
       nextBtnText: t.tourNext,
       prevBtnText: t.tourPrev,
       doneBtnText: t.tourDone,
@@ -49,7 +49,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             title: t.tourPayloadFormatsTitle, 
             description: t.tourPayloadFormatsDesc,
             side: "bottom", 
-            align: 'start' 
+            align: language === 'fa' ? 'end' : 'start' 
           } 
         },
         { 
@@ -58,16 +58,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             title: t.tourOperationalControlsTitle, 
             description: t.tourOperationalControlsDesc,
             side: "top", 
-            align: 'start' 
+            align: language === 'fa' ? 'end' : 'start' 
           } 
         },
         { 
-          element: '#opt-honeypot', 
+          element: '#toggle-honeypot', 
           popover: { 
             title: t.tourHoneypotTitle, 
             description: t.tourHoneypotDesc,
             side: "top", 
-            align: 'start' 
+            align: language === 'fa' ? 'end' : 'start' 
           } 
         }
       ]

@@ -252,6 +252,20 @@ export const useCreateLogic = (props: CreateTabProps) => {
 
   const handleFileChangeDirect = async (file: File) => {
     setSelectedFile(file);
+
+    // Architectural limits warning
+    if (file.type.startsWith('image/')) {
+      if (file.size > 15 * 1024 * 1024) {
+        setStatus({ type: 'warn', msg: t.imageSizeWarning || "Image exceeds 15 MB. Canvas processing might take a few moments." });
+      } else if (file.type !== 'image/png' && !file.name.toLowerCase().endsWith('.png')) {
+        setStatus({ type: 'warn', msg: t.imagePngReminder || "PNG format is strongly recommended for lossless steganography." });
+      }
+    } else {
+      if (file.size > 25 * 1024 * 1024) {
+        setStatus({ type: 'warn', msg: t.fileSizeWarning || "File size exceeds 25 MB. In-browser encryption may experience latency." });
+      }
+    }
+
     if (file.type.startsWith('image/')) {
       const W = getWasm();
       if (W && typeof W.stego_capacity_png === 'function') {
