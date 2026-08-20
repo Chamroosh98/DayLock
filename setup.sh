@@ -20,6 +20,24 @@ log_success() { echo -e "   ${GREEN}✅${RESET} $1"; }
 log_warn()    { echo -e "   ${YELLOW}⚠️${RESET} $1"; }
 log_error()   { echo -e "   ${RED}❌${RESET} $1"; }
 
+print_banner() {
+    echo ""
+    echo -e "${CYAN}${BOLD}"
+    cat << 'EOF'
+    ____              __                __
+   / __ \____ ___  __/ /   ____  _____/ /__
+  / / / / __ `/ / / / /   / __ \/ ___/ //_/
+ / /_/ / /_/ / /_/ / /___/ /_/ / /__/ ,<
+/_____/\__,_/\__, /_____/\____/\___/_/|_|
+            /____/
+EOF
+    echo -e "${RESET}"
+    printf "  ${GRAY}───────────────────── 🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026 ─────────────────────${RESET}\n"
+    echo ""
+}
+
+print_banner
+
 run_quiet() {
     local desc="$1"
     shift
