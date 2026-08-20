@@ -32,7 +32,7 @@ print_banner() {
             /____/
 EOF
     echo -e "${RESET}"
-    printf "  ${GRAY}───────────────────── 🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026 ─────────────────────${RESET}\n"
+    printf "  ${GREY}───────────────────── 🕊️ Remembering the IRAN Massacre on Jan 8-9, 2026 ─────────────────────${RESET}\n"
     echo ""
 }
 
