@@ -25,7 +25,7 @@ interface MobileDockProps {
 }
 
 const LANGUAGES_LIST: { code: Language; name: string; countryCode: string; emoji: string }[] = [
-  { code: 'fa', name: 'Persian (FA)', countryCode: 'IR', emoji: '🇮🇷' },
+  { code: 'fa', name: 'Persian (FA)', countryCode: 'IR', emoji: '🦁☀️' },
   { code: 'en', name: 'English (EN)', countryCode: 'US', emoji: '🇺🇸' },
   { code: 'ru', name: 'Russian (RU)', countryCode: 'RU', emoji: '🇷🇺' },
   { code: 'zh', name: 'Chinese (ZH)', countryCode: 'CN', emoji: '🇨🇳' },

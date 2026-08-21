@@ -32,7 +32,7 @@ export const COUNTRIES: Country[] = [
 
 interface FlagProps {
   code: string;
-  emoji: string;
+  emoji?: string;
   className?: string;
 }
 
@@ -40,18 +40,14 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
   if (code === 'IR') {
     return (
       React.createElement('svg', {
-        viewBox: "0 0 1200 800",
-        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 ${className}`,
+        viewBox: "0 0 1264 843",
+        className: `w-5 h-3.5 object-cover rounded-sm inline-block align-middle shrink-0 border border-black/10 ${className}`,
         xmlns: "http://www.w3.org/2000/svg"
       }, 
-        React.createElement('rect', { width: "1200", height: "266.67", fill: "#239f40" }),
-        React.createElement('rect', { y: "266.67", width: "1200", height: "266.67", fill: "#fff" }),
-        React.createElement('rect', { y: "533.33", width: "1200", height: "266.67", fill: "#da251d" }),
-        React.createElement('g', { transform: "translate(600, 400) scale(0.7)", fill: "#f9d306", stroke: "#000", strokeWidth: "2" },
-          React.createElement('path', { d: "M-100,60 C-150,60 -180,0 -140,-40 C-100,-80 0,-80 40,-40 C80,0 100,60 50,90 C0,120 -50,120 -100,60" }),
-          React.createElement('circle', { cx: "0", cy: "-50", r: "45" }),
-          React.createElement('path', { d: "M-30,30 L80,-80", strokeWidth: "12", strokeLinecap: "round" })
-        )
+        React.createElement('rect', { width: "1264", height: "281", fill: "#239f40" }),
+        React.createElement('rect', { y: "281", width: "1264", height: "281", fill: "#ffffff" }),
+        React.createElement('rect', { y: "562", width: "1264", height: "281", fill: "#da251d" }),
+        React.createElement('image', { href: "/ls.svg", x: "0", y: "0", width: "1264", height: "843" })
       )
     );
   }
