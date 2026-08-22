@@ -143,10 +143,10 @@
 自动处理 WebAssembly 编译、创建 KV 存储、生成配置文件并直接部署至 Cloudflare 边缘网络。
 
 ```bash
-git clone [https://github.com/Chamroosh98/DayLock.git](https://github.com/Chamroosh98/DayLock.git)
-cd DayLock
-chmod +x setup.sh
-./setup.sh
+  git clone https://github.com/Chamroosh98/DayLock.git
+  cd DayLock
+  chmod +x setup.sh
+  ./setup.sh
 ```
 
 **`setup.sh` 脚本自动执行的操作：**

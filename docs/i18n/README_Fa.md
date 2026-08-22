@@ -218,10 +218,10 @@
 در این روش کامپایل WASM، ساخت KV ها روی کلودفلر، ستینگ کانفیگ‌ها و دپلوی به شکل خودکار انجام میشه!
 
 ```bash
-git clone https://github.com/Chamroosh98/DayLock.git
-cd DayLock
-chmod +x setup.sh
-./setup.sh
+  git clone https://github.com/Chamroosh98/DayLock.git
+  cd DayLock
+  chmod +x setup.sh
+  ./setup.sh
 ```
 
 **اسکریپت `setup.sh` دقیقاً چه‌کار می‌کنه؟**

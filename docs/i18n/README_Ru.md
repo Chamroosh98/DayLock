@@ -143,10 +143,10 @@
 Автоматически компилирует WASM, создает хранилища KV в Cloudflare, генерирует конфигурацию и деплоит проект.
 
 ```bash
-git clone https://github.com/Chamroosh98/DayLock.git
-cd DayLock
-chmod +x setup.sh
-./setup.sh
+  git clone https://github.com/Chamroosh98/DayLock.git
+  cd DayLock
+  chmod +x setup.sh
+  ./setup.sh
 ```
 
 **Что делает скрипт `setup.sh`:**

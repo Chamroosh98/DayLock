@@ -145,10 +145,10 @@ Required tooling for local development and deployment:
 Handles WebAssembly compilation, provisions KV storage, generates worker configurations, and deploys directly to Cloudflare Edge.
 
 ```bash
-git clone https://github.com/Chamroosh98/DayLock.git
-cd DayLock
-chmod +x setup.sh
-./setup.sh
+  git clone https://github.com/Chamroosh98/DayLock.git
+  cd DayLock
+  chmod +x setup.sh
+  ./setup.sh
 ```
 
 **What `setup.sh` automates:**
