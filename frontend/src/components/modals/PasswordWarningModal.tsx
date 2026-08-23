@@ -38,7 +38,7 @@ export const PasswordWarningModal: React.FC<PasswordWarningModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div dir="ltr" className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div dir={language === 'fa' ? 'rtl' : 'ltr'} className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           {/* Backdrop with elegant blur */}
           <motion.div
             initial={{ opacity: 0 }}

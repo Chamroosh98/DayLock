@@ -90,8 +90,8 @@ export const ShareConfirmModal: React.FC<ShareConfirmModalProps> = ({
               isDarkMode 
                 ? 'bg-zinc-950 border-white/10 text-zinc-100 shadow-amber-500/5' 
                 : 'bg-white border-zinc-200 text-zinc-900 shadow-xl'
-            }`}
-            dir="ltr"
+            } ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}
+            dir={language === 'fa' ? 'rtl' : 'ltr'}
           >
             {/* Header Icon & Alert Glow */}
             <div className="flex flex-col items-center text-center mt-1 sm:mt-2 space-y-3 sm:space-y-4">

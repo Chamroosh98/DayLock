@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { driver } from 'driver.js';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { useThemeContext } from './ThemeContext';
+import {
+  getInitialLanguage,
+  persistLanguage,
+  isSupportedLanguage,
+  LANGUAGE_STORAGE_KEY
+} from '../utils/languageDetector';
 
 interface LanguageContextType {
   language: Language;
@@ -15,8 +21,32 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('fa');
+  // Synchronous initialization: checks localStorage first, then browser language, fallback to 'en'
+  const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
   const { isDarkMode } = useThemeContext();
+
+  const setLanguage = useCallback<React.Dispatch<React.SetStateAction<Language>>>((update) => {
+    setLanguageState((prevLang) => {
+      const nextLang = typeof update === 'function' ? (update as (prev: Language) => Language)(prevLang) : update;
+      if (isSupportedLanguage(nextLang)) {
+        persistLanguage(nextLang);
+        return nextLang;
+      }
+      return prevLang;
+    });
+  }, []);
+
+  // Listen for storage events for multi-tab synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === LANGUAGE_STORAGE_KEY && isSupportedLanguage(e.newValue)) {
+        setLanguageState(e.newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   useEffect(() => {
     if (language === 'fa') {

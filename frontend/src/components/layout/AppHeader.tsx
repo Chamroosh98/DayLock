@@ -39,15 +39,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Header */}
       <div 
         dir={language === 'fa' ? 'rtl' : 'ltr'}
-        className={`p-5 sm:p-8 pb-4 sm:pb-6 flex items-center justify-between border-b ${isDarkMode ? 'border-white/10' : 'border-zinc-200'}`}
+        className={`p-3.5 sm:p-5 lg:p-6 pb-2.5 sm:pb-3.5 lg:pb-4 flex items-center justify-between border-b ${isDarkMode ? 'border-white/10' : 'border-zinc-200'}`}
       >
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
             <img src="/dl.svg" alt="DayLock Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <h1 className="text-lg sm:text-xl font-sans font-black tracking-tight">{t.title}</h1>
+              <h1 className="text-base sm:text-lg lg:text-xl font-sans font-black tracking-tight">{t.title}</h1>
             </div>
           </div>
         </div>

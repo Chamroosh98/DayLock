@@ -49,28 +49,25 @@ export const StegoInputSection: React.FC<StegoInputSectionProps> = ({
     <div className="space-y-6">
       {/* Acquisition Choice Phase - Selected File is empty */}
       {!selectedFile && !imageAcquisition && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-fade-in">
           {/* Live Camera Card */}
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setImageAcquisition('camera')}
-            className={`p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] border-2 border-dashed cursor-pointer text-center flex flex-col items-center justify-center gap-4 transition-all min-h-[150px] sm:min-h-[180px] ${
+            className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-dashed cursor-pointer text-center flex flex-col items-center justify-center gap-2.5 sm:gap-3 transition-all min-h-[110px] sm:min-h-[140px] ${
               isDarkMode
                 ? 'border-white/10 bg-zinc-950/20 hover:border-emerald-500/30 text-zinc-300'
                 : 'border-zinc-200 bg-zinc-100/30 hover:border-emerald-500/30 text-zinc-700'
             }`}
           >
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 text-emerald-500 shadow-inner">
-              <Camera className="w-6 h-6" />
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 text-emerald-500 shadow-inner">
+              <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h4 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir' : ''}`}>
+              <h4 className={`text-xs sm:text-[13px] font-black uppercase tracking-wider sm:tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir' : ''}`}>
                 {t.cameraCapture}
               </h4>
-              <p className={`text-[9px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} uppercase tracking-wider mt-1.5 ${language === 'fa' ? 'font-vazir' : ''}`}>
-                {t.cameraSnapDesc}
-              </p>
             </div>
           </motion.div>
 
@@ -79,22 +76,19 @@ export const StegoInputSection: React.FC<StegoInputSectionProps> = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setImageAcquisition('upload')}
-            className={`p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] border-2 border-dashed cursor-pointer text-center flex flex-col items-center justify-center gap-4 transition-all min-h-[150px] sm:min-h-[180px] ${
+            className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-dashed cursor-pointer text-center flex flex-col items-center justify-center gap-2.5 sm:gap-3 transition-all min-h-[110px] sm:min-h-[140px] ${
               isDarkMode
                 ? 'border-white/10 bg-zinc-950/20 hover:border-emerald-500/30 text-zinc-300'
                 : 'border-zinc-200 bg-zinc-100/30 hover:border-emerald-500/30 text-zinc-700'
             }`}
           >
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 text-emerald-500 shadow-inner">
-              <ImageIcon className="w-6 h-6" />
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/15 text-emerald-500 shadow-inner">
+              <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h4 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir' : ''}`}>
+              <h4 className={`text-xs sm:text-[13px] font-black uppercase tracking-wider sm:tracking-widest ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir' : ''}`}>
                 {t.galleryUpload}
               </h4>
-              <p className={`text-[9px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} uppercase tracking-wider mt-1.5 ${language === 'fa' ? 'font-vazir' : ''}`}>
-                {t.galleryUploadDesc}
-              </p>
             </div>
           </motion.div>
         </div>

@@ -37,6 +37,8 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [isSelfDestructed]);
 
+  const isFa = language === 'fa';
+
   return (
     <>
       <AnimatePresence>
@@ -44,7 +46,8 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 text-center"
+            dir={isFa ? 'rtl' : 'ltr'}
+            className={`fixed inset-0 z-[1000] bg-black backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 text-center ${isFa ? 'font-vazir' : 'font-sans'}`}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -69,7 +72,7 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.reload()}
-                className="px-6 sm:px-10 py-3 sm:py-4 bg-zinc-900 border border-white/10 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-zinc-400 hover:text-white transition-all"
+                className="px-6 sm:px-10 py-3 sm:py-4 bg-zinc-900 border border-white/10 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-zinc-400 hover:text-white transition-all cursor-pointer"
               >
                 {t.terminateSession}
               </motion.button>
@@ -85,7 +88,8 @@ export const SelfDestructOverlay: React.FC<SelfDestructOverlayProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-red-500 text-black rounded-full font-black text-xs md:text-sm shadow-2xl shadow-red-500/40 flex items-center gap-3"
+            dir={isFa ? 'rtl' : 'ltr'}
+            className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[80] px-6 py-3 bg-red-500 text-black rounded-full font-black text-xs md:text-sm shadow-2xl shadow-red-500/40 flex items-center gap-3 ${isFa ? 'font-vazir' : 'font-sans'}`}
           >
             <ShieldAlert className="w-4 h-4" />
             <span>{localizeDigitsValue(viewData.self_destruct_hides - hidesCount, language)} {t.hidesRemaining}</span>

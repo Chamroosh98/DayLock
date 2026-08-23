@@ -131,7 +131,7 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div 
-          dir="ltr" 
+          dir={isRtl ? 'rtl' : 'ltr'} 
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto"
         >
           {/* Backdrop */}
@@ -300,10 +300,6 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                             </p>
                           </div>
                         ))}
-                      </div>
-
-                      <div className={`p-4 rounded-2xl text-[11px] font-bold leading-normal text-zinc-400 ${isDarkMode ? 'bg-zinc-900/20' : 'bg-zinc-100/50'} text-center ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                        {t.quickNote}
                       </div>
                     </motion.div>
                   )}

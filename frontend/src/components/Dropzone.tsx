@@ -60,7 +60,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`bg-zinc-950/20 border-2 border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all relative overflow-hidden min-h-[285px] group ${
+      className={`bg-zinc-950/20 border-2 border-dashed rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2.5 sm:gap-3 cursor-pointer transition-all relative overflow-hidden min-h-[140px] sm:min-h-[200px] group ${
         isDragging
           ? 'border-emerald-500 bg-emerald-500/15 scale-[1.01]'
           : selectedFile 
@@ -124,7 +124,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             {localizeDigitsValue((selectedFile.size / 1024 / 1024).toFixed(2), language || 'en')} {t.mbUnit}
           </div>
         ) : (
-          <p className={`text-[9px] sm:text-[10px] tracking-wider text-zinc-500 opacity-80 ${language === 'fa' ? 'font-vazir' : 'uppercase'}`}>
+          <p className={`hidden sm:block text-[9px] sm:text-[10px] tracking-wider text-zinc-500 opacity-80 ${language === 'fa' ? 'font-vazir' : 'uppercase'}`}>
             {t.dragDropHint}
           </p>
         )}

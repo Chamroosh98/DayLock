@@ -113,7 +113,7 @@ export const MainCard: React.FC<MainCardProps> = ({
           isDarkMode
             ? 'bg-zinc-900/60 border-white/20 shadow-2xl shadow-black/50'
             : 'bg-white border-zinc-200 shadow-xl'
-        } backdrop-blur-3xl border rounded-[32px] sm:rounded-[40px] overflow-hidden flex flex-col transition-all duration-500`}
+        } backdrop-blur-3xl border rounded-2xl sm:rounded-3xl lg:rounded-[36px] overflow-hidden flex flex-col transition-all duration-500`}
       >
         <AppHeader
           isDarkMode={isDarkMode}
@@ -132,7 +132,7 @@ export const MainCard: React.FC<MainCardProps> = ({
         />
 
         {/* Content Area */}
-        <div className="p-5 sm:p-8 space-y-5 sm:space-y-8">
+        <div className="p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-3.5 sm:space-y-5 md:space-y-6">
           <AnimatePresence mode="wait">
             {mainTab === 'create' ? (
               <CreateTab

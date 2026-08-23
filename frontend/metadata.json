@@ -3,7 +3,6 @@
   "description": "Powered By : Shervina (IRAN's Girl)",
   "requestFramePermissions": [
     "microphone",
-    "camera",
-    "clipboard-read"
+    "camera"
   ]
 }

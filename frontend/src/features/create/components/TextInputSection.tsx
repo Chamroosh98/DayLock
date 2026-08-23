@@ -42,38 +42,17 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
   const isFa = language === 'fa';
 
   return (
-    <div className={`space-y-3 ${getAutoDir(message, language) === 'rtl' ? 'text-right' : 'text-left'}`}>
+    <div className={`space-y-2 sm:space-y-3 ${getAutoDir(message, language) === 'rtl' ? 'text-right' : 'text-left'}`}>
       <div 
         id="main-text-input" 
-        className={`flex flex-col rounded-[32px] border ${
+        className={`flex flex-col rounded-2xl sm:rounded-3xl border ${
           isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'
         } overflow-hidden shadow-lg transition-all focus-within:ring-2 focus-within:ring-emerald-500/10`}
       >
         {/* Top Minimalist Action Icons Row (Placed above text, no borders, no overlapping) */}
         <div 
-          className={`flex items-center px-4 sm:px-6 pt-3 pb-1 gap-1.5 ${isFa ? 'justify-start' : 'justify-end'}`}
+          className={`flex items-center px-3 sm:px-5 pt-2 sm:pt-3 pb-1 gap-1 ${isFa ? 'justify-start' : 'justify-end'}`}
         >
-          <button
-            type="button"
-            disabled={!message}
-            onClick={() => {
-              if (message) {
-                setMessage('');
-                setStatus({ type: 'ok', msg: t.cleared || 'Cleared' });
-              }
-            }}
-            aria-label={t.clear}
-            title={t.clear}
-            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
-              !message
-                ? isDarkMode ? 'text-zinc-600 opacity-20 cursor-not-allowed' : 'text-zinc-300 opacity-20 cursor-not-allowed'
-                : isDarkMode
-                  ? 'text-zinc-400 hover:text-red-400 hover:bg-white/5 cursor-pointer'
-                  : 'text-zinc-500 hover:text-red-600 hover:bg-zinc-100 cursor-pointer'
-            }`}
-          >
-            <Eraser className="w-4 h-4" />
-          </button>
           <button
             type="button"
             onClick={async () => {
@@ -87,13 +66,34 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
             }}
             aria-label={t.paste}
             title={t.paste}
-            className={`p-1.5 rounded-lg transition-colors cursor-pointer flex items-center justify-center ${
+            className={`p-1 rounded-md transition-colors cursor-pointer flex items-center justify-center ${
               isDarkMode
                 ? 'text-zinc-400 hover:text-emerald-400 hover:bg-white/5'
                 : 'text-zinc-500 hover:text-emerald-600 hover:bg-zinc-100'
             }`}
           >
-            <ClipboardPaste className="w-4 h-4" />
+            <ClipboardPaste className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            disabled={!message}
+            onClick={() => {
+              if (message) {
+                setMessage('');
+                setStatus({ type: 'ok', msg: t.cleared || 'Cleared' });
+              }
+            }}
+            aria-label={t.clear}
+            title={t.clear}
+            className={`p-1 rounded-md transition-colors flex items-center justify-center ${
+              !message
+                ? isDarkMode ? 'text-zinc-600 opacity-20 cursor-not-allowed' : 'text-zinc-300 opacity-20 cursor-not-allowed'
+                : isDarkMode
+                  ? 'text-zinc-400 hover:text-red-400 hover:bg-white/5 cursor-pointer'
+                  : 'text-zinc-500 hover:text-red-600 hover:bg-zinc-100 cursor-pointer'
+            }`}
+          >
+            <Eraser className="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -109,7 +109,7 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={t.payloadPlaceholder}
           dir={getAutoDir(message, language)}
-          className={`w-full h-[180px] sm:h-[200px] px-4 sm:px-7 pb-4 sm:pb-6 pt-1 bg-transparent border-0 focus:outline-none focus:ring-0 resize-none text-xs sm:text-sm leading-relaxed placeholder:text-xs sm:placeholder:text-sm ${
+          className={`w-full h-[140px] sm:h-[180px] px-3.5 sm:px-6 pb-3 sm:pb-5 pt-1 bg-transparent border-0 focus:outline-none focus:ring-0 resize-none text-xs sm:text-sm leading-relaxed placeholder:text-xs sm:placeholder:text-sm ${
             isDarkMode ? 'placeholder:text-zinc-600' : 'placeholder:text-zinc-400'
           } ${getAutoContainerClass(message, language)}`}
         />

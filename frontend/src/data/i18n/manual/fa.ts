@@ -3,8 +3,8 @@ import { LanguageManual } from './types';
 export const faManual: LanguageManual = {
   title: "راهنمای کار با دِی‌لاک",
   subtitle: "راهنمای ساده برای رمزگذاری، پنهان‌سازی و پاک‌سازی امن داده‌های حساس",
-  startTourBtn: "تور راهنما",
-  closeBtn: "بستن راهنما",
+  startTourBtn: "تور",
+  closeBtn: "بستن",
   tabs: {
     overview: "۰. آشنایی با دِی‌لاک",
     coreModes: "۱. رمزگذاری پایه",

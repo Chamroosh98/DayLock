@@ -1,10 +1,3 @@
-/**
- * WebAuthn (Fingerprint/FaceID) Utility for secure local biometric gating.
- * Since this is an anonymous, zero-knowledge paste tool, we perform
- * WebAuthn operations on the browser client-side, storing the registered
- * credential details in the user's secure local storage to guard decryptions.
- */
-
 // Helper to convert array buffer to base64
 function bufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -30,53 +23,62 @@ function base64ToBuffer(base64: string): ArrayBuffer {
  */
 export async function isBiometricsSupported(): Promise<boolean> {
   try {
-    if (!window.PublicKeyCredential) return false;
+    if (typeof window === 'undefined' || !window.PublicKeyCredential) {
+      return false;
+    }
     
-    // Check if platform authenticator (e.g., TouchID, FaceID, Windows Hello) is available
-    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    return !!available;
+    // Check if platform authenticator (e.g., TouchID, FaceID, Windows Hello, Android Biometrics) is available
+    if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      return !!available;
+    }
+    return true;
   } catch (err) {
-    console.warn("WebAuthn check failed:", err);
+    console.warn("WebAuthn support check:", err);
     return false;
   }
 }
 
 /**
- * Register a biometric credential using the hardware-based platform authenticator.
+ * Register a biometric credential using the hardware-based platform authenticator or fallback.
  * @returns Base64 encoded credential ID if successful, or null.
  */
 export async function registerBiometrics(pasteId: string): Promise<string | null> {
   try {
     const isSupported = await isBiometricsSupported();
     if (!isSupported) {
-      throw new Error("Biometric authentication is not supported or enabled on this device/browser.");
+      throw new Error("Biometric authentication is not supported on this browser/environment.");
     }
 
     const challenge = new Uint8Array(32);
     window.crypto.getRandomValues(challenge);
 
     // Create a unique user ID from pasteId or fallback
-    const userIdBytes = new TextEncoder().encode(pasteId || "daylock-default-user");
+    const userIdBytes = new TextEncoder().encode(pasteId || "daylock-vault-user");
+
+    // Extract valid rpId (avoid invalid ports or empty strings)
+    const hostname = window.location.hostname || "localhost";
 
     const creationOptions: CredentialCreationOptions = {
       publicKey: {
         challenge,
         rp: {
-          name: "DayLock Security",
-          id: window.location.hostname,
+          name: "DayLock Security Vault",
+          id: hostname,
         },
         user: {
           id: userIdBytes,
-          name: `user-${pasteId.slice(0, 8)}`,
+          name: `user-${(pasteId || 'vault').slice(0, 12)}`,
           displayName: `DayLock Vault User`,
         },
         pubKeyCredParams: [
           { type: "public-key", alg: -7 },   // ES256
           { type: "public-key", alg: -257 }, // RS256
+          { type: "public-key", alg: -8 },   // Ed25519
         ],
         authenticatorSelection: {
-          authenticatorAttachment: "platform", // Enforce platform (fingerprint, FaceID, etc.)
-          userVerification: "required",
+          authenticatorAttachment: "platform", // TouchID, FaceID, Windows Hello, Android Biometrics
+          userVerification: "preferred",       // Preferred works across broad devices without rejecting
           residentKey: "preferred",
         },
         timeout: 60000,
@@ -86,10 +88,9 @@ export async function registerBiometrics(pasteId: string): Promise<string | null
     const credential = await navigator.credentials.create(creationOptions) as PublicKeyCredential;
     if (!credential) return null;
 
-    // Convert the credential rawId to Base64 to save in localStorage
     return bufferToBase64(credential.rawId);
   } catch (err: any) {
-    console.error("Biometric registration failed:", err);
+    console.error("Biometric registration error:", err);
     throw err;
   }
 }
@@ -107,17 +108,19 @@ export async function verifyBiometrics(credentialIdB64: string): Promise<boolean
     window.crypto.getRandomValues(challenge);
 
     const credentialIdBuffer = base64ToBuffer(credentialIdB64);
+    const hostname = window.location.hostname || "localhost";
 
     const requestOptions: CredentialRequestOptions = {
       publicKey: {
         challenge,
+        rpId: hostname,
         allowCredentials: [
           {
             type: "public-key",
             id: credentialIdBuffer,
           },
         ],
-        userVerification: "required",
+        userVerification: "preferred",
         timeout: 60000,
       },
     };
@@ -125,9 +128,11 @@ export async function verifyBiometrics(credentialIdB64: string): Promise<boolean
     const assertion = await navigator.credentials.get(requestOptions);
     return !!assertion;
   } catch (err) {
-    console.error("Biometric verification failed:", err);
+    console.error("Biometric verification error:", err);
     return false;
   }
 }
 
+// Alias for backwards compatibility
 export const authenticateBiometrics = verifyBiometrics;
+
