@@ -97,6 +97,18 @@ export const SecuritySnapCarousel: React.FC<SecuritySnapCarouselProps> = ({
     btn: 'min-w-[180px] sm:min-w-[190px] px-3.5 gap-2.5',
   };
 
+  const handleItemClick = (e: React.MouseEvent<HTMLButtonElement>, item: SecurityCarouselCardItem) => {
+    item.onClick();
+    const btn = e.currentTarget;
+    if (btn) {
+      btn.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
+  };
+
   return (
     <div className="w-full relative select-none" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* 2-Row Horizontal Scroll Matrix */}
@@ -125,7 +137,7 @@ export const SecuritySnapCarousel: React.FC<SecuritySnapCarouselProps> = ({
               id={item.id}
               type="button"
               whileTap={{ scale: 0.96 }}
-              onClick={item.onClick}
+              onClick={(e) => handleItemClick(e, item)}
               className={`snap-start flex items-center justify-between ${langDimensions.btn} py-2.5 sm:py-3 min-h-[46px] rounded-2xl border transition-all cursor-pointer whitespace-nowrap ${
                 isActive 
                   ? activeStyles 

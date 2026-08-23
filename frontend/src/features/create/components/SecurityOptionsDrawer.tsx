@@ -326,19 +326,21 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                 </label>
               </div>
 
-              <div className="relative">
-                <Search className={`w-4 h-4 absolute top-1/2 -translate-y-1/2 text-zinc-500 ${language === 'fa' ? 'right-3.5' : 'left-3.5'}`} />
-                <input
-                  type="text"
-                  value={countrySearch}
-                  onChange={(e) => setCountrySearch(e.target.value)}
-                  placeholder={t.searchCountry}
-                  dir={language === 'fa' ? 'rtl' : 'ltr'}
-                  className={`w-full ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-2xl ${language === 'fa' ? 'pr-10 pl-4 text-right font-vazir placeholder:text-right text-xs placeholder:text-[11px]' : 'pl-10 pr-4 text-left font-sans placeholder:text-left text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-[13px]'} py-3 outline-none focus:border-cyan-500/50`}
-                />
+              <div className="space-y-2">
+                <div className="relative w-full">
+                  <Search className={`w-3.5 h-3.5 md:w-4 md:h-4 absolute top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none ${language === 'fa' ? 'right-2.5 sm:right-3' : 'left-2.5 sm:left-3'}`} />
+                  <input
+                    type="text"
+                    value={countrySearch}
+                    onChange={(e) => setCountrySearch(e.target.value)}
+                    placeholder={t.searchCountry}
+                    dir={language === 'fa' ? 'rtl' : 'ltr'}
+                    className={`w-full h-8 sm:h-9 md:h-10 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-xl sm:rounded-2xl ${language === 'fa' ? 'pr-7.5 sm:pr-8.5 pl-3 text-right font-vazir placeholder:text-right text-[10px] sm:text-[11px] md:text-xs placeholder:text-[9.5px] sm:placeholder:text-[10px] md:placeholder:text-[11px]' : 'pl-7.5 sm:pl-8.5 pr-3 text-left font-sans placeholder:text-left text-[10px] sm:text-[11px] md:text-xs placeholder:text-[9.5px] sm:placeholder:text-[10.5px] md:placeholder:text-[11.5px]'} outline-none focus:border-cyan-500/50 transition-all`}
+                  />
+                </div>
 
                 {countryResults.length > 0 && (
-                  <div className={`absolute z-30 left-0 right-0 mt-2 p-1.5 rounded-2xl border shadow-2xl ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-white border-zinc-200'} space-y-1`}>
+                  <div className={`max-h-44 overflow-y-auto p-1.5 rounded-xl border shadow-inner ${isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-zinc-50 border-zinc-200'} space-y-1 scrollbar-thin`}>
                     {countryResults.map((c) => (
                       <button
                         key={c.code}
@@ -349,13 +351,13 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                           }
                           setCountrySearch('');
                         }}
-                        className={`w-full p-2.5 rounded-xl flex items-center justify-between text-xs sm:text-sm transition-colors ${isDarkMode ? 'hover:bg-white/5 text-zinc-200' : 'hover:bg-zinc-100 text-zinc-800'} ${language === 'fa' ? 'text-right font-vazir' : 'text-left font-sans'}`}
+                        className={`w-full p-2 sm:p-2.5 rounded-lg flex items-center justify-between text-[11px] sm:text-xs transition-colors cursor-pointer ${isDarkMode ? 'hover:bg-white/5 text-zinc-200' : 'hover:bg-white text-zinc-800 shadow-xs'} ${language === 'fa' ? 'text-right font-vazir' : 'text-left font-sans'}`}
                       >
                         <div className="flex items-center gap-2">
-                          <Flag code={c.code} className="w-4 h-3 rounded-sm object-cover" />
-                          <span>{language === 'fa' ? c.fa : c.name}</span>
+                          <Flag code={c.code} className="w-4 h-3 rounded-xs object-cover shrink-0" />
+                          <span className="font-medium">{language === 'fa' ? c.fa : c.name}</span>
                         </div>
-                        <Plus className="w-3.5 h-3.5 text-zinc-500" />
+                        <Plus className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -406,18 +408,30 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                 </label>
               </div>
 
-              <div className="flex gap-1 p-1 rounded-xl bg-zinc-900 border border-white/10 w-full sm:w-fit" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+              <div className={`flex gap-1 p-1 rounded-xl ${isDarkMode ? 'bg-zinc-900 border-white/10' : 'bg-zinc-100 border-zinc-200'} border w-full sm:w-fit transition-colors`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
                 <button
                   type="button"
                   onClick={() => setAsnMode('block')}
-                  className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all text-center ${language === 'fa' ? 'font-vazir' : 'uppercase'} ${asnMode === 'block' ? 'bg-red-500/20 text-red-400 border border-red-500/30 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-semibold transition-all text-center ${language === 'fa' ? 'font-vazir' : ''} ${
+                    asnMode === 'block'
+                      ? 'bg-red-500/20 text-red-500 dark:text-red-400 border border-red-500/30 shadow-sm'
+                      : isDarkMode
+                      ? 'text-zinc-400 hover:text-zinc-200'
+                      : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
                 >
                   {t.asnBlock}
                 </button>
                 <button
                   type="button"
                   onClick={() => setAsnMode('allow')}
-                  className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all text-center ${language === 'fa' ? 'font-vazir' : 'uppercase'} ${asnMode === 'allow' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-semibold transition-all text-center ${language === 'fa' ? 'font-vazir' : ''} ${
+                    asnMode === 'allow'
+                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm'
+                      : isDarkMode
+                      ? 'text-zinc-400 hover:text-zinc-200'
+                      : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
                 >
                   {t.asnAllow}
                 </button>
@@ -487,9 +501,10 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
       <AnimatePresence>
         {hasSelfDestruct && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-2">
-            <div className={`p-5 rounded-[28px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+            <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-[24px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-3`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+              {/* Row 1: Max Hides Limit */}
               <div className="flex items-center justify-between gap-2" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                <div className="flex items-center gap-2 px-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <motion.div 
                     animate={{ 
                       scale: [1, 1.18, 1],
@@ -498,9 +513,9 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
                     className="w-4 h-4 text-red-400 flex items-center justify-center shrink-0"
                   >
-                    <Bomb className="w-4 h-4" />
+                    <Bomb className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </motion.div>
-                  <label className={`text-[11px] sm:text-xs font-bold text-red-400 dark:text-red-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                  <label className={`text-[10px] sm:text-[11px] md:text-xs font-bold text-red-400 dark:text-red-300 truncate whitespace-nowrap ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
                     {t.maxHidesLimit}
                   </label>
                 </div>
@@ -514,23 +529,24 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     setSelfDestructHides(parseInt(eng) || 3);
                   }}
                   dir="ltr"
-                  className={`w-18 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-xl py-2 px-3 text-center text-xs sm:text-sm ${language === 'fa' ? 'font-vazir' : 'font-mono'} font-bold`}
+                  className={`w-11 sm:w-13 h-7 sm:h-8 ${isDarkMode ? 'bg-zinc-900 border-white/10 text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-800'} border rounded-lg sm:rounded-xl px-1.5 text-center text-[10.5px] sm:text-[11px] ${language === 'fa' ? 'font-vazir' : 'font-mono'} font-bold shrink-0`}
                 />
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-white/5" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                <div className="flex items-center gap-2 px-1">
+              {/* Row 2: Destruction Trigger Events */}
+              <div className={`space-y-2 pt-2.5 border-t ${isDarkMode ? 'border-white/10' : 'border-zinc-200/80'}`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                <div className="flex items-center gap-2">
                   <motion.div 
                     animate={{ 
                       scale: [1, 1.1, 1],
                       opacity: [0.7, 1, 0.7]
                     }}
                     transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    className="w-3.5 h-3.5 text-zinc-400 flex items-center justify-center shrink-0"
+                    className="w-4 h-4 text-zinc-400 flex items-center justify-center shrink-0"
                   >
-                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </motion.div>
-                  <label className={`text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-300 ${language === 'fa' ? 'font-vazir text-right' : 'tracking-wide'}`}>
+                  <label className={`text-[9.5px] sm:text-[10.5px] md:text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ${language === 'fa' ? 'font-vazir text-right' : ''}`}>
                     {t.destructionTriggerEvents}
                   </label>
                 </div>
@@ -553,7 +569,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                             setSelfDestructTriggers([...selfDestructTriggers, trig.id]);
                           }
                         }}
-                        className={`flex-1 py-2 px-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase leading-tight border transition-all cursor-pointer text-center flex items-center justify-center min-h-[42px] ${
+                        className={`flex-1 py-1.5 px-2 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-semibold leading-tight border transition-all cursor-pointer text-center flex items-center justify-center min-h-[34px] sm:min-h-[36px] ${
                           active
                             ? 'bg-red-500/20 border-red-500/30 text-red-400 shadow-sm'
                             : isDarkMode

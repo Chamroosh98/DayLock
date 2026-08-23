@@ -40,10 +40,18 @@ export const CreateTabHeader: React.FC<CreateTabHeaderProps> = ({
     { id: 'e2e' as ContentType, label: t.e2e, icon: <MessageSquare className="w-3.5 h-3.5" /> },
   ];
 
-  const handleSelect = (type: ContentType) => {
+  const handleSelect = (type: ContentType, e?: React.MouseEvent<HTMLButtonElement>) => {
     setContentType(type);
     if (type === 'stego' && setImageAcquisition) {
       setImageAcquisition(null);
+    }
+    const btn = e?.currentTarget;
+    if (btn) {
+      btn.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
     }
   };
 
@@ -63,7 +71,7 @@ export const CreateTabHeader: React.FC<CreateTabHeaderProps> = ({
                 id={`type-tab-${item.id}`}
                 key={item.id}
                 type="button"
-                onClick={() => handleSelect(item.id)}
+                onClick={(e) => handleSelect(item.id, e)}
                 className={`flex flex-row items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer w-[28.5vw] shrink-0 ${
                   isActive
                     ? isDarkMode
