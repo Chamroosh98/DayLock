@@ -1,4 +1,3 @@
-
 name = "daylock"
 main = "build/index.js"
 compatibility_date = "2026-08-06"
@@ -17,3 +16,10 @@ id = "REPLACE_WITH_DAYLOCK_PASTE_KV_ID"
 [assets]
 directory = "../../frontend/dist"
 binding = "ASSETS"
+
+# If you want to use your own custom domain instead of the default Cloudflare domain, 
+# uncomment the code below and replace the "example.com" with your own domain.
+
+# routes = [
+#   { pattern = "example.com/*", custom_domain = true }
+# ]

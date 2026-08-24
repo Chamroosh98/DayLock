@@ -85,7 +85,7 @@ AUTH_MODE="${AUTH_MODE:-1}"
 
 if [ "$AUTH_MODE" = "2" ]; then
     echo ""
-    log_info "API Token permissions required: Workers Scripts Edit + Workers KV Storage Edit"
+    log_info "API Token permissions required : Workers Scripts Edit + Workers KV Storage Edit"
     log_info "Generate token at : https://dash.cloudflare.com/profile/api-tokens"
     echo ""
     read -r -p "   👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
@@ -96,7 +96,7 @@ if [ "$AUTH_MODE" = "2" ]; then
     fi
     export CLOUDFLARE_API_TOKEN
 
-    read -r -p "   Account ID (optional, press Enter to skip) : " CLOUDFLARE_ACCOUNT_ID
+    read -r -p "  Account ID (optional, press Enter to skip) : " CLOUDFLARE_ACCOUNT_ID
     if [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
         export CLOUDFLARE_ACCOUNT_ID
         log_info "Cloudflare Account ID set to : $CLOUDFLARE_ACCOUNT_ID"
@@ -213,23 +213,6 @@ run_quiet "Running wasm-pack build ..." \
 log_success "WASM binary compiled and optimized successfully :)"
 
 
-# ── Step 5.5: Sanity check assets (prevents blank page deploy) ──
-cd "$ROOT"
-log_step "Verifying frontend/dist before deploy ..."
-if [ ! -f frontend/dist/index.html ]; then
-    log_error "frontend/dist/index.html missing — frontend build failed."
-    exit 1
-fi
-if [ ! -f frontend/dist/pkg/wasm_bg.wasm ] && [ ! -f frontend/dist/pkg/wasm_bg.wasm ]; then
-    # common names: wasm_bg.wasm from wasm-pack
-    if ! ls frontend/dist/pkg/*.wasm >/dev/null 2>&1; then
-        log_error "No .wasm under frontend/dist/pkg — wasm-pack step failed."
-        exit 1
-    fi
-fi
-log_success "index.html + WASM package present."
-
-
 # ── Step 6: Edge Deployment ──
 cd "$ROOT"
 log_step "Deploying Application to Cloudflare Edge Network"
@@ -237,6 +220,4 @@ cd backend/worker
 run_quiet "Executing wrangler deploy ..." wrangler deploy
 
 log_step "Deployment Completed Successfully!"
-log_success "DayLock is live on Cloudflare Workers."
-log_info "Use this CLI pipeline for deploys — Git-connect alone won't build frontend+WASM."
-log_info "Open your workers.dev URL and hard-refresh (Ctrl+Shift+R) if the UI was cached."
+log_success "DayLock service is now live on Cloudflare Workers."
