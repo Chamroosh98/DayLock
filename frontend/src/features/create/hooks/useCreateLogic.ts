@@ -8,6 +8,7 @@ import { e2eGenKeypair } from '../../../utils/e2eCrypto';
 import { getWavCapacity, wavToFloat32, audioStegoEmbed } from '../../../utils/audioStego';
 import { getWasm, b64url_encode, b64toUint8Array } from '../../../utils/wasmLoader';
 import { useVaultState } from '../../../hooks/useVaultState';
+import { convertImageToPng, calculateStegoCapacity, formatStegoSize } from '../../../utils/imageProcessor';
 
 export const useCreateLogic = (props: CreateTabProps) => {
   const {
@@ -255,10 +256,8 @@ export const useCreateLogic = (props: CreateTabProps) => {
 
     // Architectural limits warning
     if (file.type.startsWith('image/')) {
-      if (file.size > 15 * 1024 * 1024) {
-        setStatus({ type: 'warn', msg: t.imageSizeWarning || "Image exceeds 15 MB. Canvas processing might take a few moments." });
-      } else if (file.type !== 'image/png' && !file.name.toLowerCase().endsWith('.png')) {
-        setStatus({ type: 'warn', msg: t.imagePngReminder || "PNG format is strongly recommended for lossless steganography." });
+      if (file.size > 25 * 1024 * 1024) {
+        setStatus({ type: 'warn', msg: t.imageSizeWarning || "Image exceeds 25 MB. Processing might take a few moments." });
       }
     } else {
       if (file.size > 25 * 1024 * 1024) {
@@ -266,36 +265,43 @@ export const useCreateLogic = (props: CreateTabProps) => {
       }
     }
 
-    if (file.type.startsWith('image/')) {
-      const W = getWasm();
-      if (W && typeof W.stego_capacity_png === 'function') {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const pngBytes = new Uint8Array(arrayBuffer);
-          const cap = W.stego_capacity_png(pngBytes);
-          setStegoCapacity(cap);
-        } catch (e) {
-          console.error("WASM stego_capacity_png error:", e);
+    if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp|gif)$/i.test(file.name)) {
+      try {
+        const processed = await convertImageToPng(file, file.name);
+        setSelectedFile(processed.pngFile);
+        setStegoImage(processed.dataUrl);
+        setStegoCapacity(processed.capacityBytes);
+
+        if (stegoCanvasRef.current) {
+          const ctx = stegoCanvasRef.current.getContext('2d');
+          stegoCanvasRef.current.width = processed.width;
+          stegoCanvasRef.current.height = processed.height;
+          const img = new Image();
+          img.onload = () => ctx?.drawImage(img, 0, 0);
+          img.src = processed.dataUrl;
         }
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          setStegoImage(event.target?.result as string);
-          if (stegoCanvasRef.current) {
-            const ctx = stegoCanvasRef.current.getContext('2d');
-            stegoCanvasRef.current.width = img.width;
-            stegoCanvasRef.current.height = img.height;
-            ctx?.drawImage(img, 0, 0);
-            if (!W || typeof W.stego_capacity_png !== 'function') {
-              setStegoCapacity(Math.floor((img.width * img.height * 3) / 8) - 4);
-            }
-          }
+
+        setStatus({
+          type: 'ok',
+          msg: language === 'fa'
+            ? `تصویر با موفقیت بارگذاری شد (گنجایش: ${formatStegoSize(processed.capacityBytes, language)})`
+            : `Image loaded (Stego capacity: ${formatStegoSize(processed.capacityBytes, language)})`
+        });
+      } catch (err: any) {
+        console.error("Error processing cover image:", err);
+        setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            setStegoImage(event.target?.result as string);
+            const cap = calculateStegoCapacity(img.width, img.height);
+            setStegoCapacity(cap);
+          };
+          img.src = event.target?.result as string;
         };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -390,27 +396,34 @@ export const useCreateLogic = (props: CreateTabProps) => {
     }
   };
 
-  const isConfigurationValid = () => {
-    if (contentType === 'text' && !message.trim()) return false;
-    if (contentType === 'file' && !selectedFile) return false;
-    if (contentType === 'image' && !selectedFile) return false;
-    if (contentType === 'stego' && (!selectedFile || !message.trim())) return false;
-    if (contentType === 'audio') {
-      if (audioMode === 'record' && !audioBlob) return false;
-      if (audioMode === 'stego' && (!audioWavBytes || !audioText.trim())) return false;
+  const validateConfiguration = (): string | null => {
+    if (contentType === 'text' && !message.trim()) return t.contentWarningDesc || "Please enter text message.";
+    if (contentType === 'file' && !selectedFile) return t.contentWarningDesc || "Please select a file.";
+    if (contentType === 'image' && !selectedFile) return t.contentWarningDesc || "Please select an image.";
+    if (contentType === 'stego') {
+      if (!selectedFile) return language === 'fa' ? 'لطفاً تصویر پوشش را انتخاب کنید.' : 'Please select a cover image.';
+      if (!message.trim()) return language === 'fa' ? 'لطفاً پیام مخفی را وارد کنید.' : 'Please enter the secret message to hide.';
     }
-    if (contentType === 'shamir') return false;
-    if (contentType === 'e2e') return false;
+    if (contentType === 'audio') {
+      if (audioMode === 'record' && !audioBlob) return language === 'fa' ? 'لطفاً صدای خود را ضبط کنید.' : 'Please record audio first.';
+      if (audioMode === 'stego') {
+        if (!audioWavBytes) return language === 'fa' ? 'لطفاً فایل صوتی WAV را بارگذاری کنید.' : 'Please load a WAV audio file.';
+        if (!audioText.trim()) return language === 'fa' ? 'لطفاً پیام مخفی صوتی را وارد کنید.' : 'Please enter secret message for audio.';
+      }
+    }
+    if (contentType !== 'stego' && hasPassword && !password) return t.invalidPassword || "Password is required.";
+    if (hasHoney && (!honeyPwd || !honeyContent.trim())) return language === 'fa' ? 'اطلاعات هانی‌پات ناقص است.' : 'HoneyPot decoy configuration is incomplete.';
+    if (hasGeoLock && allowedCountries.length === 0) return language === 'fa' ? 'حداقل یک کشور برای قفل مکانی انتخاب کنید.' : 'Please select at least one country for Geo-Lock.';
+    if (hasDeadMans && !deadMansInterval) return language === 'fa' ? 'بازه زمانی کلید مرگ را مشخص کنید.' : 'Please specify Dead Man interval.';
+    if (hasCanary && !canaryUrl.trim()) return language === 'fa' ? 'آدرس توکن قناری را وارد کنید.' : 'Please enter Canary token webhook URL.';
+    if (hasTimeLock && !unlockAt) return language === 'fa' ? 'زمان بازگشایی را مشخص کنید.' : 'Please specify Time-Lock unlock time.';
+    if (hasSelfDestruct && (!selfDestructHides || selfDestructHides <= 0 || selfDestructTriggers.length === 0)) return language === 'fa' ? 'تنظیمات نابودی خودکار ناقص است.' : 'Self-destruct configuration incomplete.';
 
-    if (!hasPassword || !password) return false;
-    if (hasHoney && (!honeyPwd || !honeyContent.trim())) return false;
-    if (hasGeoLock && allowedCountries.length === 0) return false;
-    if (hasDeadMans && !deadMansInterval) return false;
-    if (hasCanary && !canaryUrl.trim()) return false;
-    if (hasTimeLock && !unlockAt) return false;
-    if (hasSelfDestruct && (!selfDestructHides || selfDestructHides <= 0 || selfDestructTriggers.length === 0)) return false;
+    return null;
+  };
 
-    return true;
+  const isConfigurationValid = () => {
+    return validateConfiguration() === null;
   };
 
   const handleCreateE2EChannel = async () => {
@@ -459,15 +472,30 @@ export const useCreateLogic = (props: CreateTabProps) => {
 
     if (isContentMissing) {
       setShowContentWarning(true);
+      if (contentType === 'stego') {
+        if (!selectedFile) {
+          setStatus({
+            type: 'err',
+            msg: language === 'fa' ? 'لطفاً ابتدا یک تصویر به عنوان پوشش انتخاب کنید یا عکس بگیرید.' : 'Please select or capture a cover image first.'
+          });
+        } else {
+          setStatus({
+            type: 'err',
+            msg: language === 'fa' ? 'لطفاً پیام مخفی مورد نظر را در کادر متن وارد کنید.' : 'Please enter the secret message to hide.'
+          });
+        }
+      }
       return;
     }
 
-    if (!password) {
+    if (contentType !== 'stego' && !password) {
       setShowPasswordWarning(true);
       return;
     }
 
-    if (!isConfigurationValid()) {
+    const configError = validateConfiguration();
+    if (configError) {
+      setStatus({ type: 'err', msg: configError });
       return;
     }
 
@@ -485,23 +513,55 @@ export const useCreateLogic = (props: CreateTabProps) => {
 
       // --- DIRECT CLIENT-SIDE STEGANOGRAPHY EMBEDDING (BYPASS PASTE CREATION) ---
       if (contentType === 'stego') {
-        if (!selectedFile || !message.trim()) throw new Error("Cover image and hidden message are required");
-        const coverBytes = new Uint8Array(await selectedFile.arrayBuffer());
+        if (!selectedFile || !message.trim()) {
+          throw new Error(language === 'fa' ? "تصویر پوششی و متن مخفی هر دو الزامی هستند." : "Cover image and hidden message are required");
+        }
+
         const encoder = new TextEncoder();
         const secretBytes = encoder.encode(message);
+
+        // Stego capacity validation
+        if (stegoCapacity > 0 && secretBytes.length > stegoCapacity) {
+          const excess = secretBytes.length - stegoCapacity;
+          const msg = language === 'fa'
+            ? `⚠️ حجم پیام مخفی (${formatStegoSize(secretBytes.length, language)}) بیشتر از گنجایش تصویر (${formatStegoSize(stegoCapacity, language)}) است! لطفاً متن را ${formatStegoSize(excess, language)} کوتاه‌تر کنید.`
+            : `⚠️ Secret message (${formatStegoSize(secretBytes.length, language)}) exceeds image capacity (${formatStegoSize(stegoCapacity, language)})! Please shorten by ${formatStegoSize(excess, language)}.`;
+          setStatus({ type: 'err', msg });
+          setIsLoading(false);
+          return;
+        }
+
+        setStatus({ type: 'warn', msg: language === 'fa' ? 'در حال تبدیل و پنهان‌سازی پیام درون پیکسل‌های تصویر ...' : 'Embedding hidden payload into image pixels ...' });
+
+        // Ensure lossless PNG format
+        const processed = await convertImageToPng(selectedFile, selectedFile.name);
+        const coverBytes = processed.pngBytes;
         let outPngBytes: Uint8Array;
 
         if (W && typeof W.stego_hide === 'function') {
-          outPngBytes = W.stego_hide(coverBytes, secretBytes, password || '');
+          try {
+            outPngBytes = W.stego_hide(coverBytes, secretBytes, password || '');
+          } catch (wasmErr: any) {
+            console.warn("WASM stego_hide failed, trying server fallback:", wasmErr);
+            const coverB64 = await getFileBase64(processed.pngFile);
+            const hideRes = await fetch('/api/stego/hide', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: coverB64, message })
+            });
+            const hideData = await hideRes.json();
+            if (!hideRes.ok) throw new Error(hideData.error || "Steganography embedding failed on server");
+            outPngBytes = b64toUint8Array(hideData.image);
+          }
         } else {
-          const coverB64 = await getFileBase64(selectedFile);
+          const coverB64 = await getFileBase64(processed.pngFile);
           const hideRes = await fetch('/api/stego/hide', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: coverB64, message })
           });
           const hideData = await hideRes.json();
-          if (!hideRes.ok) throw new Error(hideData.error);
+          if (!hideRes.ok) throw new Error(hideData.error || "Steganography embedding failed on server");
           outPngBytes = b64toUint8Array(hideData.image);
         }
 

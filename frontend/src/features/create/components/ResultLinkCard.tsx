@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Copy, QrCode, Check, ShieldCheck, RotateCcw } from 'lucide-react';
 import { Language } from '../../../types';
-import { QrCodeHub } from '../../../components/QrCodeHub';
+import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
 
 interface ResultLinkCardProps {
   resultUrl: string;
@@ -115,16 +115,16 @@ export const ResultLinkCard: React.FC<ResultLinkCardProps> = ({
         </div>
       </div>
 
-      {/* QR Code Hub Modal */}
-      {showQrHub && (
-        <QrCodeHub
-          url={resultUrl}
-          onClose={() => setShowQrHub(false)}
-          isDarkMode={isDarkMode}
-          language={language}
-          t={t}
-        />
-      )}
+      {/* Link QR Code Modal */}
+      <LinkQrCodeModal
+        isOpen={showQrHub}
+        onClose={() => setShowQrHub(false)}
+        url={resultUrl}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+        setStatus={setStatus}
+      />
     </motion.div>
   );
 };

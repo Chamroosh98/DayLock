@@ -44,7 +44,7 @@ export const en = {
   helpIran: "HELP IRAN",
   stegoCapacity: "Stego Capacity",
   stegoPlaceholder: "Secret message to hide within pixels ...",
-  selectPngCover: "Select PNG Cover",
+  selectPngCover: "Select Cover Image (PNG, JPG, WebP, Camera)",
   linkCopied: "Link copied to clipboard!",
   copySuccess: "Content copied to clipboard",
   securelyStored: "Securely stored!",

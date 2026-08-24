@@ -44,7 +44,7 @@ export const zh = {
   helpIran: "援助伊朗",
   stegoCapacity: "隐写容量",
   stegoPlaceholder: "隐藏在像素中的秘密消息 ...",
-  selectPngCover: "选择 PNG 封面图片",
+  selectPngCover: "选择载体图片（PNG、JPG、WebP、相机）",
   linkCopied: "链接已复制到剪贴板！",
   copySuccess: "内容已复制到剪贴板",
   securelyStored: "安全存储！",

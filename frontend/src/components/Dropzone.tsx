@@ -60,7 +60,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`bg-zinc-950/20 border-2 border-dashed rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2.5 sm:gap-3 cursor-pointer transition-all relative overflow-hidden min-h-[140px] sm:min-h-[200px] group ${
+      className={`bg-zinc-950/20 border-2 border-dashed rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center gap-3.5 sm:gap-4 cursor-pointer transition-all relative overflow-hidden min-h-[210px] sm:min-h-[260px] group ${
         isDragging
           ? 'border-emerald-500 bg-emerald-500/15 scale-[1.01]'
           : selectedFile 

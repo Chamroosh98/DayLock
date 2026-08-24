@@ -402,122 +402,135 @@ export const TravelerManualModal: React.FC<TravelerManualModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        {/* Undo Shortcut */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.undoShortcut || 'Undo Text / Content Edit'}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.undoShortcutDesc || 'Undoes the last edit or accidental deletion so users never have to re-type their content.'}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Ctrl / Cmd</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Z</kbd>
-                          </div>
-                        </div>
+                      <div className="space-y-2.5">
+                        {/* Keycap styling constants */}
+                        {(() => {
+                          const kbdClass = `min-w-[30px] sm:min-w-[34px] h-7 sm:h-8 px-2 sm:px-2.5 inline-flex items-center justify-center rounded-lg font-mono text-[11px] sm:text-xs font-bold border transition-all ${
+                            isDarkMode 
+                              ? 'bg-zinc-800 text-zinc-200 border-zinc-700 shadow-[0_2px_0_rgba(0,0,0,0.6)]' 
+                              : 'bg-white text-zinc-800 border-zinc-300 shadow-[0_2px_0_rgba(0,0,0,0.12)]'
+                          }`;
 
-                        {/* Redo Shortcut */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.redoShortcut || 'Redo Changes'}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.redoShortcutDesc || 'Redoes previously undone changes.'}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Ctrl</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Y</kbd>
-                            <span className="text-zinc-500 text-[10px] mx-0.5">/</span>
-                            <kbd className={`px-2 rounded-xl bg-zinc-950 border font-extrabold text-[10px] text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Shift+Z</kbd>
-                          </div>
-                        </div>
+                          const kbdPanicClass = `min-w-[30px] sm:min-w-[34px] h-7 sm:h-8 px-2 sm:px-2.5 inline-flex items-center justify-center rounded-lg font-mono text-[11px] sm:text-xs font-bold border transition-all ${
+                            isDarkMode 
+                              ? 'bg-red-950/50 text-red-300 border-red-500/40 shadow-[0_2px_0_rgba(239,68,68,0.25)]' 
+                              : 'bg-red-50 text-red-700 border-red-300 shadow-[0_2px_0_rgba(239,68,68,0.15)]'
+                          }`;
 
-                        {/* Clear All Fields */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.clearAllFieldsRam}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.clearAllFieldsRamDesc}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Ctrl</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Delete</kbd>
-                          </div>
-                        </div>
+                          const plusClass = "text-zinc-400 dark:text-zinc-500 font-bold text-xs select-none mx-0.5";
+                          const orClass = `text-[10px] font-sans font-extrabold uppercase px-1.5 py-0.5 rounded select-none ${
+                            isDarkMode ? 'bg-zinc-800/80 text-zinc-400' : 'bg-zinc-200/70 text-zinc-500'
+                          }`;
+                          const slashClass = "text-zinc-400 dark:text-zinc-500 font-sans text-xs select-none mx-0.5";
 
-                        {/* Toggle Mode / Tab */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.toggleViewMode}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.toggleViewModeDesc}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Alt</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>T</kbd>
-                          </div>
-                        </div>
+                          return (
+                            <>
+                              {/* Undo Shortcut */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' : 'bg-zinc-50/80 border-zinc-200/70 hover:border-zinc-300 hover:bg-white'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.undoShortcut || 'Undo Text / Content Edit'}
+                                </span>
+                                <div className="flex items-center gap-1 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <kbd className={kbdClass}>Ctrl</kbd>
+                                  <span className={slashClass}>/</span>
+                                  <kbd className={kbdClass}>Cmd</kbd>
+                                  <span className={plusClass}>+</span>
+                                  <kbd className={kbdClass}>Z</kbd>
+                                </div>
+                              </div>
 
-                        {/* Help / Security Operations Guide */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.toggleSecurityManual}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.toggleSecurityManualDesc}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-3.5 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>?</kbd>
-                          </div>
-                        </div>
+                              {/* Redo Shortcut */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' : 'bg-zinc-50/80 border-zinc-200/70 hover:border-zinc-300 hover:bg-white'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.redoShortcut || 'Redo Changes'}
+                                </span>
+                                <div className="flex flex-wrap items-center gap-2 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <div className="inline-flex items-center gap-1">
+                                    <kbd className={kbdClass}>Ctrl</kbd>
+                                    <span className={plusClass}>+</span>
+                                    <kbd className={kbdClass}>Y</kbd>
+                                  </div>
+                                  <span className={orClass}>or</span>
+                                  <div className="inline-flex items-center gap-1">
+                                    <kbd className={kbdClass}>Ctrl</kbd>
+                                    <span className={plusClass}>+</span>
+                                    <kbd className={kbdClass}>Shift</kbd>
+                                    <span className={plusClass}>+</span>
+                                    <kbd className={kbdClass}>Z</kbd>
+                                  </div>
+                                </div>
+                              </div>
 
-                        {/* Active Panic Screen Block */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 ${
-                          isDarkMode ? 'bg-zinc-900/30 border-white/5' : 'bg-zinc-50 border-zinc-100'
-                        }`}>
-                          <div className="space-y-1">
-                            <span className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-red-400' : 'text-red-600'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.triggerPanicBlock}
-                            </span>
-                            <p className={`text-[11px] ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
-                              {mainT.triggerPanicBlockDesc}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
-                            <kbd className={`px-2 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Ctrl</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-zinc-300 ${isDarkMode ? 'border-white/10' : 'border-zinc-200 shadow-sm'}`}>Shift</kbd>
-                            <span className="text-zinc-500">+</span>
-                            <kbd className={`px-2 py-1.5 rounded-xl bg-zinc-950 border font-extrabold text-red-400 ${isDarkMode ? 'border-red-500/30' : 'border-red-200 shadow-sm'}`}>Backspace</kbd>
-                          </div>
-                        </div>
+                              {/* Clear All Fields */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' : 'bg-zinc-50/80 border-zinc-200/70 hover:border-zinc-300 hover:bg-white'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.clearAllFieldsRam}
+                                </span>
+                                <div className="flex items-center gap-1 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <kbd className={kbdClass}>Ctrl</kbd>
+                                  <span className={plusClass}>+</span>
+                                  <kbd className={kbdClass}>Delete</kbd>
+                                </div>
+                              </div>
+
+                              {/* Toggle Mode / Tab */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' : 'bg-zinc-50/80 border-zinc-200/70 hover:border-zinc-300 hover:bg-white'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.toggleViewMode}
+                                </span>
+                                <div className="flex flex-wrap items-center gap-2 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <div className="inline-flex items-center gap-1">
+                                    <kbd className={kbdClass}>Alt</kbd>
+                                    <span className={plusClass}>+</span>
+                                    <kbd className={kbdClass}>T</kbd>
+                                  </div>
+                                  <span className={orClass}>or</span>
+                                  <div className="inline-flex items-center gap-1">
+                                    <kbd className={kbdClass}>Ctrl</kbd>
+                                    <span className={plusClass}>+</span>
+                                    <kbd className={kbdClass}>Q</kbd>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Help / Security Operations Guide */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-zinc-900/40 border-white/5 hover:border-white/10 hover:bg-zinc-900/60' : 'bg-zinc-50/80 border-zinc-200/70 hover:border-zinc-300 hover:bg-white'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-zinc-200' : 'text-zinc-800'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.toggleSecurityManual}
+                                </span>
+                                <div className="flex items-center gap-1 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <kbd className={kbdClass}>?</kbd>
+                                </div>
+                              </div>
+
+                              {/* Active Panic Screen Block */}
+                              <div className={`p-3 sm:p-3.5 px-4 rounded-2xl border flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 sm:gap-4 transition-all ${
+                                isDarkMode ? 'bg-red-950/20 border-red-500/20 hover:border-red-500/30 hover:bg-red-950/30' : 'bg-red-50/70 border-red-200/80 hover:border-red-300 hover:bg-red-50'
+                              }`}>
+                                <span className={`text-xs sm:text-[13px] font-bold tracking-wide ${isDarkMode ? 'text-red-300' : 'text-red-700'} ${isRtl ? 'font-vazir' : 'font-sans'}`}>
+                                  {mainT.triggerPanicBlock}
+                                </span>
+                                <div className="flex items-center gap-1 font-mono text-xs shrink-0 self-start sm:self-auto" dir="ltr">
+                                  <kbd className={kbdPanicClass}>Ctrl</kbd>
+                                  <span className={plusClass}>+</span>
+                                  <kbd className={kbdPanicClass}>Shift</kbd>
+                                  <span className={plusClass}>+</span>
+                                  <kbd className={kbdPanicClass}>Backspace</kbd>
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     </motion.div>
                   )}

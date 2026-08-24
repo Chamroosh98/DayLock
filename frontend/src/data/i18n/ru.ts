@@ -44,7 +44,7 @@ export const ru = {
   helpIran: "ПОМОГИТЕ ИРАНУ",
   stegoCapacity: "Емкость стеганографии",
   stegoPlaceholder: "Скрытое сообщение внутри пикселей ...",
-  selectPngCover: "Выбрать PNG обложку",
+  selectPngCover: "Выбрать изображение (PNG, JPG, WebP, камера)",
   linkCopied: "Ссылка скопирована в буфер обмена!",
   copySuccess: "Скопировано в буфер обмена",
   securelyStored: "Безопасно сохранено!",
