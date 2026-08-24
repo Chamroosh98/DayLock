@@ -41,8 +41,8 @@
 - [🛠️ Prerequisites & Toolchain](#️-prerequisites--toolchain)
 - [🚀 Deployment Options](#-deployment-options)
   - [Option 1: Automated CLI Wizard (Recommended)](#option-1-automated-cli-wizard-recommended)
-  - [Option 2: Cloudflare Dashboard / Git Integration (Manual Deployment)](#option-2-cloudflare-dashboard--git-integration-manual-deployment)
-- [🔑 Cloudflare API Token Setup (Optional)](#-cloudflare-api-token-setup-optional)
+  - [Option 2: Automated Deploy with GitHub Actions](#option-2-automated-deploy-with-github-actions)
+- [🔑 Cloudflare API Token Setup](#-cloudflare-api-token-setup)
 - [🏗️ Data Architecture Flow](#️-data-architecture-flow)
 
 ---
@@ -53,34 +53,34 @@
 
 Plaintext data and decryption keys **never** reach the server or the Cloudflare network. The entire encryption and key derivation chain is executed directly inside the user's browser using a high-performance Rust WebAssembly (WASM) kernel.
 
-**The server only holds an encrypted, opaque payload blob with zero capability to inspect contents or recover keys.**
+**‼️ The server only holds an encrypted, opaque payload blob with zero capability to inspect contents or recover keys!**
 
 ---
 
 ## ✨ Key Features
 
-- 🔐 **Zero-Knowledge Architecture:**
+- 🔐 **Zero-Knowledge Architecture :**  
   100% client-side execution leveraging standard AES-256-GCM encryption combined with Argon2id key derivation compiled into Rust/WASM.
 
-- 🖼️ **Advanced Steganography:**
+- 🖼️ **Advanced Steganography :**  
   Embed encrypted payloads seamlessly inside image (PNG) and audio (WAV/Voice) files without visible or audible distortions.
 
-- 🍯 **Decoy / Honey Password Protection:**
+- 🍯 **Decoy / Honey Password Protection :**  
   Create dual-layer vaults (Plausible Deniability) to display decoy, benign content when subjected to coercion or forced disclosure.
 
-- 🧩 **Shamir's Secret Sharing:**
+- 🧩 **Shamir's Secret Sharing :**  
   Split the primary master key into $N$ distinct shares requiring a $K$-of-$N$ threshold (e.g., 3 out of 5) to reconstruct the secret.
 
-- 🚨 **Emergency Shields:**
+- 🚨 **Emergency Shields :**  
   Trigger instant browser memory sanitization on tab switches, screenshot/print attempts, or custom stealth tap patterns.
 
-- 🌐 **Perimeter Controls:**
+- 🌐 **Perimeter Controls :**  
   Restrict access enforcement based on visitor country (Geo-Lock), network provider (ASN Lock), or specific future timestamps (Time-Lock).
 
-- 💥 **Burn-on-Read & Self-Destruction:**
+- 💥 **Burn-on-Read & Self-Destruction :**  
   Automatic payload purging immediately after the first read or upon reaching time-to-live (TTL) expiration.
 
-- 💬 **Ephemeral E2E Chat:**
+- 💬 **Ephemeral E2E Chat :**  
   Establish temporary, encrypted communication rooms without persistent server logs or message histories.
 
 ---
@@ -88,39 +88,39 @@ Plaintext data and decryption keys **never** reach the server or the Cloudflare 
 ## 📖 Comprehensive User Guide
 
 ### 0. Zero-Knowledge Concept
-* **Client-Only Operations:** Keys never cross network boundaries. Text and files are encrypted locally prior to transmission. Server seizures or database leaks yield nothing but undecipherable ciphertext.
-* **Trace Elimination:** Burn-on-read items auto-purge upon access, while panic controls immediately wipe browser RAM state.
-* **Important Warning:** Forgetting your primary password makes payload recovery mathematically impossible. There is no password reset mechanism.
+* **Client-Only Operations :** Keys never cross network boundaries. Text and files are encrypted locally prior to transmission. Server seizures or database leaks yield nothing but undecipherable ciphertext.
+* **Trace Elimination :** Burn-on-read items auto-purge upon access, while panic controls immediately wipe browser RAM state.
+* **Important Warning :** Forgetting your primary password makes payload recovery mathematically impossible. There is no password reset mechanism.
 
 ### 1. Core Encryption
-* **Text Vault:** Secure storage for notes, secrets, credentials, and sensitive logs while preserving formatting.
-* **File & Image Encryption:** Files are chunked and encrypted in browser memory via AES-256-GCM prior to upload.
-* **Burn-on-Read:** Enforce one-time access links that permanently purge payloads from edge KV storage instantly after decryption.
-* **Expiration Windows:** Flexible retention controls ranging from a few minutes to multiple days.
+* **Text Vault :** Secure storage for notes, secrets, credentials, and sensitive logs while preserving formatting.
+* **File & Image Encryption :** Files are chunked and encrypted in browser memory via AES-256-GCM prior to upload.
+* **Burn-on-Read :** Enforce one-time access links that permanently purge payloads from edge KV storage instantly after decryption.
+* **Expiration Windows :** Flexible retention controls ranging from a few minutes to multiple days.
 
 ### 2. Steganography, Secret Sharing & Secure E2EE
-* **Image Steganography:** Inject encrypted payloads into LSB layers of PNG files.
-  > ⚠️ **Note:** Always send stego-images as **Uncompressed Documents/Files** in messaging apps to prevent image re-encoding from stripping the hidden data.
-* **Audio Steganography:** Hide sensitive payloads inside WAV audio recordings without introducing acoustic artifacts.
-* **Shamir's Secret Sharing:** Partition keys into $N$ parts requiring a threshold of $K$ keys to restore access.
-* **Ephemeral E2E Chat:** Spin up disposable chat channels for encrypted real-time exchanges without server logging.
+* **Image Steganography :** Inject encrypted payloads into LSB layers of PNG files.  
+  > ⚠️ **Note :** Always send stego-images as **Uncompressed Documents/Files** in messaging apps to prevent image re-encoding from stripping the hidden data.
+* **Audio Steganography :** Hide sensitive payloads inside WAV audio recordings without introducing acoustic artifacts.
+* **Shamir's Secret Sharing :** Partition keys into $N$ parts requiring a threshold of $K$ keys to restore access.
+* **Ephemeral E2E Chat :** Spin up disposable chat channels for encrypted real-time exchanges without server logging.
 
 ### 3. Anti-Coercion & Decoy Protection
-* **Dual-Layer Vaults:** Provision two distinct isolation zones inside a single encrypted link payload.
-* **Decoy Passwords:** Provide an alternate password that decrypts innocent cover data (e.g., shopping lists, public notes).
-* **Cryptographic Unprovability:** It is mathematically impossible to prove the existence of the hidden primary payload from the ciphertext alone.
+* **Dual-Layer Vaults :** Provision two distinct isolation zones inside a single encrypted link payload.
+* **Decoy Passwords :** Provide an alternate password that decrypts innocent cover data (e.g., shopping lists, public notes).
+* **Cryptographic Unprovability :** It is mathematically impossible to prove the existence of the hidden primary payload from the ciphertext alone.
 
 ### 4. Emergency Shields & Instant Sanitization
-* **Tab-Switch Guard:** Wipes decrypted RAM state instantly when switching browser tabs or defocusing the window.
-* **Print & Screenshot Defenses:** Obfuscates sensitive viewports and purges state during screen capture or print dialog calls.
-* **Clipboard Shield:** Blocks direct clipboard copying and automatically flushes system clipboard buffers after a short timeout.
-* **Stealth Tap Wipe:** Define custom tap or click sequences to purge active memory and redirect to a benign view.
+* **Tab-Switch Guard :** Wipes decrypted RAM state instantly when switching browser tabs or defocusing the window.
+* **Print & Screenshot Defenses :** Obfuscates sensitive viewports and purges state during screen capture or print dialog calls.
+* **Clipboard Shield :** Blocks direct clipboard copying and automatically flushes system clipboard buffers after a short timeout.
+* **Stealth Tap Wipe :** Define custom tap or click sequences to purge active memory and redirect to a benign view.
 
 ### 5. Perimeter Defense
-* **Geo & ASN Locking:** Restrict link decryption rights to target countries or specific Autonomous System Numbers (ASNs).
-* **Time-Locking:** Lock decryption capabilities until a designated future date and time.
-* **Canary Alert Tokens:** Send secret webhook alerts upon the first unauthorized or authorized link access attempt.
-* **Dead Man's Switch:** Automated data destruction or fallback triggers if the link is not accessed within a set maintenance interval.
+* **Geo & ASN Locking :** Restrict link decryption rights to target countries or specific Autonomous System Numbers (ASNs).
+* **Time-Locking :** Lock decryption capabilities until a designated future date and time.
+* **Canary Alert Tokens :** Send secret webhook alerts upon the first unauthorized or authorized link access attempt.
+* **Dead Man's Switch :** Automated data destruction or fallback triggers if the link is not accessed within a set maintenance interval.
 
 ---
 
@@ -140,7 +140,7 @@ Required tooling for local development and deployment:
 
 ## 🚀 Deployment Options
 
-### Option 1: Automated CLI Wizard (Recommended)
+### Option 1 : Automated CLI Wizard (Recommended)
 
 Handles WebAssembly compilation, provisions KV storage, generates worker configurations, and deploys directly to Cloudflare Edge.
 
@@ -151,37 +151,44 @@ Handles WebAssembly compilation, provisions KV storage, generates worker configu
   ./setup.sh
 ```
 
-**What `setup.sh` automates:**
+**What `setup.sh` automates :**
 
-1. **Authentication:** Validates local session (`wrangler login`) or API Token.
-2. **KV Provisioning:** Creates `DAYLOCK_RATE_LIMIT_KV` and `DAYLOCK_PASTE_KV` namespaces.
-3. **Configuration:** Populates `wrangler.toml` with the created KV namespace IDs.
-4. **Build Chain:** Compiles frontend assets and injects the Rust WASM package.
-5. **Publishing:** Deploys the application and Worker API endpoints to Cloudflare Edge.
-
----
-
-### Option 2: Cloudflare Dashboard / Git Integration (Manual Deployment)
-
-1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Navigate to **Workers & Pages**.
-3. Create a **Pages** project connected to your `DayLock` GitHub repository.
-4. Under **Workers & Pages -> KV**, create two KV namespaces:
-* `DAYLOCK_RATE_LIMIT_KV`
-* `DAYLOCK_PASTE_KV`
-
-
-5. Map these namespaces under **Project Settings -> Bindings** to matching variable names.
-6. Click **Save and Deploy**.
+1. **Authentication :** Validates local session (`wrangler login`) or API Token.
+2. **KV Provisioning :** Creates `DAYLOCK_RATE_LIMIT_KV` and `DAYLOCK_PASTE_KV` namespaces.
+3. **Configuration :** Populates `wrangler.toml` with the created KV namespace IDs.
+4. **Build Chain :** Compiles frontend assets and injects the Rust WASM package.
+5. **Publishing :** Deploys the application and Worker API endpoints to Cloudflare Edge.
 
 ---
 
-## 🔑 Cloudflare API Token Setup (Optional)
+### Option 2 : Automated Deploy with GitHub Actions
 
-For automated CLI deployments without interactive browser authentication, issue an API Token via [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) with the following scopes:
+Set it up once, then just fork and go.  
+You only need to provide the Secrets — the workflow automatically creates or locates the KV namespaces, builds the project, and deploys everything. No local CLI, no manual dashboard configuration, no complex setup.
 
-* 📜 **Workers Scripts** -> `Edit`
-* 🗄️ **Workers KV Storage** -> `Edit`
+#### What you need to do:
+
+1. **Fork** the DayLock repository to your own GitHub account.
+2. **Create a Secret** (generate the token using the steps in [🔑 Cloudflare API Token Setup](#-cloudflare-api-token-setup)):
+   - Name: `CLOUDFLARE_API_TOKEN`
+   - (Recommended) also add `CLOUDFLARE_ACCOUNT_ID`
+   - Where to add it in the repo:
+     > **Settings → Secrets and variables → Actions → Secrets**
+3. Go to the **Actions** tab → click **Run workflow**, or simply push to `main`.
+
+**The End!**  
+Build, KV provisioning, and full deployment run automatically. You never have to handle any of it by hand.
+
+---
+
+## 🔑 Cloudflare API Token Setup
+
+Required for GitHub Actions (Option 2) and also useful for non-interactive CLI authentication. Create a token at [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) with these permissions :
+
+* 📜 **Workers Scripts** → `Edit`
+* 🗄️ **Workers KV Storage** → `Edit`
+
+Add this token to your GitHub repository Secrets under the name `CLOUDFLARE_API_TOKEN` (as described in Option 2 above).
 
 ---
 
@@ -201,4 +208,3 @@ Cloudflare Worker Edge API
 Cloudflare KV Storage
   ├── DAYLOCK_PASTE_KV
   └── DAYLOCK_RATE_LIMIT_KV
-```

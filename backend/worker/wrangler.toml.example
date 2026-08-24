@@ -20,6 +20,6 @@ binding = "ASSETS"
 # If you want to use your own custom domain instead of the default Cloudflare domain, 
 # uncomment the code below and replace the "example.com" with your own domain.
 
-# routes = [
-#   { pattern = "example.com/*", custom_domain = true }
-# ]
+#[[routes]]
+#pattern = "example.com/*"
+#custom_domain = true

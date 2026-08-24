@@ -39,8 +39,8 @@
 - [🛠️ 前置需求与工具链](#️-前置需求与工具链)
 - [🚀 部署选项](#-部署选项)
   - [选项 1：CLI 自动化向导（推荐）](#选项-1cli-自动化向导推荐)
-  - [选项 2：Cloudflare Dashboard / Git 集成（手动部署）](#选项-2cloudflare-dashboard--git-集成手动部署)
-- [🔑 Cloudflare API Token 设置（可选）](#-cloudflare-api-token-设置可选)
+  - [选项 2：使用 GitHub Actions 自动部署](#选项-2使用-github-actions-自动部署)
+- [🔑 Cloudflare API Token 设置](#-cloudflare-api-token-设置)
 - [🏗️ 数据架构流程](#️-数据架构流程)
 
 ---
@@ -57,28 +57,28 @@
 
 ## ✨ 核心特性
 
-- 🔐 **零知识架构：**
+- 🔐 **零知识架构：**  
   100% 客户端执行，结合标准 AES-256-GCM 加密与 Argon2id 密钥衍生，经 Rust 编译为 WASM 运行。
 
-- 🖼️ **高级隐写术（Steganography）：**
+- 🖼️ **高级隐写术（Steganography）：**  
   将加密数据无缝隐写置于图片（PNG）或音频（WAV/语音）文件中，不会产生任何肉眼或肉耳可察觉的失真。
 
-- 🍯 **伪装密码/诱饵保护（Honey / Decoy Password）：**
+- 🍯 **伪装密码/诱饵保护（Honey / Decoy Password）：**  
   创建双层保险库（可否认加密），在面临胁迫或强制搜查时，输入伪装密码仅展示无害的表面数据。
 
-- 🧩 **萨米尔秘密共享（Shamir's Secret Sharing）：**
+- 🧩 **萨米尔秘密共享（Shamir's Secret Sharing）：**  
   将主密钥分割为 $N$ 个碎片，必须集齐设定的 $K$ 个碎片（例如 5 个中的 3 个）才能重建密钥。
 
-- 🚨 **紧急防御机制：**
+- 🚨 **紧急防御机制：**  
   切换标签页、尝试截屏/打印或敲击特定的暗号区域时，会立即触发浏览器内存中的数据擦除。
 
-- 🌐 **边界安全控制：**
+- 🌐 **边界安全控制：**  
   可根据访问者所在国家（Geo-Lock）、网络运营商（ASN Lock）或特定的未来时间戳（Time-Lock）限制解密权限。
 
-- 💥 **阅后即焚与自动过期：**
+- 💥 **阅后即焚与自动过期：**  
   数据在首次读取后或达到预设的生存时间（TTL）后，将自动从边缘存储中永久销毁。
 
-- 💬 **一次性端到端加密聊天：**
+- 💬 **一次性端到端加密聊天：**  
   创建临时的加密通信房间，服务器不保存任何历史记录或日志。
 
 ---
@@ -97,7 +97,7 @@
 * **有效期限：** 灵活的存留控制，时间跨度可从几分钟到几天不等。
 
 ### 2. 隐写术、秘密共享与端到端安全通信
-* **图片隐写术：** 将加密数据注入 PNG 图片的 LSB 阶层中。
+* **图片隐写术：** 将加密数据注入 PNG 图片的 LSB 阶层中。  
   > ⚠️ **注意：** 在即时通讯软件中发送含隐写数据的图片时，务必以 **“文件/文档（Uncompressed Document）”** 格式发送，防止软件压缩损坏隐写数据。
 * **音频隐写术：** 将敏感消息隐藏在 WAV 音频文件中，不会产生声学杂音。
 * **萨米尔秘密共享：** 将密钥拆分为 $N$ 份，需要达到 $K$ 份门槛才能恢复访问。
@@ -159,27 +159,34 @@
 
 ---
 
-### 选项 2：Cloudflare Dashboard / Git 集成（手动部署）
+### 选项 2：使用 GitHub Actions 自动部署
 
-1. 登录您的 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
-2. 导航至 **Workers & Pages**。
-3. 创建一个新的 **Pages** 项目，并连接您的 `DayLock` GitHub 仓库。
-4. 在 **Workers & Pages -> KV** 菜单下，创建两个 KV 命名空间：
-* `DAYLOCK_RATE_LIMIT_KV`
-* `DAYLOCK_PASTE_KV`
+只需设置一次，之后 Fork 即可直接使用。  
+用户只需添加 Secrets，工作流会自动创建或查找 KV 命名空间、完成构建并部署。无需本地 CLI、无需手动操作 Dashboard，也无需复杂配置。
 
+#### 用户只需完成以下 3 步：
 
-5. 在 **项目设置 -> 绑定（Bindings）** 中，将这两个命名空间绑定到同名变量。
-6. 点击 **保存并部署（Save and Deploy）**。
+1. **Fork** DayLock 仓库到自己的 GitHub 账户。
+2. **创建 Secret**（请先按照 [🔑 Cloudflare API Token 设置](#-cloudflare-api-token-设置) 生成 Token）：
+   - 名称：`CLOUDFLARE_API_TOKEN`
+   - （推荐）同时添加 `CLOUDFLARE_ACCOUNT_ID`
+   - 在仓库中添加 Secret 的路径：
+     > **Settings → Secrets and variables → Actions → Secrets**
+3. 进入 **Actions** 标签页 → 点击 **Run workflow**，或直接推送到 `main` 分支。
+
+**完成！**  
+构建、KV 创建/查找以及完整部署将全部自动完成，无需任何手动操作。
 
 ---
 
-## 🔑 Cloudflare API Token 设置（可选）
+## 🔑 Cloudflare API Token 设置
 
-如需在 CLI 部署时使用 Token 认证代替浏览器交互式登录，请前往 [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) 创建一个包含以下权限的 Token：
+用于 GitHub Actions（选项 2）以及 CLI 非交互式身份验证。请前往 [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) 创建一个包含以下权限的 Token：
 
-* 📜 **Workers Scripts** -> `Edit`
-* 🗄️ **Workers KV Storage** -> `Edit`
+* 📜 **Workers Scripts** → `Edit`
+* 🗄️ **Workers KV Storage** → `Edit`
+
+将此 Token 以名称 `CLOUDFLARE_API_TOKEN` 添加到 GitHub 仓库的 Secrets 中（详见上方选项 2）。
 
 ---
 
@@ -199,4 +206,3 @@ Cloudflare Worker 边缘 API
 Cloudflare KV 存储
   ├── DAYLOCK_PASTE_KV
   └── DAYLOCK_RATE_LIMIT_KV
-```
