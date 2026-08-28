@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.7.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
+  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.8.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>

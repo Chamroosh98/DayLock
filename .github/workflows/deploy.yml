@@ -1,4 +1,4 @@
-name: Deploy DayLock
+name: Deploy DayLock on CF
 
 on:
     push:
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout
+      - name: 📋 Checkout
         uses: actions/checkout@v4
 
-      - name: Require Cloudflare token (deploy only)
+      - name: ☁️ Require Cloudflare token (deploy only)
         if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -34,22 +34,22 @@ jobs:
             exit 1
           fi
 
-      - name: Setup Bun
+      - name: 🧅 Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Setup Node
+      - name: 🪢 Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install Rust
+      - name: 🦀 Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Cache Cargo
+      - name: 💬 Cache Cargo
         uses: actions/cache@v4
         with:
           path: |
@@ -63,7 +63,7 @@ jobs:
           restore-keys: |
             cargo-${{ runner.os }}-
 
-      - name: Cache Bun
+      - name: 💬 Cache Bun
         uses: actions/cache@v4
         with:
           path: |
@@ -73,27 +73,27 @@ jobs:
           restore-keys: |
             bun-${{ runner.os }}-
 
-      - name: Install wasm-pack
+      - name: 👩🏻‍🔧 Install wasm-pack
         run: |
           if ! command -v wasm-pack >/dev/null 2>&1; then
             curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
           fi
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - name: Install wrangler
+      - name: 🌩️ Install wrangler
         run: npm install -g wrangler
 
-      - name: Frontend install & build
+      - name: 💅🏻 Frontend install & build
         working-directory: frontend
         run: |
           bun install --frozen-lockfile || bun install
           bun run build
 
-      - name: WASM → frontend/dist/pkg
+      - name: 📦 WASM → frontend/dist/pkg
         working-directory: backend/wasm
         run: wasm-pack build --release --target web --out-dir ../../frontend/dist/pkg
 
-      - name: Provision KV + wrangler.toml
+      - name: 💾 Provision KV + wrangler.toml
         if: github.event_name != 'pull_request'
         working-directory: backend/worker
         env:
@@ -109,6 +109,7 @@ jobs:
           resolve_kv() {
             local NAME="$1"
             local LIST_OUT OUT ID
+
             LIST_OUT=$(wrangler kv namespace list 2>&1) || true
             ID=$(printf '%s' "$LIST_OUT" | bun -e '
               const name = process.argv[1];
@@ -128,14 +129,15 @@ jobs:
             fi
 
             if [ -n "$ID" ]; then
-              echo "Reuse KV $NAME -> $ID"
+              echo "Reuse KV $NAME -> $ID" >&2
               printf '%s' "$ID"
               return 0
             fi
 
-            echo "Create KV $NAME ..."
+            echo "Create KV $NAME ..." >&2
             OUT=$(wrangler kv namespace create "$NAME" 2>&1) || true
-            echo "$OUT"
+            echo "$OUT" >&2
+
             ID=$(echo "$OUT" | grep -oE 'id = "[a-f0-9]+"' | head -1 | cut -d'"' -f2 || true)
             if [ -z "$ID" ]; then
               ID=$(echo "$OUT" | grep -oE '[a-f0-9]{32}' | head -1 || true)
@@ -145,10 +147,11 @@ jobs:
               ID=$(printf '%s' "$LIST_OUT" | tr '{' '\n' | grep -F "$NAME" | grep -oE '[a-f0-9]{32}' | head -1 || true)
             fi
             if [ -z "$ID" ]; then
-              echo "Failed to resolve KV: $NAME"
+              echo "Failed to resolve KV: $NAME" >&2
               exit 1
             fi
-            echo "Created KV $NAME -> $ID"
+
+            echo "Created KV $NAME -> $ID" >&2
             printf '%s' "$ID"
           }
 
@@ -162,7 +165,7 @@ jobs:
             wrangler.toml
           echo "wrangler.toml ready."
 
-      - name: PR-only dummy wrangler.toml (compile path)
+      - name: ⚙️ PR-only dummy wrangler.toml (compile path)
         if: github.event_name == 'pull_request'
         working-directory: backend/worker
         run: |
@@ -172,7 +175,7 @@ jobs:
             -e 's/REPLACE_WITH_DAYLOCK_PASTE_KV_ID/00000000000000000000000000000001/' \
             wrangler.toml
 
-      - name: Deploy to Cloudflare
+      - name: 📤 Deploy to Cloudflare
         if: github.event_name != 'pull_request'
         working-directory: backend/worker
         env:
@@ -180,7 +183,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: wrangler deploy
 
-      - name: Summary
+      - name: 🤌🏻 Summary
         if: github.event_name != 'pull_request'
         run: |
           {

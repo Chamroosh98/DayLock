@@ -1,6 +1,6 @@
 
 temp/
-test/ 
+test/
 .directory
 .git/
 *.log
@@ -9,13 +9,9 @@ build.sh
 
 frontend/dist/
 frontend/node_modules
-frontend/bun.lock
-frontend/package.json
-frontend/package-lock.json
 frontend/README.md
 
 backend/wasm/target/
-backend/wasm/Cargo.lock
 backend/wasm/.gitignore
 
 backend/worker/.wrangler/
@@ -23,6 +19,4 @@ backend/worker/build/
 backend/worker/pkg/
 backend/worker/target/
 backend/worker/wrangler.toml
-backend/worker/Cargo.lock
 backend/worker/.gitignore
-
