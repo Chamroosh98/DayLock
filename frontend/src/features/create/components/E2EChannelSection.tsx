@@ -48,8 +48,8 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              const pair = e2eGenKeypair();
+            onClick={async () => {
+              const pair = await e2eGenKeypair();
               setE2EKeyPair(pair);
               localStorage.setItem('daylock_e2e_keypair', JSON.stringify(pair));
               setStatus({ type: 'ok', msg: t.e2eKeypairSuccess });
@@ -67,9 +67,9 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
         /* Keypair Active Card */
         <div className="space-y-6">
           <div className={`p-6 rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} space-y-4`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+            <div className={`flex items-center justify-between ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-3 ${language === 'fa' ? 'flex-row-reverse text-right' : ''}`}>
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20 shrink-0">
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
@@ -94,15 +94,15 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
               </button>
             </div>
 
-            <div className={`p-3.5 rounded-2xl border ${isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-zinc-50 border-zinc-200'} flex items-center justify-between gap-3`}>
-              <span className="font-mono text-[10px] text-zinc-400 truncate flex-1">{e2eKeyPair.publicKey}</span>
+            <div className={`p-3.5 rounded-2xl border ${isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-zinc-50 border-zinc-200'} flex items-center justify-between gap-3 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+              <span className="font-mono text-[10px] text-zinc-400 truncate flex-1" dir="ltr">{e2eKeyPair.publicKey}</span>
               <button
                 type="button"
                 onClick={() => {
                   copyToClipboardWithAutoClear(e2eKeyPair.publicKey, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
                   setStatus({ type: 'ok', msg: t.publicKeyCopied });
                 }}
-                className="p-2 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer"
+                className="p-2 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer shrink-0"
               >
                 <Copy className="w-3.5 h-3.5" />
               </button>
@@ -115,13 +115,16 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
             whileTap={{ scale: 0.98 }}
             onClick={handleCreateE2EChannel}
             disabled={isE2ELoading}
+            dir={language === 'fa' ? 'rtl' : 'ltr'}
             className={`w-full py-5 rounded-[24px] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl transition-all cursor-pointer ${
+              language === 'fa' ? 'flex-row-reverse' : ''
+            } ${
               isDarkMode
                 ? 'bg-emerald-500 text-black shadow-emerald-500/20 hover:bg-emerald-400'
                 : 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700'
             } ${isE2ELoading ? 'opacity-50 cursor-not-allowed' : ''} ${language === 'fa' ? 'font-vazir text-sm font-bold' : ''}`}
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-4 h-4 shrink-0" />
             <span>{isE2ELoading ? t.spawningChannel : t.spawnE2EChannel}</span>
           </motion.button>
         </div>

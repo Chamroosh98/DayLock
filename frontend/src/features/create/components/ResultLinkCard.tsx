@@ -28,11 +28,19 @@ export const ResultLinkCard: React.FC<ResultLinkCardProps> = ({
   const [showQrHub, setShowQrHub] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const handleCopy = () => {
+    copyToClipboardWithAutoClear(resultUrl, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    setStatus({ type: 'ok', msg: t.linkCopied });
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 pt-4 border-t border-white/10">
       <div className={`p-5 sm:p-6 rounded-[28px] sm:rounded-[32px] border ${isDarkMode ? 'bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_40px_rgba(16,185,129,0.08)]' : 'bg-emerald-50/80 border-emerald-200 shadow-xl'} space-y-4`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        {/* Header */}
+        <div className={`flex items-center justify-between ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+          <div className={`flex items-center gap-2.5 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
             <div className="relative flex items-center justify-center">
               <motion.div
                 animate={{ scale: [1, 1.3, 1], opacity: [0.35, 0.75, 0.35] }}
@@ -77,41 +85,78 @@ export const ResultLinkCard: React.FC<ResultLinkCardProps> = ({
           </motion.button>
         </div>
 
-        <div className={`p-3 sm:p-4 rounded-2xl border ${isDarkMode ? 'bg-zinc-950/70 border-white/5 shadow-inner' : 'bg-white border-zinc-200 shadow-sm'} flex items-center justify-between gap-2.5 sm:gap-3`}>
-          <span className="font-mono text-[11px] sm:text-xs text-emerald-400 truncate flex-1 font-bold select-all">{resultUrl}</span>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowQrHub(true)}
-              className={`p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${
-                isDarkMode
-                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
-                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
-              }`}
-              title="QR Code"
+        {/* Dedicated Full-Width Link Box */}
+        <div
+          onClick={handleCopy}
+          className={`group p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer ${
+            isDarkMode 
+              ? 'bg-zinc-950/80 border-white/10 hover:border-emerald-500/40 shadow-inner' 
+              : 'bg-white border-zinc-200 hover:border-emerald-400 shadow-sm'
+          }`}
+          title="Click to copy link"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <span 
+              dir="ltr"
+              className="font-mono text-xs sm:text-sm text-emerald-400 break-all select-all font-semibold tracking-tight"
             >
-              <QrCode className="w-4 h-4" />
-            </button>
+              {resultUrl}
+            </span>
             <button
               type="button"
-              onClick={() => {
-                copyToClipboardWithAutoClear(resultUrl, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-                setStatus({ type: 'ok', msg: t.linkCopied });
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopy();
               }}
-              className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`p-2 rounded-xl transition-all shrink-0 ${
                 copied
-                  ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
+                  ? 'bg-emerald-500 text-black shadow-md'
                   : isDarkMode
-                    ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/25'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
+                    ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
               }`}
+              title="Copy"
             >
-              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? t.copied : t.copyLink}</span>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
+        </div>
+
+        {/* Action Controls Row (Spacious & Clean) */}
+        <div className={`grid grid-cols-2 gap-2.5 sm:gap-3 ${language === 'fa' ? 'flex-row-reverse font-vazir' : ''}`}>
+          {/* Copy Action Button */}
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleCopy}
+            className={`py-3 px-4 rounded-2xl font-black uppercase text-[11px] sm:text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
+              copied
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
+                : isDarkMode
+                  ? 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md'
+            } ${language === 'fa' ? 'flex-row-reverse' : ''}`}
+          >
+            {copied ? <Check className="w-4 h-4 shrink-0" /> : <Copy className="w-4 h-4 shrink-0" />}
+            <span>{copied ? t.copied : t.copyLink}</span>
+          </motion.button>
+
+          {/* QR Code Action Button */}
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowQrHub(true)}
+            className={`py-3 px-4 rounded-2xl font-black uppercase text-[11px] sm:text-xs tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+              isDarkMode
+                ? 'bg-zinc-900/80 hover:bg-zinc-800/90 text-zinc-200 border-white/10 hover:border-emerald-500/30 shadow-sm'
+                : 'bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200 hover:border-emerald-300 shadow-sm'
+            } ${language === 'fa' ? 'flex-row-reverse' : ''}`}
+          >
+            <QrCode className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>{t.qrCode || 'QR Code'}</span>
+          </motion.button>
         </div>
       </div>
 

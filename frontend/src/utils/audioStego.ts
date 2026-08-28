@@ -250,7 +250,7 @@ export function buildWav(pcmFloat32: Float32Array, sampleRate: number): Uint8Arr
   const dataLen = samples.length * 2;
   const buffer = new ArrayBuffer(44 + dataLen);
   const view = new DataView(buffer);
-  
+
   const writeStr = (off: number, str: string) => {
     for (let i = 0; i < str.length; i++) {
       view.setUint8(off + i, str.charCodeAt(i));
@@ -261,7 +261,7 @@ export function buildWav(pcmFloat32: Float32Array, sampleRate: number): Uint8Arr
   view.setUint32(4, 36 + dataLen, true);
   writeStr(8, 'WAVE');
   writeStr(12, 'fmt ');
-  
+
   view.setUint32(16, 16, true);   // Subchunk1Size (16 for PCM)
   view.setUint16(20, 1, true);    // AudioFormat (1 for PCM)
   view.setUint16(22, 1, true);    // NumChannels (1 for Mono)
@@ -269,10 +269,59 @@ export function buildWav(pcmFloat32: Float32Array, sampleRate: number): Uint8Arr
   view.setUint32(28, sampleRate * 2, true); // ByteRate
   view.setUint16(32, 2, true);    // BlockAlign
   view.setUint16(34, 16, true);   // BitsPerSample (16 bits)
-  
+
   writeStr(36, 'data');
   view.setUint32(40, dataLen, true);
 
   new Int16Array(buffer, 44).set(samples);
   return new Uint8Array(buffer);
 }
+
+// Universal Audio to lossless 16-bit Mono WAV converter using browser Web Audio API
+export async function convertAudioToWav(
+  fileOrBlob: File | Blob
+): Promise<{ bytes: Uint8Array; floatSamples: Float32Array; sampleRate: number; filename: string }> {
+  const arrayBuffer = await fileOrBlob.arrayBuffer();
+  const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContextClass) {
+    throw new Error("Web Audio API is not supported in this browser.");
+  }
+
+  const audioCtx = new AudioContextClass();
+  try {
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    const numChannels = audioBuffer.numberOfChannels;
+    const length = audioBuffer.length;
+    const sampleRate = audioBuffer.sampleRate;
+
+    // Mix down to mono float32 array
+    const monoSamples = new Float32Array(length);
+    if (numChannels === 1) {
+      monoSamples.set(audioBuffer.getChannelData(0));
+    } else {
+      for (let c = 0; c < numChannels; c++) {
+        const channelData = audioBuffer.getChannelData(c);
+        for (let i = 0; i < length; i++) {
+          monoSamples[i] += channelData[i] / numChannels;
+        }
+      }
+    }
+
+    const wavBytes = buildWav(monoSamples, sampleRate);
+    const originalName = (fileOrBlob as File).name || 'audio_cover.wav';
+    const baseName = originalName.replace(/\.[^/.]+$/, '');
+    const filename = `${baseName}_stego.wav`;
+
+    return {
+      bytes: wavBytes,
+      floatSamples: monoSamples,
+      sampleRate,
+      filename
+    };
+  } finally {
+    if (audioCtx.state !== 'closed') {
+      audioCtx.close().catch(() => {});
+    }
+  }
+}
+

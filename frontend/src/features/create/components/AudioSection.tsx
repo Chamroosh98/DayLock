@@ -102,79 +102,96 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
 
       {audioMode === 'record' ? (
         /* Voice Recorder View */
-        <div className={`p-8 rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} flex flex-col items-center justify-center gap-6 text-center`}>
-          <div className="relative">
-            {isRecording && (
-              <motion.div
-                animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="absolute inset-0 rounded-full bg-red-500/20"
-              />
+        <div className="space-y-4">
+          <div className={`p-8 rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-300'} flex flex-col items-center justify-center gap-6 text-center`}>
+            <div className="relative">
+              {isRecording && (
+                <motion.div
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="absolute inset-0 rounded-full bg-red-500/20"
+                />
+              )}
+              <button
+                type="button"
+                onClick={toggleRecording}
+                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                  isRecording
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                    : isDarkMode
+                    ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400'
+                    : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700'
+                }`}
+              >
+                {isRecording ? <Square className="w-8 h-8 fill-current" /> : <Mic className="w-8 h-8" />}
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <div className={`text-2xl font-black font-mono tracking-wider ${isRecording ? 'text-red-500 animate-pulse' : isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>
+                {formatTime(recordingTime)}
+              </div>
+              <p className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} ${language === 'fa' ? 'font-vazir' : ''}`}>
+                {isRecording ? t.recording : audioBlob ? t.audioRecorded : t.clickToRecord}
+              </p>
+            </div>
+
+            {audioBlob && !isRecording && (
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-3 mt-2">
+                <audio src={URL.createObjectURL(audioBlob)} controls className="h-10 rounded-xl" />
+              </motion.div>
             )}
-            <button
-              onClick={toggleRecording}
-              className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                isRecording
-                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
-                  : isDarkMode
-                  ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400'
-                  : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700'
-              }`}
-            >
-              {isRecording ? <Square className="w-8 h-8 fill-current" /> : <Mic className="w-8 h-8" />}
-            </button>
           </div>
 
-          <div className="space-y-1">
-            <div className={`text-2xl font-black font-mono tracking-wider ${isRecording ? 'text-red-500 animate-pulse' : isDarkMode ? 'text-zinc-200' : 'text-zinc-800'}`}>
-              {formatTime(recordingTime)}
-            </div>
-            <p className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-zinc-500' : 'text-zinc-600'} ${language === 'fa' ? 'font-vazir' : ''}`}>
-              {isRecording ? t.recording : audioBlob ? t.audioRecorded : t.clickToRecord}
+          {/* Educational Note about Voice Memo encryption vs Steganography */}
+          <div className={`p-3.5 rounded-2xl border text-[11px] leading-relaxed flex items-start gap-2.5 ${
+            isDarkMode ? 'bg-zinc-950/40 border-white/5 text-zinc-400' : 'bg-zinc-50 border-zinc-200 text-zinc-600'
+          } ${language === 'fa' ? 'font-vazir text-right flex-row-reverse' : ''}`}>
+            <p className="flex-1">
+              {t.voiceModeNote || "🎙️ Voice Note Mode: Your voice recording is encrypted directly as a private audio memo. (To hide a secret text inside an audio file carrier, use the Audio Stego tab above)."}
             </p>
           </div>
-
-          {audioBlob && !isRecording && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-3 mt-2">
-              <audio src={URL.createObjectURL(audioBlob)} controls className="h-10 rounded-xl" />
-            </motion.div>
-          )}
         </div>
       ) : (
-        /* WAV Audio Steganography Embedder */
+        /* Audio Steganography Embedder */
         <div className="space-y-5 animate-fade-in">
-          {/* WAV Cover Dropzone */}
+          {/* Audio Cover Dropzone (Supports MP3, WAV, M4A, OGG, AAC, FLAC) */}
           <div className="space-y-2">
             <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-              {t.selectWavCoverStep}
+              {t.selectWavCoverStep || t.selectCoverAudio}
             </label>
             {!audioWavBytes ? (
               <Dropzone
                 onSelect={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    if (!file.name.toLowerCase().endsWith('.wav')) {
-                      setStatus?.({ type: 'err', msg: t.audioWavRequired || "Audio file must be uncompressed WAV format!" });
-                      return;
+                    if (file.size > 25 * 1024 * 1024) {
+                      setStatus?.({ type: 'warn', msg: t.audioSizeWarning || "Audio file exceeds 25 MB." });
                     }
-                    if (file.size > 20 * 1024 * 1024) {
-                      setStatus?.({ type: 'warn', msg: t.audioSizeWarning || "Audio file exceeds 20 MB." });
+                    try {
+                      setStatus?.({ type: 'ok', msg: t.convertingAudio || "Processing audio carrier..." });
+                      const { convertAudioToWav, getWavCapacity } = await import('../../../utils/audioStego');
+                      const { bytes, floatSamples, filename } = await convertAudioToWav(file);
+                      setAudioFilename(filename);
+                      setAudioWavBytes(bytes);
+                      const cap = getWavCapacity(bytes);
+                      setAudioWavCapacity(cap);
+                      setAudioWaveformSamples(floatSamples);
+                      setStatus?.(null);
+                    } catch (err: any) {
+                      console.error("Audio conversion failed:", err);
+                      setStatus?.({
+                        type: 'err',
+                        msg: err?.message || t.audioWavRequired || "Failed to process audio file."
+                      });
                     }
-                    setAudioFilename(file.name);
-                    const buf = await file.arrayBuffer();
-                    const bytes = new Uint8Array(buf);
-                    setAudioWavBytes(bytes);
-                    const cap = (await import('../../../utils/audioStego')).getWavCapacity(bytes);
-                    setAudioWavCapacity(cap);
-                    const floatSamples = (await import('../../../utils/audioStego')).wavToFloat32(bytes);
-                    setAudioWaveformSamples(floatSamples);
                   }
                 }}
                 selectedFile={null}
                 icon={<Headphones className="w-10 h-10" />}
-                accept="audio/wav,audio/x-wav,.wav"
+                accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac,.webm"
                 isDarkMode={isDarkMode}
-                label={t.uploadWavUncompressed}
+                label={t.uploadWavUncompressed || t.uploadWavAudio}
                 language={language}
               />
             ) : (
