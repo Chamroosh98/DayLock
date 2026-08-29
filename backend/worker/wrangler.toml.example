@@ -3,7 +3,7 @@ main = "build/index.js"
 compatibility_date = "2026-08-06"
 
 [build]
-command = "cargo install -q worker-build && worker-build --release"
+command = "cargo install -q worker-build --force && worker-build --release"
 
 [[kv_namespaces]]
 binding = "DAYLOCK_RATE_LIMIT_KV"
