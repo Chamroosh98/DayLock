@@ -5,6 +5,7 @@ import { ViewTabProps } from './types';
 import { useViewLogic } from './hooks/useViewLogic';
 import { ViewInputForm } from './components/ViewInputForm';
 import { ViewErrorCard } from './components/ViewErrorCard';
+import { SecurityLimitationModal } from './components/SecurityLimitationModal';
 import { E2EChatBoard } from './components/E2EChatBoard';
 import { PasswordProtectedCard } from './components/PasswordProtectedCard';
 import { DecryptedViewContent } from './components/DecryptedViewContent';
@@ -12,6 +13,7 @@ import { StegoExtractSection } from './components/StegoExtractSection';
 
 export const ViewTab: React.FC<ViewTabProps> = (props) => {
   const [activeMode, setActiveMode] = useState<'link' | 'file'>('link');
+  const [showLimitationModal, setShowLimitationModal] = useState(false);
 
   const {
     viewInput,
@@ -76,10 +78,28 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
     handleTerminateSession,
   } = useViewLogic(props);
 
+  React.useEffect(() => {
+    if (viewError) {
+      setShowLimitationModal(true);
+    }
+  }, [viewError]);
+
   const isFa = language === 'fa';
 
   return (
     <motion.div key="view" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-6">
+      {/* Security Limitation Pop-up Modal */}
+      <SecurityLimitationModal
+        isOpen={showLimitationModal && !!viewError}
+        onClose={() => setShowLimitationModal(false)}
+        viewError={viewError}
+        isDarkMode={isDarkMode}
+        language={language}
+        t={t}
+        onRetry={handleView}
+        onTerminate={handleTerminateSession}
+      />
+
       {/* Top Segmented Mode Switcher (Visible before data is loaded) */}
       {!viewData && !viewError && !decryptedContent && (
         <div className="flex justify-center">
@@ -148,7 +168,17 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
       )}
 
       {/* Main View Area */}
-      {!viewData ? (
+      {viewError ? (
+        <ViewErrorCard
+          viewError={viewError}
+          setViewError={setViewError}
+          isDarkMode={isDarkMode}
+          language={language}
+          t={t}
+          onTerminate={handleTerminateSession}
+          onRetry={handleView}
+        />
+      ) : !viewData ? (
         <AnimatePresence mode="wait">
           {activeMode === 'link' ? (
             <ViewInputForm
@@ -192,15 +222,6 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
             />
           )}
         </AnimatePresence>
-      ) : viewError ? (
-        <ViewErrorCard
-          viewError={viewError}
-          setViewError={setViewError}
-          isDarkMode={isDarkMode}
-          language={language}
-          t={t}
-          onTerminate={handleTerminateSession}
-        />
       ) : (
         <div id="active-session-card" className="space-y-8">
           {viewData.is_e2e_channel ? (

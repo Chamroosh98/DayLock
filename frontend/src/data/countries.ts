@@ -36,8 +36,19 @@ interface FlagProps {
   className?: string;
 }
 
+export function getCountryFlagEmoji(code: string): string {
+  if (!code || code.length !== 2) return '';
+  const codePoints = code
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
 export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
-  if (code === 'IR') {
+  const upperCode = code?.toUpperCase();
+
+  if (upperCode === 'IR') {
     return (
       React.createElement('svg', {
         viewBox: "0 0 1264 843",
@@ -52,7 +63,7 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
     );
   }
 
-  if (code === 'US') {
+  if (upperCode === 'US') {
     return (
       React.createElement('svg', {
         viewBox: "0 0 1235 650",
@@ -67,7 +78,7 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
     );
   }
 
-  if (code === 'RU') {
+  if (upperCode === 'RU') {
     return (
       React.createElement('svg', {
         viewBox: "0 0 900 600",
@@ -81,7 +92,7 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
     );
   }
 
-  if (code === 'CN') {
+  if (upperCode === 'CN') {
     return (
       React.createElement('svg', {
         viewBox: "0 0 900 600",
@@ -98,5 +109,8 @@ export const Flag: React.FC<FlagProps> = ({ code, emoji, className = "" }) => {
     );
   }
 
-  return React.createElement('span', { className: `inline-flex items-center justify-center w-5 h-3.5 leading-none select-none text-xs ${className}` }, emoji);
+  const country = COUNTRIES.find(c => c.code.toUpperCase() === upperCode);
+  const resolvedEmoji = emoji || country?.flag || (upperCode ? getCountryFlagEmoji(upperCode) : '');
+
+  return React.createElement('span', { className: `inline-flex items-center justify-center w-5 h-3.5 leading-none select-none text-xs shrink-0 ${className}` }, resolvedEmoji);
 };

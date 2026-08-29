@@ -10,6 +10,8 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   icon, 
   accept, 
   label, 
+  subLabel,
+  supportedFormats,
   isDarkMode, 
   previewUrl,
   language
@@ -56,6 +58,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
   return (
     <div 
+      dir={language === 'fa' ? 'rtl' : 'ltr'}
       onClick={() => inputRef.current?.click()}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -111,7 +114,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         {icon}
       </div>
 
-      <div className="relative z-10 text-center max-w-xs sm:max-w-sm px-4 space-y-1.5">
+      <div className="relative z-10 text-center max-w-xs sm:max-w-sm px-4 space-y-2">
         <p className={`text-xs sm:text-[13px] font-bold tracking-normal leading-relaxed ${
           selectedFile 
             ? (isDarkMode ? 'text-zinc-100 truncate' : 'text-zinc-900 truncate') 
@@ -119,6 +122,30 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         } ${language === 'fa' ? 'font-vazir' : ''}`}>
           {selectedFile ? selectedFile.name : label}
         </p>
+        
+        {subLabel && !selectedFile && (
+          <p className={`text-[10px] sm:text-[11px] text-zinc-400 leading-normal ${language === 'fa' ? 'font-vazir' : ''}`}>
+            {subLabel}
+          </p>
+        )}
+
+        {supportedFormats && supportedFormats.length > 0 && !selectedFile && (
+          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1" dir="ltr">
+            {supportedFormats.map((fmt) => (
+              <span
+                key={fmt}
+                className={`text-[9px] font-bold px-2 py-0.5 rounded-md border tracking-wider uppercase ${
+                  isDarkMode
+                    ? 'bg-zinc-900/80 border-white/10 text-zinc-400 group-hover:border-emerald-500/30 group-hover:text-emerald-400'
+                    : 'bg-zinc-100 border-zinc-200 text-zinc-600 group-hover:border-emerald-500/30 group-hover:text-emerald-700'
+                }`}
+              >
+                {fmt}
+              </span>
+            ))}
+          </div>
+        )}
+
         {selectedFile ? (
           <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] text-emerald-400 font-bold ${language === 'fa' ? 'font-vazir' : 'font-mono'}`}>
             {localizeDigitsValue((selectedFile.size / 1024 / 1024).toFixed(2), language || 'en')} {t.mbUnit}

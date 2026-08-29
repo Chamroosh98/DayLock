@@ -57,3 +57,42 @@ export const uint8ArrayToB64 = (uint8: Uint8Array): string => {
   }
   return btoa(binary);
 };
+
+export interface SecfPayload {
+  data: Uint8Array;
+  filename: string;
+  mime_type: string;
+  kind: number; // 0=file, 1=voice, 2=image
+}
+
+export function parseSecfPayload(bytes: Uint8Array): SecfPayload | null {
+  if (!bytes || bytes.length < 9) return null;
+  // Check 'SECF' magic header (0x53, 0x45, 0x43, 0x46)
+  if (bytes[0] !== 0x53 || bytes[1] !== 0x45 || bytes[2] !== 0x43 || bytes[3] !== 0x46) {
+    return null;
+  }
+  try {
+    let idx = 4;
+    const kind = bytes[idx++];
+    const nameLen = (bytes[idx] << 8) | bytes[idx + 1];
+    idx += 2;
+    if (idx + nameLen > bytes.length) return null;
+    const filename = new TextDecoder().decode(bytes.slice(idx, idx + nameLen));
+    idx += nameLen;
+    
+    const mimeLen = (bytes[idx] << 8) | bytes[idx + 1];
+    idx += 2;
+    if (idx + mimeLen > bytes.length) return null;
+    const mime_type = new TextDecoder().decode(bytes.slice(idx, idx + mimeLen));
+    idx += mimeLen;
+    
+    if (idx + 4 > bytes.length) return null;
+    const dataLen = ((bytes[idx] << 24) >>> 0) + (bytes[idx + 1] << 16) + (bytes[idx + 2] << 8) + bytes[idx + 3];
+    idx += 4;
+    const data = bytes.slice(idx, idx + dataLen);
+    return { data, filename, mime_type, kind };
+  } catch (e) {
+    console.error("Failed to parse SECF payload:", e);
+    return null;
+  }
+}

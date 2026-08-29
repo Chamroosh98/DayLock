@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ViewTabProps } from '../types';
 import { getWasm, b64url_decode } from '../../../utils/wasmLoader';
-import { b64toBlob, getFileBase64, b64toUint8Array, uint8ArrayToB64 } from '../../../utils/fileHelpers';
+import { b64toBlob, getFileBase64, b64toUint8Array, uint8ArrayToB64, parseSecfPayload } from '../../../utils/fileHelpers';
 import { e2eDecrypt, e2eEncrypt } from '../../../utils/e2eCrypto';
 import { registerBiometrics, verifyBiometrics } from '../../../utils/webAuthn';
 import { forceClearClipboard } from '../../../utils/clipboardManager';
@@ -230,12 +230,31 @@ export function useViewLogic(props: ViewTabProps) {
         const res = await fetch(`/api/paste/${id}`);
         const data = await res.json();
         
-        if (res.status === 403 && data.blocked) {
-          setViewError({ type: 'geo', data });
+        if (res.status === 403) {
+          const payload = data.data || data;
+          if (payload.your_asn || payload.blocked_asns || payload.allowed_asns) {
+            setViewError({ type: 'asn', data: payload });
+          } else {
+            setViewError({ type: 'geo', data: payload });
+          }
           return;
         }
-        
-        if (!res.ok) throw new Error(data.error);
+        if (res.status === 423) {
+          setViewError({ type: 'time', data: data.data || data });
+          return;
+        }
+        if (res.status === 410) {
+          setViewError({ type: data.dead_mans ? 'dms' : 'expired', data: data.data || data });
+          return;
+        }
+        if (res.status === 404) {
+          setViewError({ type: 'burned', data: data.data || data });
+          return;
+        }
+        if (!res.ok) {
+          setViewError({ type: 'generic', data: { error: data.error || 'Access restricted.' } });
+          return;
+        }
         setViewData({ ...data, id, is_e2e_channel: true, isFile: false });
         setStatus({ type: 'ok', msg: "E2E Channel Connected!" });
         
@@ -258,20 +277,40 @@ export function useViewLogic(props: ViewTabProps) {
       const res = await fetch(`/api/paste/${id}?key=${keyPart || ''}`);
       const data = await res.json();
       
-      if (res.status === 403 && data.blocked) {
-        setViewError({ type: 'geo', data });
+      if (res.status === 403) {
+        const payload = data.data || data;
+        if (payload.your_asn || payload.blocked_asns || payload.allowed_asns) {
+          setViewError({ type: 'asn', data: payload });
+        } else {
+          setViewError({ type: 'geo', data: payload });
+        }
         return;
       }
-      if (res.status === 423 && data.time_locked) {
-        setViewError({ type: 'time', data });
+      if (res.status === 423) {
+        setViewError({ type: 'time', data: data.data || data });
         return;
       }
-      if (res.status === 410 && data.dead_mans) {
-        setViewError({ type: 'dms', data });
+      if (res.status === 410) {
+        if (data.dead_mans || (data.data && data.data.dead_mans)) {
+          setViewError({ type: 'dms', data: data.data || data });
+        } else {
+          setViewError({ type: 'expired', data: data.data || data });
+        }
+        return;
+      }
+      if (res.status === 404) {
+        setViewError({ type: 'burned', data: data.data || data });
+        return;
+      }
+      if (res.status === 429) {
+        setViewError({ type: 'rate_limit', data: data.data || data });
         return;
       }
       
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        setViewError({ type: 'generic', data: { error: data.error || 'Access restricted or link unavailable.' } });
+        return;
+      }
       setViewData({ ...data, id, keyPart, isFile });
       
       if (data.self_destruct_hides) {
@@ -291,8 +330,23 @@ export function useViewLogic(props: ViewTabProps) {
               const isText = !data.kind || data.kind === 'text';
               if (isText) {
                 const plainBytes = W.decrypt_with_key(cipherBytes, ivBytes, rawKey);
-                const text = new TextDecoder().decode(plainBytes);
-                setDecryptedContent(text);
+                const secf = parseSecfPayload(plainBytes);
+                if (secf) {
+                  const blob = new Blob([secf.data], { type: secf.mime_type });
+                  const url = URL.createObjectURL(blob);
+                  const resolvedKind = secf.kind === 1 ? 'voice' : (secf.kind === 2 ? 'image' : (data.kind || 'file'));
+                  setDecryptedContent({
+                    url,
+                    name: secf.filename,
+                    type: secf.mime_type,
+                    kind: resolvedKind,
+                    stegoText: '',
+                    base64: uint8ArrayToB64(secf.data)
+                  });
+                } else {
+                  const text = new TextDecoder().decode(plainBytes);
+                  setDecryptedContent(text);
+                }
               } else {
                 // It's a file
                 const plain = W.decrypt_file_with_key(cipherBytes, ivBytes, rawKey);
@@ -553,26 +607,42 @@ export function useViewLogic(props: ViewTabProps) {
             
             setIsHoneyView(isHoney);
             
-            const isText = !data.kind || data.kind === 'text';
-            if (!isText && !isHoney) {
-              const plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
-              const blob = new Blob([plain.data], { type: plain.mime_type });
+            // Check if decrypted plainBytes contains SECF binary container
+            const secf = parseSecfPayload(plainBytes);
+            if (secf) {
+              const blob = new Blob([secf.data], { type: secf.mime_type });
               const url = URL.createObjectURL(blob);
-              
-              let stegoText = '';
-              if (data.kind === 'stego' && typeof W.stego_extract === 'function') {
-                try {
-                  const plainStegoBytes = W.stego_extract(plain.data, '');
-                  stegoText = new TextDecoder().decode(plainStegoBytes);
-                } catch (stegoErr) {
-                  console.warn("WASM stego extraction failed on view:", stegoErr);
-                }
-              }
-              
-              setDecryptedContent({ url, name: plain.filename, type: plain.mime_type, kind: data.kind, stegoText, base64: uint8ArrayToB64(plain.data) });
+              const resolvedKind = secf.kind === 1 ? 'voice' : (secf.kind === 2 ? 'image' : (data.kind || 'file'));
+              setDecryptedContent({
+                url,
+                name: secf.filename,
+                type: secf.mime_type,
+                kind: resolvedKind,
+                stegoText: '',
+                base64: uint8ArrayToB64(secf.data)
+              });
             } else {
-              const text = new TextDecoder().decode(plainBytes);
-              setDecryptedContent(text);
+              const isText = !data.kind || data.kind === 'text';
+              if (!isText && !isHoney) {
+                const plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                const blob = new Blob([plain.data], { type: plain.mime_type });
+                const url = URL.createObjectURL(blob);
+                
+                let stegoText = '';
+                if (data.kind === 'stego' && typeof W.stego_extract === 'function') {
+                  try {
+                    const plainStegoBytes = W.stego_extract(plain.data, '');
+                    stegoText = new TextDecoder().decode(plainStegoBytes);
+                  } catch (stegoErr) {
+                    console.warn("WASM stego extraction failed on view:", stegoErr);
+                  }
+                }
+                
+                setDecryptedContent({ url, name: plain.filename, type: plain.mime_type, kind: data.kind, stegoText, base64: uint8ArrayToB64(plain.data) });
+              } else {
+                const text = new TextDecoder().decode(plainBytes);
+                setDecryptedContent(text);
+              }
             }
             
             if (isHoney) {
@@ -591,7 +661,26 @@ export function useViewLogic(props: ViewTabProps) {
         // Standard server-decrypted path
         const res = await fetch(`/api/paste/${data.id}?password=${encodeURIComponent(keyOrPwd)}`);
         const resData = await res.json();
-        if (!res.ok) throw new Error(resData.error);
+        if (!res.ok) {
+          if (res.status === 403) {
+            const payload = resData.data || resData;
+            setViewError({ type: payload.your_asn ? 'asn' : 'geo', data: payload });
+            return;
+          }
+          if (res.status === 423) {
+            setViewError({ type: 'time', data: resData.data || resData });
+            return;
+          }
+          if (res.status === 410) {
+            setViewError({ type: resData.dead_mans ? 'dms' : 'expired', data: resData.data || resData });
+            return;
+          }
+          if (res.status === 404) {
+            setViewError({ type: 'burned', data: resData.data || resData });
+            return;
+          }
+          throw new Error(resData.error || t.invalidPassword);
+        }
 
         setIsHoneyView(resData.is_honey);
         const isText = !resData.kind || resData.kind === 'text';
@@ -618,7 +707,24 @@ export function useViewLogic(props: ViewTabProps) {
 
           setDecryptedContent({ url, name: resData.original_name, type: resData.mime_type, kind: resData.kind, stegoText, base64: resData.data });
         } else {
-          setDecryptedContent(resData.data);
+          // Check if string contains base64 encoded SECF
+          const rawBytes = b64toUint8Array(resData.data);
+          const secf = parseSecfPayload(rawBytes);
+          if (secf) {
+            const blob = new Blob([secf.data], { type: secf.mime_type });
+            const url = URL.createObjectURL(blob);
+            const resolvedKind = secf.kind === 1 ? 'voice' : (secf.kind === 2 ? 'image' : 'file');
+            setDecryptedContent({
+              url,
+              name: secf.filename,
+              type: secf.mime_type,
+              kind: resolvedKind,
+              stegoText: '',
+              base64: uint8ArrayToB64(secf.data)
+            });
+          } else {
+            setDecryptedContent(resData.data);
+          }
         }
         if (resData.is_honey) {
           setStatus(null);

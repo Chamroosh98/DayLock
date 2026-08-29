@@ -221,8 +221,8 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
       }
 
       const blob = new Blob([modifiedWav], { type: 'audio/wav' });
-      const baseName = audioFilename ? audioFilename.replace(/\.[^/.]+$/, "") : 'DayLock';
-      const filename = `DayLock_${baseName}.wav`;
+      const baseName = audioFilename ? audioFilename.replace(/\.[^/.]+$/, "").replace(/_stego$/i, "") : 'DayLock';
+      const filename = `DayLock_${baseName}_stego.wav`;
       const url = URL.createObjectURL(blob);
 
       setStegoResultFile({ blob, url, filename });

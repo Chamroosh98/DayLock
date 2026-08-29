@@ -145,6 +145,7 @@ export const StegoInputSection: React.FC<StegoInputSectionProps> = ({
             accept="image/*" 
             isDarkMode={isDarkMode} 
             label={contentType === 'stego' ? t.selectPngCover : t.image} 
+            supportedFormats={contentType === 'stego' ? ['PNG', 'JPG', 'WEBP', 'BMP'] : undefined}
             language={language}
           />
         </div>

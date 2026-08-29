@@ -145,7 +145,7 @@ export const DecryptedPayloadRenderer: React.FC<DecryptedPayloadRendererProps> =
             )}
           </div>
         </DecryptedPayloadShield>
-      ) : decryptedContent.kind === 'stego' ? null : (
+      ) : (decryptedContent.kind === 'stego' || decryptedContent.kind === 'voice' || decryptedContent.kind === 'audio') ? null : (
         <DecryptedPayloadShield isDarkMode={isDarkMode} language={language}>
           <div className="space-y-4">
             <div

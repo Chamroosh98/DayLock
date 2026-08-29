@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Download, ShieldCheck, RotateCcw } from 'lucide-react';
+import { Download, ShieldCheck, RotateCcw, Check } from 'lucide-react';
 import { Language } from '../../../types';
 
 interface StegoResultCardProps {
@@ -20,13 +20,25 @@ export const StegoResultCard: React.FC<StegoResultCardProps> = ({
   language,
   t,
 }) => {
-  const handleDownload = () => {
+  const [downloaded, setDownloaded] = useState(false);
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const a = document.createElement('a');
     a.href = stegoResultFile.url;
     a.download = stegoResultFile.filename;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    setTimeout(() => {
+      if (document.body.contains(a)) {
+        document.body.removeChild(a);
+      }
+    }, 100);
+
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 2500);
   };
 
   return (
@@ -87,13 +99,26 @@ export const StegoResultCard: React.FC<StegoResultCardProps> = ({
             type="button"
             onClick={handleDownload}
             className={`px-4 py-2 sm:py-2.5 rounded-xl font-black uppercase text-[10px] tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
-              isDarkMode
+              downloaded
+                ? isDarkMode
+                  ? 'bg-emerald-400 text-black shadow-lg shadow-emerald-400/20'
+                  : 'bg-emerald-700 text-white shadow-sm'
+                : isDarkMode
                 ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-lg shadow-emerald-500/20'
                 : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
             }`}
           >
-            <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span>{t.downloadFile || 'Download File'}</span>
+            {downloaded ? (
+              <>
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>{language === 'fa' ? 'دانلود شد' : (t.downloaded || 'Downloaded')}</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>{t.downloadFile || 'Download File'}</span>
+              </>
+            )}
           </button>
         </div>
       </div>

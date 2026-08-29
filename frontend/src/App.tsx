@@ -117,7 +117,7 @@ export default function App() {
   });
 
   return (
-    <div dir="ltr" className={`min-h-screen transition-colors duration-700 ${isDarkMode ? 'bg-[#0a0a0c] text-zinc-100' : 'bg-zinc-50 text-zinc-900'} ${language === 'fa' ? 'font-vazir lang-fa text-right' : 'font-sans text-left'} selection:bg-emerald-500/30 flex flex-col pt-12 pb-20 px-4 sm:px-6 md:pt-12 md:px-12 md:pb-24 lg:pb-16 overflow-x-hidden relative`}>
+    <div dir={language === 'fa' ? 'rtl' : 'ltr'} className={`min-h-screen transition-colors duration-700 ${isDarkMode ? 'bg-[#0a0a0c] text-zinc-100' : 'bg-zinc-50 text-zinc-900'} ${language === 'fa' ? 'font-vazir lang-fa text-right' : 'font-sans text-left'} selection:bg-emerald-500/30 flex flex-col pt-12 pb-20 px-4 sm:px-6 md:pt-12 md:px-12 md:pb-24 lg:pb-16 overflow-x-hidden relative`}>
       <ExplosionOverlay />
 
       <MobileDock

@@ -55,6 +55,8 @@ export interface DropzoneProps {
   icon: React.ReactNode;
   accept?: string;
   label?: string;
+  subLabel?: string;
+  supportedFormats?: string[];
   isDarkMode: boolean;
   previewUrl?: string | null;
   language?: string;

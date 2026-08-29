@@ -88,7 +88,7 @@ if [ "$AUTH_MODE" = "2" ]; then
     log_info "API Token permissions required : Workers Scripts Edit + Workers KV Storage Edit"
     log_info "Generate token at : https://dash.cloudflare.com/profile/api-tokens"
     echo ""
-    read -r -p "   👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
+    read -r -p "  👀 Enter Cloudflare API Token : " CLOUDFLARE_API_TOKEN
     echo ""
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
         log_error "API Token cannot be empty! Aborting deployment!"

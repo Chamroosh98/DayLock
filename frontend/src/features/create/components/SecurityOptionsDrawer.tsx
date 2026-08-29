@@ -354,7 +354,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                         className={`w-full p-2 sm:p-2.5 rounded-lg flex items-center justify-between text-[11px] sm:text-xs transition-colors cursor-pointer ${isDarkMode ? 'hover:bg-white/5 text-zinc-200' : 'hover:bg-white text-zinc-800 shadow-xs'} ${language === 'fa' ? 'text-right font-vazir' : 'text-left font-sans'}`}
                       >
                         <div className="flex items-center gap-2">
-                          <Flag code={c.code} className="w-4 h-3 rounded-xs object-cover shrink-0" />
+                          <Flag code={c.code} emoji={c.flag} className="w-4 h-3 rounded-xs object-cover shrink-0" />
                           <span className="font-medium">{language === 'fa' ? c.fa : c.name}</span>
                         </div>
                         <Plus className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
@@ -369,7 +369,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                   const countryObj = COUNTRIES?.find(c => c.code === code);
                   return (
                     <div key={code} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs sm:text-[13px] font-medium">
-                      <Flag code={code} className="w-3.5 h-2.5 rounded-sm object-cover" />
+                      <Flag code={code} emoji={countryObj?.flag} className="w-3.5 h-2.5 rounded-sm object-cover" />
                       <span className={language === 'fa' ? 'font-vazir' : ''}>{language === 'fa' ? countryObj?.fa || code : countryObj?.name || code}</span>
                       <button
                         type="button"

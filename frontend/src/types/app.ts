@@ -6,7 +6,7 @@ export interface StatusState {
 }
 
 export interface ViewErrorState {
-  type: 'geo' | 'time' | 'dms' | 'generic';
+  type: 'geo' | 'time' | 'asn' | 'dms' | 'expired' | 'burned' | 'rate_limit' | 'generic';
   data: any;
 }
 

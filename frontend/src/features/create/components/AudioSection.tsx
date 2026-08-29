@@ -67,36 +67,39 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
   setStatus,
 }) => {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in" dir={language === 'fa' ? 'rtl' : 'ltr'}>
       {/* Audio Sub-Mode Switcher Tabs */}
-      <div className={`p-1 rounded-2xl border flex gap-1 ${isDarkMode ? 'bg-zinc-950/60 border-white/5' : 'bg-zinc-100 border-zinc-200'}`}>
+      <div 
+        dir={language === 'fa' ? 'rtl' : 'ltr'}
+        className={`p-1 rounded-2xl border flex gap-1 ${isDarkMode ? 'bg-zinc-950/60 border-white/5' : 'bg-zinc-100 border-zinc-200'}`}
+      >
         <button
           type="button"
           onClick={() => setAudioMode('record')}
-          className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 py-2.5 px-3 rounded-xl text-[11px] font-bold tracking-normal transition-all flex items-center justify-center gap-2 cursor-pointer select-none whitespace-nowrap min-w-0 ${
             audioMode === 'record'
               ? isDarkMode
                 ? 'bg-zinc-900 text-emerald-400 border border-emerald-500/20 shadow-sm'
                 : 'bg-white text-zinc-900 border border-zinc-200 shadow-sm'
               : 'text-zinc-500 hover:text-zinc-300'
-          }`}
+          } ${language === 'fa' ? 'font-vazir' : 'uppercase tracking-wider'}`}
         >
-          <Mic className="w-3.5 h-3.5" />
-          <span>{t.liveVoiceRecord}</span>
+          <Mic className="w-4 h-4 shrink-0" />
+          <span className="truncate">{t.liveVoiceRecord}</span>
         </button>
         <button
           type="button"
           onClick={() => setAudioMode('stego')}
-          className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 py-2.5 px-3 rounded-xl text-[11px] font-bold tracking-normal transition-all flex items-center justify-center gap-2 cursor-pointer select-none whitespace-nowrap min-w-0 ${
             audioMode === 'stego'
               ? isDarkMode
                 ? 'bg-zinc-900 text-emerald-400 border border-emerald-500/20 shadow-sm'
                 : 'bg-white text-zinc-900 border border-zinc-200 shadow-sm'
               : 'text-zinc-500 hover:text-zinc-300'
-          }`}
+          } ${language === 'fa' ? 'font-vazir' : 'uppercase tracking-wider'}`}
         >
-          <Headphones className="w-3.5 h-3.5" />
-          <span>{t.wavAudioStego}</span>
+          <Headphones className="w-4 h-4 shrink-0" />
+          <span className="truncate">{t.wavAudioStego}</span>
         </button>
       </div>
 
@@ -137,7 +140,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
             </div>
 
             {audioBlob && !isRecording && (
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-3 mt-2">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-3 mt-2" dir="ltr">
                 <audio src={URL.createObjectURL(audioBlob)} controls className="h-10 rounded-xl" />
               </motion.div>
             )}
@@ -146,7 +149,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
           {/* Educational Note about Voice Memo encryption vs Steganography */}
           <div className={`p-3.5 rounded-2xl border text-[11px] leading-relaxed flex items-start gap-2.5 ${
             isDarkMode ? 'bg-zinc-950/40 border-white/5 text-zinc-400' : 'bg-zinc-50 border-zinc-200 text-zinc-600'
-          } ${language === 'fa' ? 'font-vazir text-right flex-row-reverse' : ''}`}>
+          } ${language === 'fa' ? 'font-vazir text-right' : 'text-left'}`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
             <p className="flex-1">
               {t.voiceModeNote || "🎙️ Voice Note Mode: Your voice recording is encrypted directly as a private audio memo. (To hide a secret text inside an audio file carrier, use the Audio Stego tab above)."}
             </p>
@@ -154,11 +157,11 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
         </div>
       ) : (
         /* Audio Steganography Embedder */
-        <div className="space-y-5 animate-fade-in">
+        <div className="space-y-5 animate-fade-in" dir={language === 'fa' ? 'rtl' : 'ltr'}>
           {/* Audio Cover Dropzone (Supports MP3, WAV, M4A, OGG, AAC, FLAC) */}
           <div className="space-y-2">
-            <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
-              {t.selectWavCoverStep || t.selectCoverAudio}
+            <label className={`text-[11px] font-bold text-zinc-400 px-1 ${language === 'fa' ? 'font-vazir text-right block' : 'text-[9px] font-black uppercase tracking-widest'}`}>
+              {t.selectWavCoverStep}
             </label>
             {!audioWavBytes ? (
               <Dropzone
@@ -192,6 +195,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
                 accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac,.webm"
                 isDarkMode={isDarkMode}
                 label={t.uploadWavUncompressed || t.uploadWavAudio}
+                supportedFormats={['MP3', 'WAV', 'M4A', 'OGG', 'AAC', 'FLAC']}
                 language={language}
               />
             ) : (
@@ -222,7 +226,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
 
                 {/* Animated PCM Waveform Visualization Canvas */}
                 {audioWaveformSamples && (
-                  <div className="h-12 w-full bg-black/40 rounded-xl overflow-hidden p-1 flex items-center justify-center gap-0.5 border border-white/5">
+                  <div className="h-12 w-full bg-black/40 rounded-xl overflow-hidden p-1 flex items-center justify-center gap-0.5 border border-white/5" dir="ltr">
                     {Array.from({ length: 48 }).map((_, idx) => {
                       const sampleIdx = Math.floor((idx / 48) * audioWaveformSamples.length);
                       const amp = Math.abs(audioWaveformSamples[sampleIdx] || 0);
@@ -243,7 +247,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
 
           {/* Stego Secret Payload Field */}
           <div className="space-y-2">
-            <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
+            <label className={`text-[11px] font-bold text-zinc-400 px-1 ${language === 'fa' ? 'font-vazir text-right block' : 'text-[9px] font-black uppercase tracking-widest'}`}>
               {t.secretEmbedStep}
             </label>
             <textarea
@@ -255,7 +259,7 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
             />
             {audioWavCapacity > 0 && (
               <div className="space-y-1">
-                <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest text-zinc-400 px-1">
+                <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest text-zinc-400 px-1" dir="ltr">
                   <span>Usage</span>
                   <span className={audioText.length > audioWavCapacity ? 'text-red-500 font-bold' : ''}>
                     {audioText.length} / {audioWavCapacity} chars
@@ -272,10 +276,10 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
 
           {/* Audio Stego Embedding Key/Password */}
           <div className="space-y-2">
-            <label className={`text-[9px] font-black uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir text-right block' : ''}`}>
+            <label className={`text-[11px] font-bold text-zinc-400 px-1 ${language === 'fa' ? 'font-vazir text-right block' : 'text-[9px] font-black uppercase tracking-widest'}`}>
               {t.audioStegoPasswordStep}
             </label>
-            <div className="relative">
+            <div className="relative" dir="ltr">
               <input
                 id="audio-embed-password-input"
                 type={showAudioEmbedPwd ? 'text' : 'password'}
@@ -283,14 +287,13 @@ export const AudioSection: React.FC<AudioSectionProps> = ({
                 onChange={(e) => handlePasswordChange(e.target.value, setAudioEmbedPassword, 'audio-embed-password-input')}
                 onKeyDown={(e) => handlePasswordKeyDown(e, 'audio-embed-password-input')}
                 disabled={disabledInputs['audio-embed-password-input']}
-                dir="ltr"
                 placeholder={t.audioStegoPasswordPlaceholder}
                 className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'} border rounded-2xl p-3.5 pr-10 pl-4 text-xs outline-none focus:border-emerald-500/50 transition-all text-left placeholder:text-left`}
               />
               <button
                 type="button"
                 onClick={() => setShowAudioEmbedPwd(!showAudioEmbedPwd)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1 cursor-pointer"
               >
                 {showAudioEmbedPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

@@ -310,7 +310,7 @@ export async function convertAudioToWav(
     const wavBytes = buildWav(monoSamples, sampleRate);
     const originalName = (fileOrBlob as File).name || 'audio_cover.wav';
     const baseName = originalName.replace(/\.[^/.]+$/, '');
-    const filename = `${baseName}_stego.wav`;
+    const filename = `${baseName}.wav`;
 
     return {
       bytes: wavBytes,

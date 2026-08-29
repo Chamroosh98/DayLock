@@ -56,11 +56,11 @@ export const enManual: LanguageManual = {
       description: "When standard encrypted links attract unwanted attention from deep packet inspection (DPI) or network censors, utilize advanced data concealment protocols:",
       points: [
         "Image Steganography (Stego): Embed secret text payloads invisibly inside standard PNG images. The resulting image looks and opens like a normal photograph while concealing encrypted bitstreams in pixel color channels.",
-        "Audio Steganography: Hide confidential text messages inside WAV audio clips or live microphone recordings. The secret message is imperceptibly woven into audio frequencies.",
+        "Audio Steganography & Dual-Layer Password Architecture: Hide confidential text payloads within audio carriers (MP3, WAV, M4A, OGG). Critical Distinction: The 'Audio Stego Embedding Password' encrypts and binds your raw secret data directly into the audio waveform samples (inner carrier layer). In contrast, the 'Encryption Password' in Security Options locks the entire DayLock link/envelope using Argon2id + AES-256-GCM (outer transit layer). You can use either or both layers simultaneously.",
         "Shamir's Secret Sharing: Split your master secret into multiple mathematical shares (e.g., 3-of-5 threshold). Distribute shares among trusted allies or disparate storage locations; reconstructing the secret requires assembling the exact threshold number of shares.",
         "Ephemeral E2E Chat Channels: Spawn instant, zero-trace encrypted peer-to-peer communication rooms for live coordination without leaving server chat histories."
       ],
-      tip: "Stego Operational Tip: When sharing steganographic PNG images over messaging apps, ensure the platform sends files as 'uncompressed documents' to prevent image compression algorithms from corrupting the hidden bitstream."
+      tip: "Stego Operational Tip: Understand the two password layers: the Audio Stego Password secures the payload inside the audio waveform itself (so even if the raw audio file is shared, the payload stays hidden), while the main Encryption Password locks the entire DayLock URL and cloud storage envelope."
     },
     evasion: {
       title: "Coercion Defense & Honey-Decoy Operations",
