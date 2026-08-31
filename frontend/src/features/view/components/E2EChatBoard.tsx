@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { MessageSquare, RefreshCw, Flame } from 'lucide-react';
+import { MessageSquare, RefreshCw, Flame, Key, Share2, Copy, Check, QrCode } from 'lucide-react';
 import { Language, E2EMessage, E2EKeyPair } from '../../../types';
+import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
 
 interface E2EChatBoardProps {
   viewData: any;
@@ -21,6 +22,8 @@ interface E2EChatBoardProps {
   setViewData: (data: any) => void;
   setE2EChannelDetails: (details: any) => void;
   onTerminate?: () => void;
+  copyToClipboardWithAutoClear?: (text: string, durationMs?: number, onWarn?: (msg: string) => void, lang?: string) => void;
+  setStatus?: (status: { type: 'ok' | 'err' | 'warn'; msg: string } | null) => void;
 }
 
 export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
@@ -41,22 +44,55 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
   setViewData,
   setE2EChannelDetails,
   onTerminate,
+  copyToClipboardWithAutoClear,
+  setStatus,
 }) => {
+  const [copiedChannel, setCopiedChannel] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
+
+  const channelShareUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/#e2e-${viewData.id}` 
+    : `#e2e-${viewData.id}`;
+
+  const handleCopyChannel = () => {
+    if (copyToClipboardWithAutoClear) {
+      copyToClipboardWithAutoClear(channelShareUrl, 30000, (msg) => setStatus?.({ type: 'warn', msg }), language);
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(channelShareUrl);
+    }
+    setCopiedChannel(true);
+    setTimeout(() => setCopiedChannel(false), 2000);
+    setStatus?.({ type: 'ok', msg: t.linkCopied || 'Channel link copied!' });
+  };
+
+  const handleCopyKey = () => {
+    if (!e2eKeyPair?.publicKey) return;
+    if (copyToClipboardWithAutoClear) {
+      copyToClipboardWithAutoClear(e2eKeyPair.publicKey, 30000, (msg) => setStatus?.({ type: 'warn', msg }), language);
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(e2eKeyPair.publicKey);
+    }
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
+    setStatus?.({ type: 'ok', msg: t.publicKeyCopied || 'Public key copied!' });
+  };
+
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
-      {/* Chat Header */}
-      <div className={`p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/20 border-white/5' : 'bg-white border-zinc-200'} space-y-4`}>
+      {/* Chat Header & Security Connection Box */}
+      <div className={`p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] border ${isDarkMode ? 'bg-zinc-950/40 border-white/10' : 'bg-white border-zinc-200'} space-y-4`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400 shrink-0">
               <MessageSquare className="w-5 h-5 animate-pulse" />
             </div>
             <div className="min-w-0">
-              <h5 className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-100' : 'text-zinc-800'}`}>
+              <h5 className={`text-xs font-black uppercase tracking-wider ${isDarkMode ? 'text-zinc-100' : 'text-zinc-800'} ${language === 'fa' ? 'font-vazir' : ''}`}>
                 {t.e2eBoard || 'E2E Board'}
               </h5>
               <p className="text-[9px] font-mono text-zinc-500 mt-0.5 truncate">
-                Channel: {viewData.id}
+                Channel ID: {viewData.id}
               </p>
             </div>
           </div>
@@ -71,9 +107,131 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
           </button>
         </div>
 
+        {/* Channel Share Link Box with Copy and QR Code */}
+        <div className="space-y-1.5">
+          <label className={`text-[8px] font-bold uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir' : ''}`}>
+            {t.shareLink || 'Channel Share Link'}
+          </label>
+          <div
+            onClick={handleCopyChannel}
+            className={`group p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer ${
+              isDarkMode 
+                ? 'bg-zinc-950/80 border-white/5 hover:border-indigo-500/40 shadow-inner' 
+                : 'bg-zinc-50 border-zinc-200 hover:border-indigo-400 shadow-sm'
+            }`}
+            title="Click to copy channel link"
+          >
+            <div className={`flex items-center justify-between gap-2.5 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+              <span 
+                dir="ltr"
+                className="font-mono text-[10px] sm:text-[11px] text-indigo-400 break-all select-all font-medium tracking-tight truncate flex-1"
+              >
+                {channelShareUrl}
+              </span>
+              <div className="flex items-center gap-1.5 shrink-0" dir="ltr">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyChannel();
+                  }}
+                  className={`p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer ${
+                    copiedChannel
+                      ? 'bg-indigo-500 text-white shadow-md'
+                      : isDarkMode
+                        ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300'
+                        : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                  }`}
+                  title={copiedChannel ? (t.copied || 'Copied') : (t.copyLink || 'Copy Link')}
+                >
+                  {copiedChannel ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQrModalUrl(channelShareUrl);
+                  }}
+                  className={`p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer border ${
+                    isDarkMode
+                      ? 'bg-zinc-900 text-zinc-300 hover:text-indigo-400 hover:bg-indigo-500/10 border-white/10 hover:border-indigo-500/30'
+                      : 'bg-white text-zinc-700 hover:text-indigo-700 hover:bg-indigo-50 border-zinc-200 hover:border-indigo-300'
+                  }`}
+                  title={t.qrCode || 'QR Code'}
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Your Public Key Section (if available) with Copy and QR Code */}
+        {e2eKeyPair?.publicKey && (
+          <div className="space-y-1.5">
+            <label className={`text-[8px] font-bold uppercase tracking-widest text-emerald-500 px-1 ${language === 'fa' ? 'font-vazir' : ''}`}>
+              {t.yourPublicIdentity || 'Your Public Identity (Share with peer)'}
+            </label>
+            <div
+              onClick={handleCopyKey}
+              className={`group p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer ${
+                isDarkMode 
+                  ? 'bg-zinc-950/80 border-white/5 hover:border-emerald-500/40 shadow-inner' 
+                  : 'bg-zinc-50 border-zinc-200 hover:border-emerald-400 shadow-sm'
+              }`}
+              title="Click to copy your public key"
+            >
+              <div className={`flex items-center justify-between gap-2.5 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+                <span 
+                  dir="ltr"
+                  className="font-mono text-[10px] text-emerald-400 break-all select-all font-medium tracking-tight truncate flex-1"
+                >
+                  {e2eKeyPair.publicKey}
+                </span>
+                <div className="flex items-center gap-1.5 shrink-0" dir="ltr">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyKey();
+                    }}
+                    className={`p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer ${
+                      copiedKey
+                        ? 'bg-emerald-500 text-black shadow-md'
+                        : isDarkMode
+                          ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300'
+                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                    title={copiedKey ? (t.copied || 'Copied') : (t.copyPublicKey || 'Copy')}
+                  >
+                    {copiedKey ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQrModalUrl(e2eKeyPair.publicKey);
+                    }}
+                    className={`p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer border ${
+                      isDarkMode
+                        ? 'bg-zinc-900 text-zinc-300 hover:text-emerald-400 hover:bg-emerald-500/10 border-white/10 hover:border-emerald-500/30'
+                        : 'bg-white text-zinc-700 hover:text-emerald-700 hover:bg-emerald-50 border-zinc-200 hover:border-emerald-300'
+                    }`}
+                    title={t.qrCode || 'QR Code'}
+                  >
+                    <QrCode className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Peer Public Key Input for chat pairing */}
         <div className="space-y-1.5">
-          <label className="text-[8px] font-bold uppercase tracking-widest text-zinc-500 px-1">
+          <label className={`text-[8px] font-bold uppercase tracking-widest text-zinc-500 px-1 ${language === 'fa' ? 'font-vazir' : ''}`}>
             {t.peerPublicId}
           </label>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -182,6 +340,19 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
         <Flame className="w-4 h-4 animate-pulse" />
         <span>{t.terminate}</span>
       </motion.button>
+
+      {/* QR Code Modal for Channel Link or Public Key */}
+      {qrModalUrl && (
+        <LinkQrCodeModal
+          isOpen={!!qrModalUrl}
+          onClose={() => setQrModalUrl(null)}
+          url={qrModalUrl}
+          isDarkMode={isDarkMode}
+          language={language}
+          t={t}
+          setStatus={setStatus || (() => {})}
+        />
+      )}
     </motion.div>
   );
 };

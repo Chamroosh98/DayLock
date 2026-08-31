@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Shield, RefreshCw, Key, Zap, Check, Copy } from 'lucide-react';
+import { Shield, RefreshCw, Key, Zap, Check, Copy, QrCode } from 'lucide-react';
 import { Language } from '../../../types';
 import { e2eGenKeypair } from '../../../utils/e2eCrypto';
+import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
 
 interface E2EChannelSectionProps {
   e2eKeyPair: { publicKey: string; privateKey: string } | null;
@@ -29,6 +30,16 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
   copyToClipboardWithAutoClear,
   setStatus,
 }) => {
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+
+  const handleCopyKey = () => {
+    if (!e2eKeyPair?.publicKey) return;
+    copyToClipboardWithAutoClear(e2eKeyPair.publicKey, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
+    setStatus({ type: 'ok', msg: t.publicKeyCopied || 'Public Key copied to clipboard!' });
+  };
   return (
     <div className="space-y-6 animate-fade-in">
       {!e2eKeyPair ? (
@@ -94,18 +105,63 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
               </button>
             </div>
 
-            <div className={`p-3.5 rounded-2xl border ${isDarkMode ? 'bg-zinc-900/60 border-white/5' : 'bg-zinc-50 border-zinc-200'} flex items-center justify-between gap-3 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
-              <span className="font-mono text-[10px] text-zinc-400 truncate flex-1" dir="ltr">{e2eKeyPair.publicKey}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  copyToClipboardWithAutoClear(e2eKeyPair.publicKey, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
-                  setStatus({ type: 'ok', msg: t.publicKeyCopied });
-                }}
-                className="p-2 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer shrink-0"
-              >
-                <Copy className="w-3.5 h-3.5" />
-              </button>
+            {/* Clickable Public Key Box with inline Copy and QR Code Actions */}
+            <div
+              onClick={handleCopyKey}
+              className={`group p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                isDarkMode 
+                  ? 'bg-zinc-950/80 border-white/10 hover:border-emerald-500/40 shadow-inner' 
+                  : 'bg-white border-zinc-200 hover:border-emerald-400 shadow-sm'
+              }`}
+              title="Click to copy public key"
+            >
+              <div className={`flex items-center justify-between gap-2.5 ${language === 'fa' ? 'flex-row-reverse' : ''}`}>
+                <span 
+                  dir="ltr"
+                  className="font-mono text-[10px] sm:text-[11px] text-emerald-400 break-all select-all font-medium tracking-tight leading-relaxed flex-1"
+                >
+                  {e2eKeyPair.publicKey}
+                </span>
+                <div className="flex items-center gap-1.5 shrink-0" dir="ltr">
+                  {/* Copy Icon Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyKey();
+                    }}
+                    className={`p-2 rounded-xl transition-all cursor-pointer ${
+                      copiedKey
+                        ? 'bg-emerald-500 text-black shadow-md'
+                        : isDarkMode
+                          ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300'
+                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                    title={copiedKey ? (t.copied || 'Copied') : (t.copyPublicKey || t.copy || 'Copy')}
+                    aria-label={t.copyPublicKey || t.copy || 'Copy'}
+                  >
+                    {copiedKey ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+
+                  {/* QR Code Icon Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowQrModal(true);
+                    }}
+                    className={`p-2 rounded-xl transition-all cursor-pointer border ${
+                      isDarkMode
+                        ? 'bg-zinc-900 text-zinc-300 hover:text-emerald-400 hover:bg-emerald-500/10 border-white/10 hover:border-emerald-500/30'
+                        : 'bg-zinc-100 text-zinc-700 hover:text-emerald-700 hover:bg-emerald-50 border-zinc-200 hover:border-emerald-300'
+                    }`}
+                    title={t.qrCode || 'QR Code'}
+                    aria-label={t.qrCode || 'QR Code'}
+                  >
+                    <QrCode className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -127,6 +183,19 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
             <Zap className="w-4 h-4 shrink-0" />
             <span>{isE2ELoading ? t.spawningChannel : t.spawnE2EChannel}</span>
           </motion.button>
+
+          {/* Public Key QR Code Modal */}
+          {e2eKeyPair?.publicKey && (
+            <LinkQrCodeModal
+              isOpen={showQrModal}
+              onClose={() => setShowQrModal(false)}
+              url={e2eKeyPair.publicKey}
+              isDarkMode={isDarkMode}
+              language={language}
+              t={t}
+              setStatus={setStatus}
+            />
+          )}
         </div>
       )}
     </div>
