@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Copy, QrCode, Check, ShieldCheck, RotateCcw } from 'lucide-react';
+import { Copy, QrCode, Check, ShieldCheck, RotateCcw, Zap, Key } from 'lucide-react';
 import { Language } from '../../../types';
 import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
+import { toPersianDigits } from '../../../utils/numberConverter';
 
 interface ResultLinkCardProps {
   resultUrl: string;
@@ -11,6 +12,7 @@ interface ResultLinkCardProps {
   isDarkMode: boolean;
   language: Language;
   t: any;
+  shamirShares?: string[];
   copyToClipboardWithAutoClear: (text: string, durationMs?: number, onWarn?: (msg: string) => void, lang?: string) => void;
   setStatus: (status: { type: 'ok' | 'err' | 'warn'; msg: string } | null) => void;
 }
@@ -22,17 +24,26 @@ export const ResultLinkCard: React.FC<ResultLinkCardProps> = ({
   isDarkMode,
   language,
   t,
+  shamirShares,
   copyToClipboardWithAutoClear,
   setStatus,
 }) => {
   const [showQrHub, setShowQrHub] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedShareIndex, setCopiedShareIndex] = useState<number | null>(null);
 
   const handleCopy = () => {
     copyToClipboardWithAutoClear(resultUrl, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     setStatus({ type: 'ok', msg: t.linkCopied });
+  };
+
+  const handleCopyShare = (share: string, index: number) => {
+    copyToClipboardWithAutoClear(share, 30000, (msg) => setStatus({ type: 'warn', msg }), language);
+    setCopiedShareIndex(index);
+    setTimeout(() => setCopiedShareIndex(null), 2000);
+    setStatus({ type: 'ok', msg: `${t.copied || 'Copied'} Share ${language === 'fa' ? toPersianDigits(index + 1) : index + 1}` });
   };
 
   return (
@@ -144,6 +155,65 @@ export const ResultLinkCard: React.FC<ResultLinkCardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Generated Shamir Custody Shares Box */}
+      {shamirShares && shamirShares.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-5 rounded-[28px] border ${
+            isDarkMode ? 'bg-purple-950/20 border-purple-500/30 shadow-lg' : 'bg-purple-50 border-purple-200 shadow-md'
+          } space-y-4`}
+          dir={language === 'fa' ? 'rtl' : 'ltr'}
+        >
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-purple-400 shrink-0" />
+            <div className="flex flex-col">
+              <span className={`text-xs font-bold ${isDarkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                {t.shamirSharesGenerated || 'Shamir Custody Shares'}
+              </span>
+              <span className="text-[10px] text-zinc-500">
+                {t.shamirCustodyRequired || 'Distribute each share to a separate custodian'}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {shamirShares.map((share, idx) => (
+              <div
+                key={idx}
+                className={`flex items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                  isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-white border-zinc-200'
+                }`}
+                dir="ltr"
+              >
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md shrink-0">
+                    #{idx + 1}
+                  </span>
+                  <span className="font-mono text-xs text-zinc-300 truncate select-all">
+                    {share}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyShare(share, idx)}
+                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                    copiedShareIndex === idx
+                      ? 'bg-purple-500 text-white'
+                      : isDarkMode
+                      ? 'bg-zinc-800 text-zinc-400 hover:text-purple-300 border-white/5'
+                      : 'bg-zinc-100 text-zinc-600 hover:text-purple-700 border-zinc-200'
+                  }`}
+                  title={t.copy || 'Copy'}
+                >
+                  {copiedShareIndex === idx ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Link QR Code Modal */}
       <LinkQrCodeModal

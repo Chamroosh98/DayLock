@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.8.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
+  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.9.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>
@@ -28,6 +28,7 @@
 
 ## 🔖 目录
 
+- [� 目录](#-目录)
 - [🚀 什么是 DayLock？](#-什么是-daylock)
 - [✨ 核心特性](#-核心特性)
 - [📖 完整用户指南](#-完整用户指南)
@@ -41,6 +42,7 @@
 - [🚀 部署选项](#-部署选项)
   - [选项 1：CLI 自动化向导（推荐）](#选项-1cli-自动化向导推荐)
   - [选项 2：使用 GitHub Actions 自动部署](#选项-2使用-github-actions-自动部署)
+    - [用户只需完成以下 3 步：](#用户只需完成以下-3-步)
 - [🔑 Cloudflare API Token 设置](#-cloudflare-api-token-设置)
 - [🏗️ 数据架构流程](#️-数据架构流程)
 

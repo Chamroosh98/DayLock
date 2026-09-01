@@ -22,6 +22,9 @@ export interface ValidationParams {
   hasSelfDestruct: boolean;
   selfDestructHides: number;
   selfDestructTriggers: string[];
+  hasShamir?: boolean;
+  shamirThreshold?: number;
+  shamirTotal?: number;
   t: Record<string, string>;
 }
 
@@ -50,6 +53,9 @@ export const validateCreateConfiguration = (params: ValidationParams): string | 
     hasSelfDestruct,
     selfDestructHides,
     selfDestructTriggers,
+    hasShamir,
+    shamirThreshold = 3,
+    shamirTotal = 5,
     t
   } = params;
 
@@ -67,7 +73,13 @@ export const validateCreateConfiguration = (params: ValidationParams): string | 
       if (!audioText.trim()) return t.enterAudioSecretMessage || "Please enter secret message for audio.";
     }
   }
-  if (contentType !== 'stego' && hasPassword && !password) return t.invalidPassword || "Password is required.";
+  if (hasShamir) {
+    if (shamirThreshold < 2 || shamirTotal < shamirThreshold) {
+      return t.thresholdNotMet || "Invalid Shamir threshold configuration";
+    }
+  } else if (contentType !== 'stego' && hasPassword && !password) {
+    return t.invalidPassword || "Password is required.";
+  }
   if (hasHoney && (!honeyPwd || !honeyContent.trim())) return t.honeyPotIncomplete || "HoneyPot decoy configuration is incomplete.";
   if (hasGeoLock && allowedCountries.length === 0) return t.geoLockCountryRequired || "Please select at least one country for Geo-Lock.";
   if (hasDeadMans && !deadMansInterval) return t.deadMansIntervalRequired || "Please specify Dead Man interval.";

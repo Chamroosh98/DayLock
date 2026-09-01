@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.8.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
+  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.9.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>
@@ -30,19 +30,21 @@
 
 ## 🔖 Table of Contents
 
+- [� Table of Contents](#-table-of-contents)
 - [🚀 What is DayLock?](#-what-is-daylock)
 - [✨ Key Features](#-key-features)
 - [📖 Comprehensive User Guide](#-comprehensive-user-guide)
   - [0. Zero-Knowledge Concept](#0-zero-knowledge-concept)
   - [1. Core Encryption](#1-core-encryption)
-  - [2. Steganography, Secret Sharing & Secure E2EE](#2-steganography-secret-sharing--secure-e2ee)
-  - [3. Anti-Coercion & Decoy Protection](#3-anti-coercion--decoy-protection)
-  - [4. Emergency Shields & Instant Sanitization](#4-emergency-shields--instant-sanitization)
+  - [2. Steganography, Secret Sharing \& Secure E2EE](#2-steganography-secret-sharing--secure-e2ee)
+  - [3. Anti-Coercion \& Decoy Protection](#3-anti-coercion--decoy-protection)
+  - [4. Emergency Shields \& Instant Sanitization](#4-emergency-shields--instant-sanitization)
   - [5. Perimeter Defense](#5-perimeter-defense)
-- [🛠️ Prerequisites & Toolchain](#️-prerequisites--toolchain)
+- [🛠️ Prerequisites \& Toolchain](#️-prerequisites--toolchain)
 - [🚀 Deployment Options](#-deployment-options)
-  - [Option 1: Automated CLI Wizard (Recommended)](#option-1-automated-cli-wizard-recommended)
-  - [Option 2: Automated Deploy with GitHub Actions](#option-2-automated-deploy-with-github-actions)
+  - [Option 1 : Automated CLI Wizard (Recommended)](#option-1--automated-cli-wizard-recommended)
+  - [Option 2 : Automated Deploy with GitHub Actions](#option-2--automated-deploy-with-github-actions)
+    - [What you need to do:](#what-you-need-to-do)
 - [🔑 Cloudflare API Token Setup](#-cloudflare-api-token-setup)
 - [🏗️ Data Architecture Flow](#️-data-architecture-flow)
 

@@ -36,7 +36,6 @@ export const CreateTabHeader: React.FC<CreateTabHeaderProps> = ({
     { id: 'file' as ContentType, label: t.file, icon: <File className="w-3.5 h-3.5" /> },
     { id: 'stego' as ContentType, label: t.image, icon: <ImageIcon className="w-3.5 h-3.5" /> },
     { id: 'audio' as ContentType, label: t.audio, icon: <Headphones className="w-3.5 h-3.5" /> },
-    { id: 'shamir' as ContentType, label: t.shamir, icon: <Zap className="w-3.5 h-3.5" /> },
     { id: 'e2e' as ContentType, label: t.e2e, icon: <MessageSquare className="w-3.5 h-3.5" /> },
   ];
 
@@ -94,12 +93,11 @@ export const CreateTabHeader: React.FC<CreateTabHeaderProps> = ({
 
       {/* Desktop Bar */}
       <div className={`hidden md:block p-1.5 rounded-3xl border ${isDarkMode ? 'bg-zinc-950/40 border-white/5' : 'bg-zinc-100/70 border-zinc-200/85'} shadow-inner`}>
-        <div className="grid grid-cols-6 items-center w-full" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="grid grid-cols-5 items-center w-full" dir={isRtl ? 'rtl' : 'ltr'}>
           <TypeTab id="type-tab-text" active={contentType === 'text'} onClick={() => handleSelect('text')} icon={<FileText />} text={t.text} isDarkMode={isDarkMode} />
           <TypeTab id="type-tab-file" active={contentType === 'file'} onClick={() => handleSelect('file')} icon={<File />} text={t.file} isDarkMode={isDarkMode} />
           <TypeTab id="type-tab-stego" active={contentType === 'stego'} onClick={() => handleSelect('stego')} icon={<ImageIcon />} text={t.image} isDarkMode={isDarkMode} />
           <TypeTab id="type-tab-audio" active={contentType === 'audio'} onClick={() => handleSelect('audio')} icon={<Headphones />} text={t.audio} isDarkMode={isDarkMode} />
-          <TypeTab id="type-tab-shamir" active={contentType === 'shamir'} onClick={() => handleSelect('shamir')} icon={<Zap />} text={t.shamir} isDarkMode={isDarkMode} />
           <TypeTab id="type-tab-e2e" active={contentType === 'e2e'} onClick={() => handleSelect('e2e')} icon={<MessageSquare />} text={t.e2e} isDarkMode={isDarkMode} />
         </div>
       </div>

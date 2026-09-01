@@ -16,6 +16,10 @@ export interface ExecuteEncryptionParams {
   audioEmbedPassword: string;
   password: string;
   hasPassword: boolean;
+  hasShamir?: boolean;
+  shamirThreshold?: number;
+  shamirTotal?: number;
+  setShamirShares?: (shares: string[]) => void;
   stegoCapacity: number;
   expiresIn: number;
   burnAfterRead: boolean;
@@ -61,6 +65,10 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
     audioEmbedPassword,
     password,
     hasPassword,
+    hasShamir,
+    shamirThreshold = 3,
+    shamirTotal = 5,
+    setShamirShares,
     stegoCapacity,
     expiresIn,
     burnAfterRead,
@@ -119,7 +127,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
     return;
   }
 
-  if (contentType !== 'stego' && !password) {
+  if (contentType !== 'stego' && !hasShamir && hasPassword && !password) {
     setShowPasswordWarning(true);
     return;
   }
@@ -237,7 +245,9 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
 
       if (contentType === 'text') {
         const rawBytes = encoder.encode(message);
-        if (hasPassword) {
+        if (hasShamir) {
+          mainEnc = W.encrypt_with_random_key(rawBytes);
+        } else if (hasPassword) {
           mainEnc = W.encrypt_with_password(rawBytes, password);
         } else {
           mainEnc = W.encrypt_with_random_key(rawBytes);
@@ -247,7 +257,9 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         if (!selectedFile) throw new Error(t.selectFileWarning || "No file selected");
         const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
         const kindNum = contentType === 'image' ? 2 : 0;
-        if (hasPassword) {
+        if (hasShamir) {
+          mainEnc = W.encrypt_file_with_random_key(fileBytes, selectedFile.name, selectedFile.type, kindNum);
+        } else if (hasPassword) {
           mainEnc = W.encrypt_file_with_password(fileBytes, selectedFile.name, selectedFile.type, kindNum, password);
         } else {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, selectedFile.name, selectedFile.type, kindNum);
@@ -259,7 +271,9 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         if (!audioBlob) throw new Error(t.noRecordingFound || "No recording found");
         const fileBytes = new Uint8Array(await audioBlob.arrayBuffer());
         const kindNum = 1; // Voice
-        if (hasPassword) {
+        if (hasShamir) {
+          mainEnc = W.encrypt_file_with_random_key(fileBytes, 'voice.webm', 'audio/webm', kindNum);
+        } else if (hasPassword) {
           mainEnc = W.encrypt_file_with_password(fileBytes, 'voice.webm', 'audio/webm', kindNum, password);
         } else {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, 'voice.webm', 'audio/webm', kindNum);
@@ -267,6 +281,25 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         originalName = 'voice.webm';
         mimeType = 'audio/webm';
         size = audioBlob.size;
+      }
+
+      // If Shamir is enabled, split the master key
+      if (hasShamir && mainEnc.key) {
+        const keyB64 = b64url_encode(mainEnc.key);
+        const splitRes = await fetch('/api/shamir/split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: keyB64,
+            total: shamirTotal,
+            threshold: shamirThreshold
+          })
+        });
+        const splitData = await splitRes.json();
+        if (!splitRes.ok) throw new Error(splitData.error || "Failed to split secret into Shamir shares");
+        if (setShamirShares) {
+          setShamirShares(splitData.shares);
+        }
       }
 
       // HoneyPot Encryption with WASM
@@ -293,7 +326,10 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         expires_in: expiresIn,
         burn_after_read: burnAfterRead,
         max_views: maxViews === '' ? null : maxViews,
-        has_password: hasPassword,
+        has_password: hasPassword && !hasShamir,
+        has_shamir: Boolean(hasShamir),
+        shamir_threshold: hasShamir ? shamirThreshold : null,
+        shamir_total: hasShamir ? shamirTotal : null,
         has_honey: hasHoney,
         ...honeyPayload,
         kind: contentType === 'audio' && audioMode === 'record' ? 'voice' : contentType,
@@ -323,7 +359,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
       if (!res.ok) throw new Error(result.error);
 
       const finalId = contentType === 'text' ? result.id : `file-${result.id}`;
-      const finalKey = hasPassword ? 'pwd' : b64url_encode(mainEnc.key);
+      const finalKey = hasShamir ? 'shamir' : (hasPassword ? 'pwd' : b64url_encode(mainEnc.key));
       setResultUrl(`${window.location.origin}/#${finalId}:${finalKey}`);
       setStatus({ type: 'ok', msg: t.securelyStored });
 
@@ -350,11 +386,14 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
 
       const payload = {
         data: payloadData,
-        password: hasPassword ? password : null,
+        password: hasPassword && !hasShamir ? password : null,
         expires_in: expiresIn,
         burn_after_read: burnAfterRead,
         max_views: maxViews === '' ? null : maxViews,
-        has_password: hasPassword,
+        has_password: hasPassword && !hasShamir,
+        has_shamir: Boolean(hasShamir),
+        shamir_threshold: hasShamir ? shamirThreshold : null,
+        shamir_total: hasShamir ? shamirTotal : null,
         has_honey: hasHoney,
         honey_data: hasHoney ? honeyContent : null,
         honey_password: hasHoney ? honeyPwd : null,
@@ -381,8 +420,25 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
 
+      if (hasShamir && result.key) {
+        const splitRes = await fetch('/api/shamir/split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: result.key,
+            total: shamirTotal,
+            threshold: shamirThreshold
+          })
+        });
+        const splitData = await splitRes.json();
+        if (!splitRes.ok) throw new Error(splitData.error || "Failed to split secret into Shamir shares");
+        if (setShamirShares) {
+          setShamirShares(splitData.shares);
+        }
+      }
+
       const finalId = contentType === 'text' ? result.id : `file-${result.id}`;
-      const finalKey = hasPassword ? 'pwd' : result.key;
+      const finalKey = hasShamir ? 'shamir' : (hasPassword ? 'pwd' : result.key);
       setResultUrl(`${window.location.origin}/#${finalId}:${finalKey}`);
       setStatus({ type: 'ok', msg: t.securelyStored });
     }

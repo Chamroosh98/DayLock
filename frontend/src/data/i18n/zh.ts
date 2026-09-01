@@ -21,7 +21,7 @@ export const zh = {
   passwordLock: "密码锁定",
   passwordPlaceholder: "加密密码",
   masterPasswordPlaceholder: "密码",
-  honeyPotDecoy: "蜜罐诱饵",
+  honeyPotDecoy: "HoneyPot",
   decoyConfig: "诱饵配置",
   decoyPassword: "诱饵密码",
   decoyContent: "诱饵消息内容",
@@ -473,5 +473,16 @@ export const zh = {
   noWavCoverLoaded: "未加载 WAV 载体音频文件。",
   noAudioSecretMessage: "未提供秘密消息。",
   noRecordingFound: "未找到录音。",
-  invalidContentType: "无效的内容类型。"
+  invalidContentType: "无效的内容类型。",
+  shamirLock: "Shamir",
+  shamirLockDesc: "多方门限密钥保护",
+  shamirThresholdLabel: "门限阈值 (K)",
+  shamirTotalLabel: "密钥总数 (N)",
+  shamirThresholdHint: "解密所需的最少分片数",
+  shamirTotalHint: "生成的总分片数",
+  shamirSharesGenerated: "Shamir 门限分片",
+  shamirSharesDesc: "请将每个分片分发给可信保管人。解密时需要 {k} / {n} 个分片。",
+  shamirCustodyRequired: "需要门限分片以完成解密",
+  combineAndDecrypt: "组合分片并解密",
+  addShareInput: "添加分片"
 };

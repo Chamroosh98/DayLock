@@ -2,7 +2,7 @@ import React from 'react';
 
 export * from './types/app';
 
-export type ContentType = 'text' | 'file' | 'voice' | 'image' | 'stego' | 'shamir' | 'audio' | 'e2e';
+export type ContentType = 'text' | 'file' | 'voice' | 'image' | 'stego' | 'audio' | 'e2e';
 export type MainTab = 'create' | 'view';
 export type Language = 'en' | 'fa' | 'ru' | 'zh';
 

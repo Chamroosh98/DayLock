@@ -54,6 +54,12 @@ export interface OptionsSectionProps {
   setHasTimeLock: (v: boolean) => void;
   unlockAt: number | null;
   setUnlockAt: (v: number | null) => void;
+  hasShamir?: boolean;
+  setHasShamir?: (v: boolean) => void;
+  shamirThreshold?: number;
+  setShamirThreshold?: (v: number) => void;
+  shamirTotal?: number;
+  setShamirTotal?: (v: number) => void;
   isDarkMode: boolean;
   language: Language;
   t: any;

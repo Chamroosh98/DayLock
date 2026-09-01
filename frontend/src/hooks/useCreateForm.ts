@@ -199,7 +199,7 @@ export function useCreateForm({
       if (audioMode === 'record' && !audioBlob) return false;
       if (audioMode === 'stego' && (!audioWavBytes || !audioText.trim())) return false;
     }
-    if (contentType === 'shamir' || contentType === 'e2e') return false;
+    if (contentType === 'e2e') return false;
 
     if (!hasPassword || !password) return false;
     if (hasHoney && (!honeyPwd || !honeyContent.trim())) return false;

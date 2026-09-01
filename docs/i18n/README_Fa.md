@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.8.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
+  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.9.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>
@@ -28,21 +28,23 @@
 
 ## 🔖 فهرست مطالب
 
-- [🚀 دی‌لاک (DayLock) چیست؟](#-دی‌لاک-daylock-چیست)
-- [✨ قابلیت‌ها و ویژگی‌های کلیدی](#-قابلیت‌ها-و-ویژگی‌های-کلیدی)
-- [📖 راهنمای جامع کاربری](#-راهنمای-جامع-کاربری)
+- [� فهرست مطالب](#-فهرست-مطالب)
+- [🚀 دی‌لاک (DayLock) چیست؟](#-دیلاک-daylock-چیست)
+- [✨ ویژگی‌های کلیدی](#-ویژگیهای-کلیدی)
+- [📖 راهنمای کلی کاربری](#-راهنمای-کلی-کاربری)
   - [۰. آشنایی با ساختار بدون دسترسی سرور](#۰-آشنایی-با-ساختار-بدون-دسترسی-سرور)
-  - [۱. رمزگذاری پایه (نوشته و پرونده)](#۱-رمزگذاری-پایه-نوشته-و-پرونده)
-  - [۲. پنهان‌سازی، تقسیم راز و ارتباط امن](#۲-پنهان‌سازی-تقسیم-راز-و-ارتباط-امن)
+  - [۱. رمزگذاری پایه](#۱-رمزگذاری-پایه)
+  - [۲. پنهان‌سازی، تقسیم راز و ارتباط امن](#۲-پنهانسازی-تقسیم-راز-و-ارتباط-امن)
   - [۳. فرار از اجبار با رمز پوششی (Decoy / Honey)](#۳-فرار-از-اجبار-با-رمز-پوششی-decoy--honey)
-  - [۴. پاک‌سازی فوری و نگهبان‌های اضطراری](#۴-پاک‌سازی-فوری-و-نگهبان‌های-اضطراری)
-  - [۵. لایه‌های نگهبانی پیرامونی (Perimeter Defense)](#۵-لایه‌های-نگهبانی-پیرامونی-perimeter-defense)
-- [🛠️ پیش‌نیازها و ابزارها](#️-پیش‌نیازها-و-ابزارها)
-- [🚀 روش‌های دپلوی و راه‌اندازی](#-روش‌های-دپلوی-و-راه‌اندازی)
-  - [روش اول : اسکریپت خودکار CLI (پیشنهادی)](#روش-اول-اسکریپت-خودکار-cli-پیشنهادی)
-  - [روش دوم : دپلوی خودکار با GitHub Actions (جدید و خفن!)](#روش-دوم-دپلوی-خودکار-با-github-actions-جدید-و-خفن)
-- [🔑 تنظیمات API Token کلودفلر](#-تنظیمات-api-token-کلودفلر)
-- [🏗️ معماری و جریان داده‌ها (Architecture Flow)](#️-معماری-و-جریان-داده‌ها-architecture-flow)
+  - [۴. پاک‌سازی فوری و ابزارهای اضطراری](#۴-پاکسازی-فوری-و-ابزارهای-اضطراری)
+  - [۵. لایه‌های امنیت بیرونی (Perimeter Defense)](#۵-لایههای-امنیت-بیرونی-perimeter-defense)
+- [🛠️ پیش‌نیازها و ابزارها](#️-پیشنیازها-و-ابزارها)
+- [🚀 روش‌های دپلوی و راه‌اندازی](#-روشهای-دپلوی-و-راهاندازی)
+  - [روش اول : اسکریپت خودکار CLI (پیشنهادی)](#روش-اول--اسکریپت-خودکار-cli-پیشنهادی)
+  - [روش دوم : دپلوی خودکار با GitHub Actions](#روش-دوم--دپلوی-خودکار-با-github-actions)
+    - [کاری ک یوزر باید انجام بده :](#کاری-ک-یوزر-باید-انجام-بده-)
+- [🔑 Cloudflare API Token](#-cloudflare-api-token)
+- [🏗️ معماری داده‌ها (Architecture Flow)](#️-معماری-دادهها-architecture-flow)
 
 ---
 

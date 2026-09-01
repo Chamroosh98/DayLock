@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.8.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
+  <a href="https://github.com/Chamroosh98/DayLock/releases"><img src="https://img.shields.io/badge/-v1.9.0-1D63ED?style=for-the-badge&logo=github&logoColor=white" alt="Release"></a>
   <a href="https://dash.cloudflare.com/"><img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare"></a>
   <a href="https://webassembly.org/"><img src="https://img.shields.io/badge/WebAssembly-654FF0?style=for-the-badge&logo=webassembly&logoColor=white" alt="WebAssembly"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=FFF7ED" alt="Rust"></a>
@@ -28,12 +28,13 @@
 
 ## 🔖 Содержание
 
+- [� Содержание](#-содержание)
 - [🚀 Что такое DayLock?](#-что-такое-daylock)
 - [✨ Ключевые возможности](#-ключевые-возможности)
 - [📖 Полное руководство пользователя](#-полное-руководство-пользователя)
   - [0. Концепция Zero-Knowledge](#0-концепция-zero-knowledge)
   - [1. Базовое шифрование](#1-базовое-шифрование)
-  - [2. Стеганография, разделение секрета и безопасный E2EE](#2-стеганография-разделение-секрета-и-безопасный-e2ee)
+  - [2. Стеганография, разделение секрета и безопасный E2E](#2-стеганография-разделение-секрета-и-безопасный-e2e)
   - [3. Защита от принуждения и фейковые пароли (Decoy)](#3-защита-от-принуждения-и-фейковые-пароли-decoy)
   - [4. Аварийная защита и мгновенное удаление](#4-аварийная-защита-и-мгновенное-удаление)
   - [5. Периметральная защита](#5-периметральная-защита)
@@ -41,6 +42,7 @@
 - [🚀 Варианты развертывания](#-варианты-развертывания)
   - [Вариант 1: Автоматический CLI-скрипт (Рекомендуется)](#вариант-1-автоматический-cli-скрипт-рекомендуется)
   - [Вариант 2: Автоматическое развертывание через GitHub Actions](#вариант-2-автоматическое-развертывание-через-github-actions)
+    - [Что нужно сделать пользователю:](#что-нужно-сделать-пользователю)
 - [🔑 Настройка Cloudflare API Token](#-настройка-cloudflare-api-token)
 - [🏗️ Архитектура и поток данных](#️-архитектура-и-поток-данных)
 

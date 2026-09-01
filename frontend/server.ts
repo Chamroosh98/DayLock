@@ -170,6 +170,7 @@ async function startServer() {
         allowed_countries, dead_mans_interval,
         canary_url, unlock_at, self_destruct_hides, self_destruct_triggers,
         block_asns, allow_asns, is_e2e_channel, e2e_public_key,
+        has_shamir, shamir_threshold, shamir_total,
         // Pre-encrypted variables:
         is_pre_encrypted, is_wasm_encrypted, custom_id, iv, salt: clientSalt,
         honey_iv, honey_salt: clientHoneySalt,
@@ -266,6 +267,9 @@ async function startServer() {
         allow_asns: allow_asns ? JSON.stringify(allow_asns) : null,
         is_e2e_channel: is_e2e_channel ? 1 : 0,
         e2e_public_key: e2e_public_key || null,
+        has_shamir: has_shamir ? 1 : 0,
+        shamir_threshold: shamir_threshold || null,
+        shamir_total: shamir_total || null,
         is_pre_encrypted: isPreEncrypted ? 1 : 0,
         has_decoy: has_decoy ? 1 : 0,
         decoy_content: decoy_content || null
@@ -397,6 +401,9 @@ async function startServer() {
           id: paste.id,
           is_pre_encrypted: true,
           has_password: paste.has_password === 1 || paste.has_password === true,
+          has_shamir: paste.has_shamir === 1 || paste.has_shamir === true,
+          shamir_threshold: paste.shamir_threshold,
+          shamir_total: paste.shamir_total,
           kind: paste.kind,
           size: paste.size,
           expires_at: paste.expires_at,
@@ -429,6 +436,9 @@ async function startServer() {
         return res.json({
           id: paste.id,
           has_password: true,
+          has_shamir: paste.has_shamir === 1 || paste.has_shamir === true,
+          shamir_threshold: paste.shamir_threshold,
+          shamir_total: paste.shamir_total,
           kind: paste.kind,
           size: paste.size,
           expires_at: paste.expires_at,

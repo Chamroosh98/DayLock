@@ -111,6 +111,9 @@ export const useCreateLogic = (props: CreateTabProps) => {
       hasSelfDestruct: vault.hasSelfDestruct,
       selfDestructHides: vault.selfDestructHides,
       selfDestructTriggers: vault.selfDestructTriggers,
+      hasShamir: vault.hasShamir,
+      shamirThreshold: vault.shamirThreshold,
+      shamirTotal: vault.shamirTotal,
       t
     });
   }, [contentType, vault, audio, voice, t]);
@@ -132,6 +135,10 @@ export const useCreateLogic = (props: CreateTabProps) => {
       audioEmbedPassword: audio.audioEmbedPassword,
       password: vault.password,
       hasPassword: vault.hasPassword,
+      hasShamir: vault.hasShamir,
+      shamirThreshold: vault.shamirThreshold,
+      shamirTotal: vault.shamirTotal,
+      setShamirShares: vault.setShamirShares,
       stegoCapacity: vault.stegoCapacity,
       expiresIn: vault.expiresIn,
       burnAfterRead: vault.burnAfterRead,

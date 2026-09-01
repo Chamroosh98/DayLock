@@ -43,7 +43,7 @@ export function useSwipeGesture({
     const diffY = touchStartY.current - touchEndY;
 
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
-      const tabs: ContentType[] = ['text', 'file', 'stego', 'audio', 'shamir', 'e2e'];
+      const tabs: ContentType[] = ['text', 'file', 'stego', 'audio', 'e2e'];
       const currentIndex = tabs.indexOf(contentType);
 
       if (diffX > 0) {

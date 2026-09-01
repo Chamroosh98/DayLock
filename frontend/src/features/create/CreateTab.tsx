@@ -89,18 +89,13 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
     setSelfDestructHides,
     selfDestructTriggers,
     setSelfDestructTriggers,
-    hoveredShamirTrash,
-    setHoveredShamirTrash,
-    shamirSecret,
-    setShamirSecret,
-    shamirTotal,
-    setShamirTotal,
+    hasShamir,
+    setHasShamir,
     shamirThreshold,
     setShamirThreshold,
+    shamirTotal,
+    setShamirTotal,
     shamirShares,
-    shamirCombineInputs,
-    setShamirCombineInputs,
-    shamirResult,
     selectedFile,
     setSelectedFile,
     isRecording,
@@ -143,12 +138,6 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
     toggleRecording,
     handleFileChangeDirect,
     handleFileSelect,
-    handleShamirTotalChangeFA,
-    handleShamirThresholdChangeFA,
-    handleShamirTotalBlurFA,
-    handleShamirThresholdBlurFA,
-    handleShamirSplit,
-    handleShamirCombine,
     isConfigurationValid,
     handleCreateE2EChannel,
     handleCreate,
@@ -255,34 +244,6 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
           />
         )}
 
-        {contentType === 'shamir' && (
-          <ShamirSection
-            shamirSecret={shamirSecret}
-            setShamirSecret={setShamirSecret}
-            shamirTotal={shamirTotal}
-            shamirThreshold={shamirThreshold}
-            handleShamirTotalChangeFA={handleShamirTotalChangeFA}
-            handleShamirThresholdChangeFA={handleShamirThresholdChangeFA}
-            handleShamirTotalBlurFA={handleShamirTotalBlurFA}
-            handleShamirThresholdBlurFA={handleShamirThresholdBlurFA}
-            setShamirTotal={setShamirTotal}
-            setShamirThreshold={setShamirThreshold}
-            handleShamirSplit={handleShamirSplit}
-            shamirShares={shamirShares}
-            shamirCombineInputs={shamirCombineInputs}
-            setShamirCombineInputs={setShamirCombineInputs}
-            hoveredShamirTrash={hoveredShamirTrash}
-            setHoveredShamirTrash={setHoveredShamirTrash}
-            handleShamirCombine={handleShamirCombine}
-            shamirResult={shamirResult}
-            isDarkMode={isDarkMode}
-            language={language}
-            t={t}
-            copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
-            setStatus={setStatus}
-          />
-        )}
-
         {contentType === 'e2e' && (
           <E2EChannelSection
             e2eKeyPair={e2eKeyPair}
@@ -354,6 +315,12 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
             setHasTimeLock={setHasTimeLock}
             unlockAt={unlockAt}
             setUnlockAt={setUnlockAt}
+            hasShamir={hasShamir}
+            setHasShamir={setHasShamir}
+            shamirThreshold={shamirThreshold}
+            setShamirThreshold={setShamirThreshold}
+            shamirTotal={shamirTotal}
+            setShamirTotal={setShamirTotal}
             isDarkMode={isDarkMode}
             language={language}
             t={t}
@@ -383,6 +350,7 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
           isDarkMode={isDarkMode}
           language={language}
           t={t}
+          shamirShares={shamirShares}
           copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
           setStatus={setStatus}
         />

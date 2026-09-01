@@ -83,6 +83,16 @@ export interface VaultState {
   selfDestructTriggers: string[];
   setSelfDestructTriggers: Dispatch<SetStateAction<string[]>>;
 
+  // Shamir Secret Sharing (Multi-Party Custody)
+  hasShamir: boolean;
+  setHasShamir: Dispatch<SetStateAction<boolean>>;
+  shamirThreshold: number;
+  setShamirThreshold: Dispatch<SetStateAction<number>>;
+  shamirTotal: number;
+  setShamirTotal: Dispatch<SetStateAction<number>>;
+  shamirShares: string[];
+  setShamirShares: Dispatch<SetStateAction<string[]>>;
+
   // Network / ASN Lock Settings
   hasAsnLock: boolean;
   setHasAsnLock: Dispatch<SetStateAction<boolean>>;
@@ -191,6 +201,12 @@ export function useVaultState(options: UseVaultStateOptions = {}): VaultState {
   const [selfDestructHides, setSelfDestructHides] = useState<number>(3);
   const [selfDestructTriggers, setSelfDestructTriggers] = useState<string[]>(['tab']);
 
+  // Shamir Secret Sharing (Multi-Party Custody)
+  const [hasShamir, setHasShamir] = useState(false);
+  const [shamirThreshold, setShamirThreshold] = useState<number>(3);
+  const [shamirTotal, setShamirTotal] = useState<number>(5);
+  const [shamirShares, setShamirShares] = useState<string[]>([]);
+
   // Network / ASN Lock
   const [hasAsnLock, setHasAsnLock] = useState(false);
   const [asnMode, setAsnMode] = useState<'block' | 'allow'>('block');
@@ -225,6 +241,10 @@ export function useVaultState(options: UseVaultStateOptions = {}): VaultState {
     setHasSelfDestruct(false);
     setSelfDestructHides(3);
     setSelfDestructTriggers(['tab']);
+    setHasShamir(false);
+    setShamirThreshold(3);
+    setShamirTotal(5);
+    setShamirShares([]);
     setHasAsnLock(false);
     setAsnMode('block');
     setAsnSelected('');
@@ -292,6 +312,14 @@ export function useVaultState(options: UseVaultStateOptions = {}): VaultState {
     setSelfDestructHides,
     selfDestructTriggers,
     setSelfDestructTriggers,
+    hasShamir,
+    setHasShamir,
+    shamirThreshold,
+    setShamirThreshold,
+    shamirTotal,
+    setShamirTotal,
+    shamirShares,
+    setShamirShares,
     hasAsnLock,
     setHasAsnLock,
     asnMode,

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Lock, Globe, Skull, Bird, Clock, ShieldAlert, Shield, Flame, Bomb,
-  Search, Eye, EyeOff, Plus, X, AlertCircle, RadioTower
+  Search, Eye, EyeOff, Plus, X, AlertCircle, RadioTower, Zap
 } from 'lucide-react';
 import { Language, Country } from '../../../types';
 import { OptionToggle } from '../../../components/OptionToggle';
@@ -65,6 +65,12 @@ export interface SecurityOptionsDrawerProps {
   setHasTimeLock: (v: boolean) => void;
   unlockAt: number | null;
   setUnlockAt: (v: number | null) => void;
+  hasShamir?: boolean;
+  setHasShamir?: (v: boolean) => void;
+  shamirThreshold?: number;
+  setShamirThreshold?: (v: number) => void;
+  shamirTotal?: number;
+  setShamirTotal?: (v: number) => void;
   isDarkMode: boolean;
   language: Language;
   t: any;
@@ -125,6 +131,12 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
   setHasTimeLock,
   unlockAt,
   setUnlockAt,
+  hasShamir = false,
+  setHasShamir,
+  shamirThreshold = 3,
+  setShamirThreshold,
+  shamirTotal = 5,
+  setShamirTotal,
   isDarkMode,
   language,
   t,
@@ -210,7 +222,7 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         />
       </div>
 
-      {/* Tablet & Desktop: 2x4 Compact Grid */}
+      {/* Tablet & Desktop: 2-column Compact Grid */}
       <div className="hidden sm:grid grid-cols-2 gap-2.5">
         <OptionToggle
           id="toggle-password-protection"
@@ -661,8 +673,8 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
               </button>
             </div>
 
-            {/* HoneyPot Decoy Option Toggle */}
-            <div className={`flex justify-start pt-1`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+            {/* Sub-Options: HoneyPot Decoy & Shamir Secret Sharing */}
+            <div className="grid grid-cols-2 gap-2.5 pt-1" dir={language === 'fa' ? 'rtl' : 'ltr'}>
               <OptionToggle
                 id="toggle-honeypot"
                 active={hasHoney}
@@ -672,6 +684,16 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                 isDarkMode={isDarkMode}
                 language={language}
                 variant="warning"
+              />
+              <OptionToggle
+                id="toggle-shamir-lock"
+                active={hasShamir}
+                onClick={() => setHasShamir?.(!hasShamir)}
+                icon={<Zap className="w-4 h-4" />}
+                title={t.shamirLock || 'Shamir'}
+                isDarkMode={isDarkMode}
+                language={language}
+                variant="purple"
               />
             </div>
 
@@ -735,6 +757,141 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                         : 'bg-white border-amber-200 text-amber-950 placeholder:text-zinc-400'
                     } border rounded-2xl p-3.5 text-xs outline-none resize-none focus:border-amber-500 transition-all placeholder:text-[10px] sm:placeholder:text-[11px] ${language === 'fa' ? 'font-vazir text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
                   />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Shamir Secret Sharing Configuration */}
+            {hasShamir && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-5 rounded-[28px] border ${
+                  isDarkMode ? 'bg-purple-950/20 border-purple-500/30 text-purple-200' : 'bg-purple-50/50 border-purple-300 text-purple-950'
+                } space-y-4`}
+                dir={language === 'fa' ? 'rtl' : 'ltr'}
+              >
+                <div className="flex items-center gap-2 px-1" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.15, 1],
+                      filter: [
+                        'drop-shadow(0 0 0px rgba(168,85,247,0))',
+                        'drop-shadow(0 0 8px rgba(168,85,247,0.8))',
+                        'drop-shadow(0 0 0px rgba(168,85,247,0))',
+                      ],
+                    }}
+                    transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
+                    className="w-4 h-4 text-purple-400 flex items-center justify-center shrink-0"
+                  >
+                    <Zap className="w-4 h-4 text-purple-400" />
+                  </motion.div>
+                  <div className="flex flex-col">
+                    <span
+                      className={`text-xs font-black uppercase tracking-wider ${
+                        isDarkMode ? 'text-zinc-200' : 'text-zinc-800'
+                      }`}
+                    >
+                      {t.shamirLock || 'Shamir'}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-normal">
+                      {t.shamirLockDesc || 'Multi-Party threshold custody protection'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Threshold (K) and Total Shares (N) Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label
+                      className={`text-[10px] sm:text-[11px] font-bold text-purple-400 block px-1 ${
+                        language === 'fa' ? 'font-vazir text-right' : 'text-left tracking-wider uppercase'
+                      }`}
+                    >
+                      {t.shamirThresholdLabel || 'THRESHOLD (K)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={language === 'fa' ? toPersianDigits(shamirThreshold) : shamirThreshold}
+                      onChange={(e) => {
+                        const raw = toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
+                        const num = parseInt(raw, 10);
+                        if (!isNaN(num)) {
+                          setShamirThreshold?.(Math.max(2, Math.min(num, shamirTotal || 5)));
+                        }
+                      }}
+                      onBlur={() => {
+                        if (!shamirThreshold || shamirThreshold < 2) setShamirThreshold?.(2);
+                      }}
+                      className={`w-full ${
+                        isDarkMode
+                          ? 'bg-zinc-900/80 border-purple-500/30 text-purple-200 placeholder:text-zinc-500'
+                          : 'bg-white border-purple-200 text-purple-950 placeholder:text-zinc-400'
+                      } border rounded-full px-4 py-3 min-h-[46px] text-xs font-mono text-center outline-none focus:border-purple-500 transition-all ${
+                        language === 'fa' ? 'font-vazir' : 'font-sans'
+                      }`}
+                    />
+                    <span className="text-[9px] text-zinc-500 block px-2">
+                      {t.shamirThresholdHint || 'Minimum shares required to decrypt'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label
+                      className={`text-[10px] sm:text-[11px] font-bold text-purple-400 block px-1 ${
+                        language === 'fa' ? 'font-vazir text-right' : 'text-left tracking-wider uppercase'
+                      }`}
+                    >
+                      {t.shamirTotalLabel || 'TOTAL SHARES (N)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={language === 'fa' ? toPersianDigits(shamirTotal) : shamirTotal}
+                      onChange={(e) => {
+                        const raw = toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
+                        const num = parseInt(raw, 10);
+                        if (!isNaN(num)) {
+                          const clamped = Math.max(2, Math.min(num, 20));
+                          setShamirTotal?.(clamped);
+                          if (shamirThreshold && shamirThreshold > clamped) {
+                            setShamirThreshold?.(clamped);
+                          }
+                        }
+                      }}
+                      onBlur={() => {
+                        if (!shamirTotal || shamirTotal < 2) setShamirTotal?.(2);
+                      }}
+                      className={`w-full ${
+                        isDarkMode
+                          ? 'bg-zinc-900/80 border-purple-500/30 text-purple-200 placeholder:text-zinc-500'
+                          : 'bg-white border-purple-200 text-purple-950 placeholder:text-zinc-400'
+                      } border rounded-full px-4 py-3 min-h-[46px] text-xs font-mono text-center outline-none focus:border-purple-500 transition-all ${
+                        language === 'fa' ? 'font-vazir' : 'font-sans'
+                      }`}
+                    />
+                    <span className="text-[9px] text-zinc-500 block px-2">
+                      {t.shamirTotalHint || 'Total shares to generate and distribute'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Informational description box */}
+                <div
+                  className={`p-3.5 rounded-2xl border text-xs ${
+                    isDarkMode
+                      ? 'bg-purple-950/20 border-purple-500/20 text-purple-300'
+                      : 'bg-purple-50 border-purple-200 text-purple-800'
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <Zap className="w-4 h-4 shrink-0 text-purple-400 mt-0.5" />
+                    <span className={`text-[11px] leading-relaxed ${language === 'fa' ? 'font-vazir' : ''}`}>
+                      {t.shamirSharesDesc
+                        ?.replace('{k}', language === 'fa' ? toPersianDigits(shamirThreshold) : String(shamirThreshold))
+                        ?.replace('{n}', language === 'fa' ? toPersianDigits(shamirTotal) : String(shamirTotal)) ||
+                        `Distribute each share to a trusted custodian. Any ${shamirThreshold} of ${shamirTotal} shares will be required to decrypt.`}
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             )}
