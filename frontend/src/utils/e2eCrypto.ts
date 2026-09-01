@@ -156,3 +156,100 @@ export async function e2eDecrypt(
 
   return new TextDecoder().decode(plaintextBuf);
 }
+
+// Prepare dual-encrypted outbound message payload (encrypted for recipient + sender)
+export async function e2ePrepareOutboundMessage(
+  recipientPubKeyStr: string,
+  messageText: string,
+  myPubKeyStr?: string | null
+) {
+  const encRecipient = await e2eEncrypt(recipientPubKeyStr, messageText);
+  let encSender = null;
+  
+  if (myPubKeyStr && myPubKeyStr.trim()) {
+    if (myPubKeyStr.trim() === recipientPubKeyStr.trim()) {
+      encSender = encRecipient;
+    } else {
+      try {
+        encSender = await e2eEncrypt(myPubKeyStr.trim(), messageText);
+      } catch (err) {
+        console.warn("Could not encrypt copy for sender:", err);
+      }
+    }
+  }
+
+  return {
+    ciphertext: encRecipient.ciphertext,
+    nonce: encRecipient.nonce,
+    ephemeral_pub: encRecipient.ephemeral_pub,
+    sender_pub: myPubKeyStr || null,
+    sender_ciphertext: encSender ? encSender.ciphertext : encRecipient.ciphertext,
+    sender_nonce: encSender ? encSender.nonce : encRecipient.nonce,
+    sender_ephemeral_pub: encSender ? encSender.ephemeral_pub : encRecipient.ephemeral_pub,
+    timestamp: Math.floor(Date.now() / 1000)
+  };
+}
+
+// Decrypt array of E2E channel messages securely for the current user keypair
+export async function e2eDecryptMessageList(
+  messages: any[],
+  e2eKeyPair: { publicKey: string; privateKey: string } | null,
+  t?: Record<string, any>,
+  language: string = 'en'
+): Promise<Array<{ id: string | number; text: string; timestamp: number; isSelf?: boolean }>> {
+  const fallbackFailed = t?.e2eDecryptionFailedKey || (language === 'fa' ? '[خطا در رمزگشایی: عدم تطابق کلید خصوصی]' : '[Decryption Failed: Private key mismatch]');
+  const fallbackReq = t?.e2eEncryptedIdentityReq || (language === 'fa' ? '[رمزگذاری شده: برای رمزگشایی ابتدا هویت E2E بساز]' : '[Encrypted: Generate E2E identity to decrypt]');
+
+  const decrypted: Array<{ id: string | number; text: string; timestamp: number; isSelf?: boolean }> = [];
+  if (!Array.isArray(messages)) return decrypted;
+
+  for (const msg of messages) {
+    let text = fallbackFailed;
+    let isSelf = false;
+
+    if (e2eKeyPair && e2eKeyPair.privateKey) {
+      // 1. Check if sent by me (using sender_ciphertext or sender_pub)
+      if (msg.sender_ciphertext && msg.sender_ephemeral_pub && msg.sender_nonce) {
+        try {
+          const dec = await e2eDecrypt(
+            e2eKeyPair.privateKey,
+            msg.sender_ephemeral_pub,
+            msg.sender_nonce,
+            msg.sender_ciphertext
+          );
+          if (dec) {
+            text = dec;
+            isSelf = true;
+          }
+        } catch (_) {}
+      }
+
+      // 2. If not yet decrypted as sender, try decrypting as recipient
+      if (!isSelf && msg.ciphertext && msg.ephemeral_pub && msg.nonce) {
+        try {
+          const dec = await e2eDecrypt(
+            e2eKeyPair.privateKey,
+            msg.ephemeral_pub,
+            msg.nonce,
+            msg.ciphertext
+          );
+          if (dec) {
+            text = dec;
+            isSelf = Boolean(msg.sender_pub && msg.sender_pub === e2eKeyPair.publicKey);
+          }
+        } catch (_) {}
+      }
+    } else {
+      text = fallbackReq;
+    }
+
+    decrypted.push({
+      id: msg.id,
+      text,
+      timestamp: msg.timestamp,
+      isSelf
+    });
+  }
+
+  return decrypted;
+}

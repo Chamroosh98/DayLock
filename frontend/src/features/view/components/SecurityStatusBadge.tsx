@@ -24,7 +24,6 @@ export const SecurityStatusBadge: React.FC<SecurityStatusBadgeProps> = ({
 
   const isFa = language === 'fa';
   const hasSecurityFeatures = Boolean(
-    viewData.has_password ||
     (viewData.allowed_countries && viewData.allowed_countries.length > 0) ||
     (viewData.unlock_at && viewData.unlock_at > Date.now()) ||
     viewData.burn_after_read ||
@@ -48,13 +47,6 @@ export const SecurityStatusBadge: React.FC<SecurityStatusBadgeProps> = ({
       {/* Security Features Active Indicators */}
       {hasSecurityFeatures && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {viewData.has_password && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-              <Lock className="w-3 h-3 text-emerald-400" />
-              <span className={isFa ? 'font-vazir' : 'uppercase tracking-wider'}>{t.passwordProtected}</span>
-            </div>
-          )}
-
           {viewData.allowed_countries && viewData.allowed_countries.length > 0 && (
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold">
               <Globe className="w-3 h-3 text-cyan-400" />

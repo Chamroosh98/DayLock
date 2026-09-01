@@ -2,6 +2,7 @@ import React from 'react';
 import { Eraser, ClipboardPaste } from 'lucide-react';
 import { Language } from '../../../types';
 import { getAutoDir, getAutoContainerClass } from '../utils';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 interface TextInputSectionProps {
   message: string;
@@ -55,11 +56,16 @@ export const TextInputSection: React.FC<TextInputSectionProps> = ({
         >
           <button
             type="button"
-            onClick={async () => {
+            onClick={async (e) => {
+              e.preventDefault();
               try {
-                const text = await navigator.clipboard.readText();
-                setMessage(text);
-                setStatus({ type: 'ok', msg: t.clipboardPasted });
+                const result = await readTextFromClipboard();
+                if (result.text) {
+                  setMessage(result.text);
+                  setStatus({ type: 'ok', msg: t.clipboardPasted });
+                } else {
+                  setStatus({ type: 'err', msg: t.pasteDirectly });
+                }
               } catch (err) {
                 setStatus({ type: 'err', msg: t.pasteDirectly });
               }

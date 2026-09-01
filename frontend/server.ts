@@ -396,11 +396,12 @@ async function startServer() {
         paste.views = (paste.views || 0) + 1;
         paste.last_accessed_at = now;
         const viewsUpdated = { views: paste.views };
+        const isProtected = Boolean(paste.has_password === 1 || paste.has_password === true || paste.has_shamir === 1 || paste.has_shamir === true);
 
         const responsePayload = {
           id: paste.id,
           is_pre_encrypted: true,
-          has_password: paste.has_password === 1 || paste.has_password === true,
+          has_password: isProtected,
           has_shamir: paste.has_shamir === 1 || paste.has_shamir === true,
           shamir_threshold: paste.shamir_threshold,
           shamir_total: paste.shamir_total,
@@ -432,7 +433,8 @@ async function startServer() {
         return res.json(responsePayload);
       }
 
-      if (paste.has_password && !queryPassword) {
+      const isMarkerKey = queryKeyB64Url === 'shamir' || queryKeyB64Url === 'pwd';
+      if ((paste.has_password || paste.has_shamir) && !queryPassword && (!queryKeyB64Url || isMarkerKey)) {
         return res.json({
           id: paste.id,
           has_password: true,
@@ -453,7 +455,7 @@ async function startServer() {
       let isHoney = false;
 
       try {
-        if (paste.has_password) {
+        if (paste.has_password && !paste.has_shamir) {
           const userPwd = String(queryPassword || "");
           const saltBuf = Buffer.from(paste.salt, "base64");
 
@@ -474,11 +476,12 @@ async function startServer() {
             decryptedBuffer = decryptAESGCM(paste.data, realKey, paste.iv);
           }
         } else {
-          // Non-password paste uses URL-safe base64 key
-          if (!queryKeyB64Url) {
+          // Non-password paste or Shamir-protected paste uses URL-safe base64 key
+          const keyParam = queryKeyB64Url || queryPassword;
+          if (!keyParam) {
             return res.status(400).json({ error: "Missing decryption key" });
           }
-          const realKey = Buffer.from(String(queryKeyB64Url), "base64url");
+          const realKey = Buffer.from(String(keyParam), "base64url");
           decryptedBuffer = decryptAESGCM(paste.data, realKey, paste.iv);
         }
       } catch (cryptoErr) {
@@ -552,7 +555,16 @@ async function startServer() {
       if (!e2e_message) {
         return res.status(400).json({ error: "Missing e2e_message body" });
       }
-      const { ciphertext, nonce, ephemeral_pub, timestamp } = e2e_message;
+      const {
+        ciphertext,
+        nonce,
+        ephemeral_pub,
+        timestamp,
+        sender_pub,
+        sender_ciphertext,
+        sender_nonce,
+        sender_ephemeral_pub,
+      } = e2e_message;
       if (!ciphertext || !nonce || !ephemeral_pub) {
         return res.status(400).json({ error: "Missing required e2e_message fields" });
       }
@@ -569,6 +581,10 @@ async function startServer() {
         ciphertext,
         nonce,
         ephemeral_pub,
+        sender_pub: sender_pub || null,
+        sender_ciphertext: sender_ciphertext || null,
+        sender_nonce: sender_nonce || null,
+        sender_ephemeral_pub: sender_ephemeral_pub || null,
         timestamp: timestamp || Math.floor(Date.now() / 1000)
       };
       e2eMessagesStore.push(msg);

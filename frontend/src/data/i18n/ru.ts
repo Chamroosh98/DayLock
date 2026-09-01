@@ -483,6 +483,6 @@ export const ru = {
   shamirSharesGenerated: "Ключи разделения Шамира",
   shamirSharesDesc: "Передайте каждую долю доверенному лицу! Для расшифровки потребуется {k} из {n} долей.",
   shamirCustodyRequired: "Для расшифровки требуется пороговый набор ключей",
-  combineAndDecrypt: "Собрать ключи и расшифровать",
+  combineAndDecrypt: "Собрать",
   addShareInput: "Добавить ключ"
 };

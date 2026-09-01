@@ -3,6 +3,7 @@ import { Language } from '../../../types';
 import { getWasm, b64url_encode, b64toUint8Array } from '../../../utils/wasmLoader';
 import { convertImageToPng, formatStegoSize } from '../../../utils/imageProcessor';
 import { audioStegoEmbed } from '../../../utils/audioStego';
+import { saveLastCopiedValue } from '../../../utils/clipboardManager';
 
 export interface ExecuteEncryptionParams {
   contentType: string;
@@ -439,7 +440,9 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
 
       const finalId = contentType === 'text' ? result.id : `file-${result.id}`;
       const finalKey = hasShamir ? 'shamir' : (hasPassword ? 'pwd' : result.key);
-      setResultUrl(`${window.location.origin}/#${finalId}:${finalKey}`);
+      const finalUrl = `${window.location.origin}/#${finalId}:${finalKey}`;
+      setResultUrl(finalUrl);
+      saveLastCopiedValue(finalUrl);
       setStatus({ type: 'ok', msg: t.securelyStored });
     }
     

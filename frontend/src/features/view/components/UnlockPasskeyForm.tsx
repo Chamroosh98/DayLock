@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Lock, Fingerprint, Eye, EyeOff, RefreshCw, Flame, AlertCircle, ShieldAlert, KeyRound, Plus, Trash2, Zap } from 'lucide-react';
+import { Lock, Fingerprint, Eye, EyeOff, RefreshCw, Flame, AlertCircle, ShieldAlert, KeyRound, Plus, Trash2, Zap, Clipboard } from 'lucide-react';
 import { Language } from '../../../types';
 import { localizeDigitsValue, toPersianDigits } from '../../../utils/numberConverter';
 import { parseShamirShare } from '../../../utils/shamirHelpers';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 export interface UnlockPasskeyFormProps {
   viewData: any;
@@ -186,21 +187,48 @@ export const UnlockPasskeyForm: React.FC<UnlockPasskeyFormProps> = ({
                 <span className="text-[11px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2.5 py-2 rounded-xl border border-purple-500/20 shrink-0 min-w-[36px] text-center">
                   #{isFa ? toPersianDigits(idx + 1) : idx + 1}
                 </span>
-                <input
-                  type="text"
-                  value={share}
-                  onChange={(e) => handleShamirShareChange(idx, e.target.value)}
-                  placeholder={`${t.enterShare || 'Enter or paste share'} #${isFa ? toPersianDigits(idx + 1) : idx + 1}`}
-                  dir="ltr"
-                  className={`flex-1 ${
-                    isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'
-                  } border rounded-2xl h-[42px] px-4 text-xs outline-none transition-all focus:border-purple-500/50 text-left ltr font-mono`}
-                />
+                <div className="relative flex-1 flex items-center">
+                  <input
+                    type="text"
+                    value={share}
+                    onChange={(e) => handleShamirShareChange(idx, e.target.value)}
+                    placeholder={`${t.enterShare || 'Enter or paste key'} #${isFa ? toPersianDigits(idx + 1) : idx + 1}`}
+                    dir="ltr"
+                    className={`w-full ${
+                      isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-300 text-zinc-800'
+                    } border rounded-2xl h-[42px] pl-4 pr-10 text-xs outline-none transition-all focus:border-purple-500/50 text-left ltr font-mono`}
+                  />
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      try {
+                        const result = await readTextFromClipboard();
+                        if (result.text) {
+                          handleShamirShareChange(idx, result.text.trim());
+                        } else {
+                          setStatus({
+                            type: 'info',
+                            msg: isFa ? 'لطفاً از کلیدهای Ctrl+V برای چسباندن کلید استفاده کنید.' : 'Please press Ctrl+V to paste key.',
+                          });
+                        }
+                      } catch (err) {
+                        console.error('Failed to read clipboard', err);
+                      }
+                    }}
+                    className={`absolute right-2.5 p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      isDarkMode ? 'text-zinc-400 hover:text-purple-400 hover:bg-white/5' : 'text-zinc-400 hover:text-purple-600 hover:bg-zinc-100'
+                    }`}
+                    title={t.paste || 'Paste'}
+                  >
+                    <Clipboard className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 {shamirShares.length > 2 && (
                   <button
                     type="button"
                     onClick={() => handleRemoveShamirShare(idx)}
-                    className="p-2 rounded-xl text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                    className="p-2 rounded-xl text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                     title={t.remove || 'Remove'}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -210,19 +238,19 @@ export const UnlockPasskeyForm: React.FC<UnlockPasskeyFormProps> = ({
             ))}
           </div>
 
-          {/* Action Row: Add Share & Combine Button */}
+          {/* Action Row: Add Key & Combine Button */}
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
             <button
               type="button"
               onClick={handleAddShamirShare}
-              className={`w-full sm:w-auto px-4 py-2.5 rounded-2xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+              className={`w-full sm:flex-1 h-[44px] px-4 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                 isDarkMode
                   ? 'bg-zinc-900/60 border-white/10 text-zinc-300 hover:bg-zinc-800 hover:border-purple-500/30'
                   : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200 hover:border-purple-300'
               }`}
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>{t.addShareInput || 'Add Share'}</span>
+              <Plus className="w-4 h-4" />
+              <span>{t.addShareInput || 'Add Key'}</span>
             </button>
 
             <motion.button
@@ -230,14 +258,14 @@ export const UnlockPasskeyForm: React.FC<UnlockPasskeyFormProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={handleShamirDecrypt}
               disabled={isCombining || isDecrypting}
-              className="w-full sm:flex-1 py-3 px-6 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black tracking-wide text-xs transition-all shadow-xl shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full sm:flex-1 h-[44px] px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-bold tracking-wide text-xs transition-all shadow-xl shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isCombining || isDecrypting ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
               ) : (
                 <>
                   <Zap className="w-4 h-4" />
-                  <span>{t.combineAndDecrypt || 'Combine Shares & Decrypt'}</span>
+                  <span>{t.combineAndDecrypt || 'Combine'}</span>
                 </>
               )}
             </motion.button>

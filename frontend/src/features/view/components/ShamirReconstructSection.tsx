@@ -5,6 +5,7 @@ import { Language, StatusState } from '../../../types';
 import { parseShamirShare } from '../../../utils/shamirHelpers';
 import { toEnglishDigits, toPersianDigits, localizeDigitsValue } from '../../../utils/numberConverter';
 import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 interface ShamirReconstructSectionProps {
   isDarkMode: boolean;
@@ -66,9 +67,14 @@ export const ShamirReconstructSection: React.FC<ShamirReconstructSectionProps> =
 
   const handlePaste = async (index: number) => {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        handleShareChange(index, text);
+      const result = await readTextFromClipboard();
+      if (result.text) {
+        handleShareChange(index, result.text);
+      } else {
+        setStatus({
+          type: 'info',
+          msg: isFa ? 'لطفاً از کلیدهای Ctrl+V برای چسباندن استفاده کنید.' : 'Please press Ctrl+V to paste.',
+        });
       }
     } catch {
       setStatus({ type: 'warn', msg: 'Unable to access clipboard. Please paste manually.' });

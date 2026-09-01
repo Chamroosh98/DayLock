@@ -132,6 +132,15 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
     e2eKeyPair,
     setE2EKeyPair,
     e2eChannelDetails,
+    e2eRecipientPubInput,
+    setE2ERecipientPubInput,
+    e2eMessageText,
+    setE2EMessageText,
+    e2eActiveMessages,
+    setE2EActiveMessages,
+    handleRefreshE2EMessages,
+    handleSendE2EMessage,
+    resetE2E,
     isE2ELoading,
     stegoCanvasRef,
     formatTime,
@@ -256,6 +265,15 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
             t={t}
             copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
             setStatus={setStatus}
+            e2eRecipientPubInput={e2eRecipientPubInput}
+            setE2ERecipientPubInput={setE2ERecipientPubInput}
+            e2eMessageText={e2eMessageText}
+            setE2EMessageText={setE2EMessageText}
+            e2eActiveMessages={e2eActiveMessages}
+            setE2EActiveMessages={setE2EActiveMessages}
+            handleRefreshE2EMessages={handleRefreshE2EMessages}
+            handleSendE2EMessage={handleSendE2EMessage}
+            resetE2E={resetE2E}
           />
         )}
       </div>
@@ -342,7 +360,7 @@ export const CreateTab: React.FC<CreateTabProps> = (props) => {
       )}
 
       {/* Generated Result URL Link Box */}
-      {resultUrl && (
+      {resultUrl && contentType !== 'e2e' && (
         <ResultLinkCard
           resultUrl={resultUrl}
           setResultUrl={setResultUrl}

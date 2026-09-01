@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { driver } from 'driver.js';
 import { Language } from '../types';
 import { translations } from '../data/translations';
@@ -58,10 +58,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [language]);
 
-  const t = translations[language] || translations.en;
+  const t = useMemo(() => translations[language] || translations.en, [language]);
   const dir: 'rtl' | 'ltr' = language === 'fa' ? 'rtl' : 'ltr';
 
-  const startTour = () => {
+  const startTour = useCallback(() => {
     const d = driver({
       showProgress: true,
       animate: true,
@@ -103,10 +103,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ]
     });
     d.drive();
-  };
+  }, [isDarkMode, language, t]);
+
+  const value = useMemo(() => ({
+    language,
+    setLanguage,
+    t,
+    dir,
+    startTour
+  }), [language, setLanguage, t, dir, startTour]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, dir, startTour }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

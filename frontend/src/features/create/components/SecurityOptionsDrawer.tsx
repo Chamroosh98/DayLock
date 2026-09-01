@@ -144,11 +144,29 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
   handlePasswordChange,
   handlePasswordKeyDown,
 }) => {
+  const [tempThreshold, setTempThreshold] = React.useState<string>(String(shamirThreshold));
+  const [tempTotal, setTempTotal] = React.useState<string>(String(shamirTotal));
+
+  React.useEffect(() => {
+    setTempThreshold(String(shamirThreshold));
+  }, [shamirThreshold]);
+
+  React.useEffect(() => {
+    setTempTotal(String(shamirTotal));
+  }, [shamirTotal]);
+
   const securityCarouselItems: SecurityCarouselCardItem[] = [
     {
       id: 'toggle-password-protection',
-      active: hasPassword,
-      onClick: () => setHasPassword(!hasPassword),
+      active: hasPassword && !hasShamir,
+      onClick: () => {
+        if (hasShamir) {
+          setHasShamir?.(false);
+          setHasPassword(true);
+        } else {
+          setHasPassword(!hasPassword);
+        }
+      },
       icon: <Lock className="w-4 h-4" />,
       title: t.passwordLock,
       variant: 'default',
@@ -226,8 +244,15 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
       <div className="hidden sm:grid grid-cols-2 gap-2.5">
         <OptionToggle
           id="toggle-password-protection"
-          active={hasPassword}
-          onClick={() => setHasPassword(!hasPassword)}
+          active={hasPassword && !hasShamir}
+          onClick={() => {
+            if (hasShamir) {
+              setHasShamir?.(false);
+              setHasPassword(true);
+            } else {
+              setHasPassword(!hasPassword);
+            }
+          }}
           icon={<Lock className="w-4 h-4" />}
           title={t.passwordLock}
           isDarkMode={isDarkMode}
@@ -647,38 +672,46 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Password Lock & Duress Honeypot Drawer */}
+      {/* Password Lock & Duress Honeypot / Shamir Multi-Custody Drawer */}
       <AnimatePresence>
-        {hasPassword && (
+        {(hasPassword || hasShamir) && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-1">
-            <div className="relative flex items-center">
-              <Lock className="w-4 h-4 absolute left-3.5 text-zinc-400 pointer-events-none" />
-              <input
-                id="master-password-input"
-                type={showMasterPwd ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => handlePasswordChange(e.target.value, setPassword, 'master-password-input')}
-                onKeyDown={(e) => handlePasswordKeyDown(e, 'master-password-input')}
-                disabled={disabledInputs['master-password-input']}
-                dir="ltr"
-                placeholder={t.passwordPlaceholder || t.masterPasswordPlaceholder}
-                className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800 shadow-sm'} border rounded-2xl pl-10 pr-10 py-3 min-h-[46px] text-xs placeholder:text-[11.5px] sm:placeholder:text-xs outline-none focus:border-emerald-500/50 transition-all text-left placeholder:text-left ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowMasterPwd(!showMasterPwd)}
-                className="absolute right-3.5 text-zinc-400 hover:text-zinc-300 p-1 cursor-pointer"
-              >
-                {showMasterPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+            {!hasShamir && (
+              <div className="relative flex items-center">
+                <Lock className="w-4 h-4 absolute left-3.5 text-zinc-400 pointer-events-none" />
+                <input
+                  id="master-password-input"
+                  type={showMasterPwd ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value, setPassword, 'master-password-input')}
+                  onKeyDown={(e) => handlePasswordKeyDown(e, 'master-password-input')}
+                  disabled={disabledInputs['master-password-input']}
+                  dir="ltr"
+                  placeholder={t.passwordPlaceholder || t.masterPasswordPlaceholder}
+                  className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800 shadow-sm'} border rounded-2xl pl-10 pr-10 py-3 min-h-[46px] text-xs placeholder:text-[11.5px] sm:placeholder:text-xs outline-none focus:border-emerald-500/50 transition-all text-left placeholder:text-left ${language === 'fa' ? 'font-vazir' : 'font-sans'}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowMasterPwd(!showMasterPwd)}
+                  className="absolute right-3.5 text-zinc-400 hover:text-zinc-300 p-1 cursor-pointer"
+                >
+                  {showMasterPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            )}
 
             {/* Sub-Options: HoneyPot Decoy & Shamir Secret Sharing */}
             <div className="grid grid-cols-2 gap-2.5 pt-1" dir={language === 'fa' ? 'rtl' : 'ltr'}>
               <OptionToggle
                 id="toggle-honeypot"
-                active={hasHoney}
-                onClick={() => setHasHoney(!hasHoney)}
+                active={hasHoney && !hasShamir}
+                onClick={() => {
+                  if (hasShamir) {
+                    setHasShamir?.(false);
+                    setHasPassword(true);
+                  }
+                  setHasHoney(!hasHoney);
+                }}
                 icon={<HoneyPotIcon className="w-4 h-4" />}
                 title={t.honeyPotDecoy}
                 isDarkMode={isDarkMode}
@@ -688,7 +721,17 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
               <OptionToggle
                 id="toggle-shamir-lock"
                 active={hasShamir}
-                onClick={() => setHasShamir?.(!hasShamir)}
+                onClick={() => {
+                  const nextShamir = !hasShamir;
+                  setHasShamir?.(nextShamir);
+                  if (nextShamir) {
+                    setHasPassword(false);
+                    setPassword('');
+                    setHasHoney(false);
+                  } else {
+                    setHasPassword(true);
+                  }
+                }}
                 icon={<Zap className="w-4 h-4" />}
                 title={t.shamirLock || 'Shamir'}
                 isDarkMode={isDarkMode}
@@ -812,16 +855,30 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     </label>
                     <input
                       type="text"
-                      value={language === 'fa' ? toPersianDigits(shamirThreshold) : shamirThreshold}
+                      value={language === 'fa' ? toPersianDigits(tempThreshold) : tempThreshold}
                       onChange={(e) => {
                         const raw = toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
-                        const num = parseInt(raw, 10);
-                        if (!isNaN(num)) {
-                          setShamirThreshold?.(Math.max(2, Math.min(num, shamirTotal || 5)));
+                        setTempThreshold(raw);
+                        if (raw !== '') {
+                          const num = parseInt(raw, 10);
+                          if (!isNaN(num) && num >= 2 && num <= (shamirTotal || 20)) {
+                            setShamirThreshold?.(num);
+                          }
                         }
                       }}
                       onBlur={() => {
-                        if (!shamirThreshold || shamirThreshold < 2) setShamirThreshold?.(2);
+                        const num = parseInt(tempThreshold, 10);
+                        const validTotal = shamirTotal || 5;
+                        let finalVal = 3;
+                        if (isNaN(num) || num < 2) {
+                          finalVal = 2;
+                        } else if (num > validTotal) {
+                          finalVal = validTotal;
+                        } else {
+                          finalVal = num;
+                        }
+                        setTempThreshold(String(finalVal));
+                        setShamirThreshold?.(finalVal);
                       }}
                       className={`w-full ${
                         isDarkMode
@@ -846,20 +903,37 @@ export const SecurityOptionsDrawer: React.FC<SecurityOptionsDrawerProps> = ({
                     </label>
                     <input
                       type="text"
-                      value={language === 'fa' ? toPersianDigits(shamirTotal) : shamirTotal}
+                      value={language === 'fa' ? toPersianDigits(tempTotal) : tempTotal}
                       onChange={(e) => {
                         const raw = toEnglishDigits(e.target.value).replace(/[^0-9]/g, '');
-                        const num = parseInt(raw, 10);
-                        if (!isNaN(num)) {
-                          const clamped = Math.max(2, Math.min(num, 20));
-                          setShamirTotal?.(clamped);
-                          if (shamirThreshold && shamirThreshold > clamped) {
-                            setShamirThreshold?.(clamped);
+                        setTempTotal(raw);
+                        if (raw !== '') {
+                          const num = parseInt(raw, 10);
+                          if (!isNaN(num) && num >= 2 && num <= 20) {
+                            setShamirTotal?.(num);
+                            if (shamirThreshold && shamirThreshold > num) {
+                              setShamirThreshold?.(num);
+                              setTempThreshold(String(num));
+                            }
                           }
                         }
                       }}
                       onBlur={() => {
-                        if (!shamirTotal || shamirTotal < 2) setShamirTotal?.(2);
+                        const num = parseInt(tempTotal, 10);
+                        let finalVal = 5;
+                        if (isNaN(num) || num < 2) {
+                          finalVal = 2;
+                        } else if (num > 20) {
+                          finalVal = 20;
+                        } else {
+                          finalVal = num;
+                        }
+                        setTempTotal(String(finalVal));
+                        setShamirTotal?.(finalVal);
+                        if (shamirThreshold && shamirThreshold > finalVal) {
+                          setShamirThreshold?.(finalVal);
+                          setTempThreshold(String(finalVal));
+                        }
                       }}
                       className={`w-full ${
                         isDarkMode

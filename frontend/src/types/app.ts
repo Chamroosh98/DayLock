@@ -11,9 +11,10 @@ export interface ViewErrorState {
 }
 
 export interface E2EMessage {
-  id: string;
+  id: string | number;
   text: string;
   timestamp: number;
+  isSelf?: boolean;
 }
 
 export interface E2EKeyPair {

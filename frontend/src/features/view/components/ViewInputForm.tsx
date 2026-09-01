@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Clipboard, CheckCircle2, Eye, RefreshCw, Link as LinkIcon } from 'lucide-react';
 import { Language, StatusState } from '../../../types';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 interface ViewInputFormProps {
   viewInput: string;
@@ -35,19 +36,42 @@ export const ViewInputForm: React.FC<ViewInputFormProps> = ({
   const [pasteSuccess, setPasteSuccess] = useState(false);
   const isFa = language === 'fa';
 
-  const handlePasteClipboard = async () => {
+  const handlePasteClipboard = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const inputEl = document.getElementById('view-url-input') as HTMLInputElement | null;
     try {
-      const text = await navigator.clipboard.readText();
-      if (text && text.trim()) {
-        handlePasswordChange(text.trim(), (val) => {
-          setViewInput(val);
-          if (status) setStatus(null);
-        }, 'view-url-input');
+      const result = await readTextFromClipboard(inputEl);
+      if (result.text && result.text.trim()) {
+        const val = result.text.trim();
+        setViewInput(val);
+        if (status) setStatus(null);
         setPasteSuccess(true);
         setTimeout(() => setPasteSuccess(false), 2000);
+      } else {
+        if (inputEl) {
+          inputEl.focus();
+        }
+        setStatus({
+          type: 'info',
+          msg: isFa
+            ? 'دسترسی خودکار کلیپ‌بورد در این مرورگر مسدود است. لطفاً از کلیدهای Ctrl+V استفاده کنید.'
+            : 'Clipboard access restricted by browser. Please press Ctrl+V to paste.',
+        });
       }
     } catch (err) {
-      console.warn("Clipboard read permission denied or unavailable:", err);
+      console.warn("Clipboard read error:", err);
+      if (inputEl) {
+        inputEl.focus();
+      }
+      setStatus({
+        type: 'info',
+        msg: isFa
+          ? 'دسترسی خودکار کلیپ‌بورد در این مرورگر مسدود است. لطفاً از کلیدهای Ctrl+V استفاده کنید.'
+          : 'Clipboard access restricted by browser. Please press Ctrl+V to paste.',
+      });
     }
   };
 

@@ -87,7 +87,7 @@ export const useSecuritySettings = (language: Language, triggerToast: (msg: stri
     setKeysActive(true);
     setPrintActive(true);
     setCopyActive(true);
-    setBiometricLockActive(true);
+    setBiometricLockActive(false);
     setNoiseActive(false);
     triggerToast(t.presetStandardToast || 'Standard Protection Profile enabled.');
   };

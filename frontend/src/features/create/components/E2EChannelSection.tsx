@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Shield, RefreshCw, Key, Zap, Check, Copy, QrCode } from 'lucide-react';
-import { Language } from '../../../types';
+import { Language, E2EMessage } from '../../../types';
 import { e2eGenKeypair } from '../../../utils/e2eCrypto';
 import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
+import { E2EChatBoard } from '../../view/components/E2EChatBoard';
 
 interface E2EChannelSectionProps {
   e2eKeyPair: { publicKey: string; privateKey: string } | null;
   setE2EKeyPair: React.Dispatch<React.SetStateAction<{ publicKey: string; privateKey: string } | null>>;
   handleCreateE2EChannel: () => void;
   isE2ELoading: boolean;
-  e2eChannelDetails: { id: string; expires_at: number } | null;
+  e2eChannelDetails: { id: string; expires_at: number; e2e_public_key?: string } | null;
   isDarkMode: boolean;
   language: Language;
   t: any;
   copyToClipboardWithAutoClear: (text: string, durationMs?: number, onWarn?: (msg: string) => void, lang?: string) => void;
   setStatus: (status: { type: 'ok' | 'err' | 'warn'; msg: string } | null) => void;
+  e2eRecipientPubInput?: string;
+  setE2ERecipientPubInput?: (v: string) => void;
+  e2eMessageText?: string;
+  setE2EMessageText?: (text: string) => void;
+  e2eActiveMessages?: E2EMessage[];
+  setE2EActiveMessages?: (msgs: E2EMessage[]) => void;
+  handleRefreshE2EMessages?: (channelId: string) => void;
+  handleSendE2EMessage?: (channelId: string, pubKey: string) => void;
+  resetE2E?: () => void;
 }
 
 export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
@@ -29,6 +39,15 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
   t,
   copyToClipboardWithAutoClear,
   setStatus,
+  e2eRecipientPubInput = '',
+  setE2ERecipientPubInput = () => {},
+  e2eMessageText = '',
+  setE2EMessageText = () => {},
+  e2eActiveMessages = [],
+  setE2EActiveMessages = () => {},
+  handleRefreshE2EMessages = () => {},
+  handleSendE2EMessage = () => {},
+  resetE2E = () => {},
 }) => {
   const [copiedKey, setCopiedKey] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -40,6 +59,38 @@ export const E2EChannelSection: React.FC<E2EChannelSectionProps> = ({
     setTimeout(() => setCopiedKey(false), 2000);
     setStatus({ type: 'ok', msg: t.publicKeyCopied || 'Public Key copied to clipboard!' });
   };
+
+  // If channel is already spawned, display the active chat board directly
+  if (e2eChannelDetails) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <E2EChatBoard
+          viewData={{
+            id: e2eChannelDetails.id,
+            expires_at: e2eChannelDetails.expires_at,
+            is_e2e_channel: true,
+            e2e_public_key: e2eKeyPair?.publicKey
+          }}
+          isDarkMode={isDarkMode}
+          language={language}
+          t={t}
+          e2eRecipientPubInput={e2eRecipientPubInput}
+          setE2ERecipientPubInput={setE2ERecipientPubInput}
+          e2eKeyPair={e2eKeyPair}
+          e2eActiveMessages={e2eActiveMessages}
+          setE2EActiveMessages={setE2EActiveMessages}
+          e2eMessageText={e2eMessageText}
+          setE2EMessageText={setE2EMessageText}
+          handleRefreshE2EMessages={handleRefreshE2EMessages}
+          handleSendE2EMessage={handleSendE2EMessage}
+          onTerminate={resetE2E}
+          copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
+          setStatus={setStatus}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {!e2eKeyPair ? (

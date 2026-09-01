@@ -88,8 +88,8 @@ export default function App() {
   useHashNavigation(setMainTab, setViewInput);
 
   useEffect(() => {
-    checkBiometricsForViewData(viewData?.id);
-  }, [viewData, checkBiometricsForViewData]);
+    checkBiometricsForViewData(viewData?.id || null);
+  }, [viewData?.id, checkBiometricsForViewData]);
 
   // E2E Keypair state initialized for channel operations
   const [e2eKeyPair] = useState<{ publicKey: string; privateKey: string } | null>(() => {

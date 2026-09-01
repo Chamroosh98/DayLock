@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { isBiometricsSupported } from '../utils/webAuthn';
 import { useModalContext } from './ModalContext';
 
@@ -53,21 +53,21 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   }, []);
 
-  const checkBiometricsForViewData = (viewDataId: string | null) => {
+  const checkBiometricsForViewData = useCallback((viewDataId: string | null) => {
     if (viewDataId) {
       const hasCred = !!localStorage.getItem(`biometric_cred_${viewDataId}`);
       setHasBiometricsForCurrent(hasCred);
     } else {
       setHasBiometricsForCurrent(false);
     }
-  };
+  }, []);
 
   const isAsciiChar = (char: string) => {
     const code = char.charCodeAt(0);
     return code >= 32 && code <= 126;
   };
 
-  const triggerKeyboardWarning = (inputId: string) => {
+  const triggerKeyboardWarning = useCallback((inputId: string) => {
     setShowKeyboardWarning(true);
     
     setDisabledInputs(prev => ({ ...prev, [inputId]: true }));
@@ -75,9 +75,9 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimeout(() => {
       setDisabledInputs(prev => ({ ...prev, [inputId]: false }));
     }, 2000);
-  };
+  }, [setShowKeyboardWarning]);
 
-  const handlePasswordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, inputId: string) => {
+  const handlePasswordKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, inputId: string) => {
     if (disabledInputs[inputId]) {
       e.preventDefault();
       return;
@@ -91,9 +91,9 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         triggerKeyboardWarning(inputId);
       }
     }
-  };
+  }, [disabledInputs, triggerKeyboardWarning]);
 
-  const handlePasswordChange = (
+  const handlePasswordChange = useCallback((
     value: string,
     setValue: (v: string) => void,
     inputId: string
@@ -118,33 +118,46 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } else {
       setValue(value);
     }
-  };
+  }, [disabledInputs, triggerKeyboardWarning]);
+
+  const value = useMemo(() => ({
+    disabledInputs,
+    setDisabledInputs,
+    handlePasswordChange,
+    handlePasswordKeyDown,
+    hasSelfDestruct,
+    setHasSelfDestruct,
+    selfDestructHides,
+    setSelfDestructHides,
+    selfDestructTriggers,
+    setSelfDestructTriggers,
+    isSelfDestructed,
+    setIsSelfDestructed,
+    hidesCount,
+    setHidesCount,
+    biometricsSupported,
+    rememberWithBiometrics,
+    setRememberWithBiometrics,
+    hasBiometricsForCurrent,
+    setHasBiometricsForCurrent,
+    checkBiometricsForViewData,
+  }), [
+    disabledInputs,
+    handlePasswordChange,
+    handlePasswordKeyDown,
+    hasSelfDestruct,
+    selfDestructHides,
+    selfDestructTriggers,
+    isSelfDestructed,
+    hidesCount,
+    biometricsSupported,
+    rememberWithBiometrics,
+    hasBiometricsForCurrent,
+    checkBiometricsForViewData,
+  ]);
 
   return (
-    <SecurityContext.Provider
-      value={{
-        disabledInputs,
-        setDisabledInputs,
-        handlePasswordChange,
-        handlePasswordKeyDown,
-        hasSelfDestruct,
-        setHasSelfDestruct,
-        selfDestructHides,
-        setSelfDestructHides,
-        selfDestructTriggers,
-        setSelfDestructTriggers,
-        isSelfDestructed,
-        setIsSelfDestructed,
-        hidesCount,
-        setHidesCount,
-        biometricsSupported,
-        rememberWithBiometrics,
-        setRememberWithBiometrics,
-        hasBiometricsForCurrent,
-        setHasBiometricsForCurrent,
-        checkBiometricsForViewData,
-      }}
-    >
+    <SecurityContext.Provider value={value}>
       {children}
     </SecurityContext.Provider>
   );

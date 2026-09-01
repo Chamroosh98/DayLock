@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Image as ImageIcon, Music, FileText, Eye, EyeOff, RefreshCw, Lock, Unlock, Flame } from 'lucide-react';
+import { Image as ImageIcon, Music, FileText, Eye, EyeOff, RefreshCw, Lock, Unlock, Flame, KeyRound, Plus, Trash2, Zap, AlertCircle, Clipboard } from 'lucide-react';
 import { Dropzone } from '../../../components/Dropzone';
 import { Language } from '../../../types';
+import { parseShamirShare } from '../../../utils/shamirHelpers';
+import { toPersianDigits } from '../../../utils/numberConverter';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 interface StegoExtractSectionProps {
   contentType: string;
@@ -13,7 +16,7 @@ interface StegoExtractSectionProps {
   setStegoExtractPassword: (val: string) => void;
   showStegoExtractPwd: boolean;
   setShowStegoExtractPwd: (show: boolean) => void;
-  handleStegoExtract: () => void;
+  handleStegoExtract: (overrideKey?: string) => void;
   isStegoExtracting: boolean;
   stegoExtractResult: string | null;
   isDarkMode: boolean;
@@ -48,6 +51,10 @@ export const StegoExtractSection: React.FC<StegoExtractSectionProps> = ({
   handleTerminate,
 }) => {
   const isFa = language === 'fa';
+  const [authMode, setAuthMode] = useState<'password' | 'shamir'>('password');
+  const [shamirShares, setShamirShares] = useState<string[]>(['', '', '']);
+  const [isCombining, setIsCombining] = useState(false);
+  const [shamirError, setShamirError] = useState<string | null>(null);
 
   const getFileMediaDetails = (file: File) => {
     const nameLower = file.name.toLowerCase();
@@ -58,6 +65,66 @@ export const StegoExtractSection: React.FC<StegoExtractSectionProps> = ({
       return { icon: <Music className="w-4 h-4 text-amber-400" />, color: 'amber' };
     }
     return { icon: <FileText className="w-4 h-4 text-cyan-400" />, color: 'cyan' };
+  };
+
+  const handleShamirShareChange = (index: number, val: string) => {
+    setShamirError(null);
+    setShamirShares((prev) => {
+      const next = [...prev];
+      next[index] = val;
+      return next;
+    });
+  };
+
+  const handleAddShamirShare = () => {
+    setShamirShares((prev) => [...prev, '']);
+  };
+
+  const handleRemoveShamirShare = (index: number) => {
+    if (shamirShares.length <= 2) {
+      handleShamirShareChange(index, '');
+      return;
+    }
+    setShamirShares((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleShamirFileExtract = async () => {
+    const parsed = shamirShares.map((s) => parseShamirShare(s));
+    const valid = parsed.filter((p) => p.isValid);
+
+    if (valid.length < 2) {
+      const err = t.thresholdNotMet?.replace('{min}', isFa ? toPersianDigits(2) : '2') ||
+        `Please enter at least ${isFa ? toPersianDigits(2) : '2'} valid shares to reconstruct the key.`;
+      setShamirError(err);
+      setStatus({ type: 'err', msg: err });
+      return;
+    }
+
+    setIsCombining(true);
+    setShamirError(null);
+
+    try {
+      const cleanShareList = valid.map((p) => p.cleanShare);
+      const res = await fetch('/api/shamir/combine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shares: cleanShareList }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.secret) {
+        throw new Error(data.error || 'Failed to combine shares');
+      }
+
+      setStegoExtractPassword(data.secret);
+      handleStegoExtract(data.secret);
+    } catch (err: any) {
+      const errText = t.invalidPassword || 'Failed to reconstruct secret. Please verify your shares.';
+      setShamirError(errText);
+      setStatus({ type: 'err', msg: errText });
+    } finally {
+      setIsCombining(false);
+    }
   };
 
   return (
@@ -125,54 +192,187 @@ export const StegoExtractSection: React.FC<StegoExtractSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Master Encryption Password Input */}
-      <div className="relative flex items-center">
-        <Lock className="w-4 h-4 absolute left-3.5 text-zinc-400 pointer-events-none" />
-        <input 
-          type={showStegoExtractPwd ? "text" : "password"} 
-          value={stegoExtractPassword} 
-          onChange={(e) => handlePasswordChange(e.target.value, setStegoExtractPassword, 'stegoExtractPassword')}
-          onKeyDown={(e) => {
-            handlePasswordKeyDown(e, 'stegoExtractPassword');
-            if (e.key === 'Enter' && stegoExtractPassword && stegoExtractPassword.trim()) handleStegoExtract();
-          }}
-          disabled={disabledInputs['stegoExtractPassword']}
-          placeholder={disabledInputs['stegoExtractPassword'] ? t.invalidKeyboardLocked : t.masterPasswordPlaceholder}
-          dir="ltr"
-          className={`w-full ${
-            isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'
-          } border rounded-2xl pl-10 pr-10 py-3 min-h-[46px] text-xs outline-none transition-all focus:border-emerald-500/50 text-left placeholder:text-left ${
-            isFa ? 'font-vazir' : 'font-sans'
-          } disabled:opacity-40 disabled:cursor-not-allowed`}
-        />
+      {/* Auth Method Selector (Password vs Shamir) */}
+      <div className="flex items-center justify-end gap-2 px-1">
         <button
           type="button"
-          onClick={() => setShowStegoExtractPwd(!showStegoExtractPwd)}
-          className="absolute right-3.5 text-zinc-400 hover:text-zinc-200 p-1 cursor-pointer"
+          onClick={() => setAuthMode('password')}
+          className={`px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
+            authMode === 'password'
+              ? (isDarkMode ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' : 'bg-emerald-50 border-emerald-300 text-emerald-800')
+              : (isDarkMode ? 'bg-zinc-900/40 border-white/5 text-zinc-500 hover:text-zinc-300' : 'bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-zinc-900')
+          }`}
         >
-          {showStegoExtractPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <Lock className="w-3 h-3" />
+          <span>{t.password || 'Password'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAuthMode('shamir')}
+          className={`px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
+            authMode === 'shamir'
+              ? (isDarkMode ? 'bg-purple-500/15 border-purple-500/30 text-purple-400' : 'bg-purple-50 border-purple-300 text-purple-800')
+              : (isDarkMode ? 'bg-zinc-900/40 border-white/5 text-zinc-500 hover:text-zinc-300' : 'bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-zinc-900')
+          }`}
+        >
+          <KeyRound className="w-3 h-3" />
+          <span>{t.shamir || 'Shamir'}</span>
         </button>
       </div>
 
-      {/* High-Contrast Action Button */}
-      <motion.button 
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={handleStegoExtract} 
-        disabled={isStegoExtracting || !stegoExtractFile || !stegoExtractPassword || !stegoExtractPassword.trim()} 
-        className="w-full h-[46px] bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl font-black tracking-wider text-xs shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-      >
-        {isStegoExtracting ? (
-          <RefreshCw className="w-4 h-4 animate-spin" />
-        ) : (
-          <>
-            <Unlock className="w-4 h-4" />
-            <span className={isFa ? 'font-vazir' : 'font-sans'}>
-              {t.extractSecret || 'Decrypt'}
-            </span>
-          </>
-        )}
-      </motion.button>
+      {authMode === 'shamir' ? (
+        /* Shamir Multi-Share Input for File Decryption */
+        <div className="space-y-3">
+          <div className="space-y-2">
+            {shamirShares.map((share, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <span className="text-[11px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2.5 py-2 rounded-xl border border-purple-500/20 shrink-0 min-w-[36px] text-center">
+                  #{isFa ? toPersianDigits(idx + 1) : idx + 1}
+                </span>
+                <div className="relative flex-1 flex items-center">
+                  <input
+                    type="text"
+                    value={share}
+                    onChange={(e) => handleShamirShareChange(idx, e.target.value)}
+                    placeholder={`${t.enterShare || 'Enter or paste key'} #${isFa ? toPersianDigits(idx + 1) : idx + 1}`}
+                    dir="ltr"
+                    className={`w-full ${
+                      isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'
+                    } border rounded-2xl h-[42px] pl-4 pr-10 text-xs outline-none transition-all focus:border-purple-500/50 text-left font-mono`}
+                  />
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      try {
+                        const result = await readTextFromClipboard();
+                        if (result.text) {
+                          handleShamirShareChange(idx, result.text.trim());
+                        } else {
+                          setStatus({
+                            type: 'info',
+                            msg: isFa ? 'لطفاً از کلیدهای Ctrl+V برای چسباندن کلید استفاده کنید.' : 'Please press Ctrl+V to paste key.',
+                          });
+                        }
+                      } catch (err) {
+                        console.error('Failed to read clipboard', err);
+                      }
+                    }}
+                    className={`absolute right-2.5 p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      isDarkMode ? 'text-zinc-400 hover:text-purple-400 hover:bg-white/5' : 'text-zinc-400 hover:text-purple-600 hover:bg-zinc-100'
+                    }`}
+                    title={t.paste || 'Paste'}
+                  >
+                    <Clipboard className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {shamirShares.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveShamirShare(idx)}
+                    className="p-2 rounded-xl text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+            <button
+              type="button"
+              onClick={handleAddShamirShare}
+              className={`w-full sm:flex-1 h-[44px] px-4 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                isDarkMode
+                  ? 'bg-zinc-900/60 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                  : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t.addShareInput || 'Add Key'}</span>
+            </button>
+
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleShamirFileExtract}
+              disabled={isCombining || isStegoExtracting || !stegoExtractFile}
+              className="w-full sm:flex-1 h-[44px] px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-bold tracking-wider text-xs shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isCombining || isStegoExtracting ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Zap className="w-4 h-4" />
+                  <span className={isFa ? 'font-vazir' : 'font-sans'}>
+                    {t.combineAndDecrypt || 'Combine'}
+                  </span>
+                </>
+              )}
+            </motion.button>
+          </div>
+
+          {shamirError && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{shamirError}</span>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Master Encryption Password Input */
+        <>
+          <div className="relative flex items-center">
+            <Lock className="w-4 h-4 absolute left-3.5 text-zinc-400 pointer-events-none" />
+            <input 
+              type={showStegoExtractPwd ? "text" : "password"} 
+              value={stegoExtractPassword} 
+              onChange={(e) => handlePasswordChange(e.target.value, setStegoExtractPassword, 'stegoExtractPassword')}
+              onKeyDown={(e) => {
+                handlePasswordKeyDown(e, 'stegoExtractPassword');
+                if (e.key === 'Enter' && stegoExtractPassword && stegoExtractPassword.trim()) handleStegoExtract();
+              }}
+              disabled={disabledInputs['stegoExtractPassword']}
+              placeholder={disabledInputs['stegoExtractPassword'] ? t.invalidKeyboardLocked : t.masterPasswordPlaceholder}
+              dir="ltr"
+              className={`w-full ${
+                isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'
+              } border rounded-2xl pl-10 pr-10 py-3 min-h-[46px] text-xs outline-none transition-all focus:border-emerald-500/50 text-left placeholder:text-left ${
+                isFa ? 'font-vazir' : 'font-sans'
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowStegoExtractPwd(!showStegoExtractPwd)}
+              className="absolute right-3.5 text-zinc-400 hover:text-zinc-200 p-1 cursor-pointer"
+            >
+              {showStegoExtractPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+
+          {/* High-Contrast Action Button */}
+          <motion.button 
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => handleStegoExtract()} 
+            disabled={isStegoExtracting || !stegoExtractFile || !stegoExtractPassword || !stegoExtractPassword.trim()} 
+            className="w-full h-[46px] bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl font-black tracking-wider text-xs shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {isStegoExtracting ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <Unlock className="w-4 h-4" />
+                <span className={isFa ? 'font-vazir' : 'font-sans'}>
+                  {t.extractSecret || 'Decrypt'}
+                </span>
+              </>
+            )}
+          </motion.button>
+        </>
+      )}
 
       {/* Extracted Secret Result Card */}
       {stegoExtractResult && (

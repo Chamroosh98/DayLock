@@ -130,8 +130,18 @@ export const copyToClipboardWithAutoClear = async (
 };
 
 /**
- * Instantly neutralizes the clipboard contents.
+ * Reads text from the clipboard with browser permissions and fallback support.
  */
+export const readTextFromClipboard = async (): Promise<string> => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      return await navigator.clipboard.readText();
+    }
+  } catch (err) {
+    console.warn('navigator.clipboard.readText failed or permission denied:', err);
+  }
+  return '';
+};
 export const forceClearClipboard = async (): Promise<boolean> => {
   if (activeClearTimeout) {
     clearTimeout(activeClearTimeout);

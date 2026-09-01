@@ -483,6 +483,6 @@ export const en = {
   shamirSharesGenerated: "Shamir Custody Shares",
   shamirSharesDesc: "Give each share to someone you trust! Any {k} of {n} shares will be required to decrypt.",
   shamirCustodyRequired: "Multi-party threshold custody required to decrypt",
-  combineAndDecrypt: "Combine Shares & Decrypt",
-  addShareInput: "Add Share"
+  combineAndDecrypt: "Combine",
+  addShareInput: "Add Key"
 };

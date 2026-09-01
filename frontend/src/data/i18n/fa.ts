@@ -482,7 +482,7 @@ export const fa = {
   shamirSharesGenerated: "کلیدهای توزیع‌شده شامیر",
   shamirSharesDesc: "هر کلید را به یکی ک بهش اعتماد داری،بده! برای رمزگشایی به {k} از {n} کلید نیاز خواهد بود.",
   shamirCustodyRequired: "برای رمزگشایی به حد نصاب کلیدهای چندبخشی نیازه",
-  combineAndDecrypt: "ترکیب کلیدها و رمزگشایی",
+  combineAndDecrypt: "ترکیب",
   addShareInput: "افزودن کلید"
 };
 

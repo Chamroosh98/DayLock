@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { MessageSquare, RefreshCw, Flame, Key, Share2, Copy, Check, QrCode } from 'lucide-react';
+import { MessageSquare, RefreshCw, Flame, Key, Share2, Copy, Check, QrCode, ClipboardPaste } from 'lucide-react';
 import { Language, E2EMessage, E2EKeyPair } from '../../../types';
 import { LinkQrCodeModal } from '../../../components/modals/LinkQrCodeModal';
+import { readTextFromClipboard } from '../../../utils/clipboardManager';
 
 interface E2EChatBoardProps {
   viewData: any;
@@ -18,9 +19,9 @@ interface E2EChatBoardProps {
   setE2EMessageText: (text: string) => void;
   handleRefreshE2EMessages: (channelId: string) => void;
   handleSendE2EMessage: (channelId: string, pubKey: string) => void;
-  triggerShatterExplosion: (colors: string[]) => void;
-  setViewData: (data: any) => void;
-  setE2EChannelDetails: (details: any) => void;
+  triggerShatterExplosion?: (colors: string[]) => void;
+  setViewData?: (data: any) => void;
+  setE2EChannelDetails?: (details: any) => void;
   onTerminate?: () => void;
   copyToClipboardWithAutoClear?: (text: string, durationMs?: number, onWarn?: (msg: string) => void, lang?: string) => void;
   setStatus?: (status: { type: 'ok' | 'err' | 'warn'; msg: string } | null) => void;
@@ -50,6 +51,11 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
   const [copiedChannel, setCopiedChannel] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [qrModalUrl, setQrModalUrl] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [e2eActiveMessages]);
 
   const channelShareUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/#e2e-${viewData.id}` 
@@ -76,6 +82,14 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
     setStatus?.({ type: 'ok', msg: t.publicKeyCopied || 'Public key copied!' });
+  };
+
+  const handlePastePeerKey = async () => {
+    const text = await readTextFromClipboard();
+    if (text && text.trim()) {
+      setE2ERecipientPubInput(text.trim());
+      setStatus?.({ type: 'ok', msg: t.pasted || 'Pasted from clipboard' });
+    }
   };
 
   return (
@@ -235,13 +249,27 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
             {t.peerPublicId}
           </label>
           <div className="flex flex-col sm:flex-row gap-2">
-            <input 
-              type="text"
-              value={e2eRecipientPubInput}
-              onChange={(e) => setE2ERecipientPubInput(e.target.value)}
-              placeholder={t.pastePeerPublicIdPlaceholder}
-              className={`w-full sm:flex-1 ${isDarkMode ? 'bg-zinc-950/40 border-white/5 text-zinc-200' : 'bg-white border-zinc-200'} rounded-xl p-3 text-[10px] font-mono outline-none border focus:border-indigo-500/50`}
-            />
+            <div className="relative flex-1 flex items-center">
+              <input 
+                type="text"
+                value={e2eRecipientPubInput}
+                onChange={(e) => setE2ERecipientPubInput(e.target.value)}
+                placeholder={t.pastePeerPublicIdPlaceholder}
+                className={`w-full ${isDarkMode ? 'bg-zinc-950/40 border-white/5 text-zinc-200' : 'bg-white border-zinc-200'} rounded-xl p-3 pr-10 text-[10px] font-mono outline-none border focus:border-indigo-500/50`}
+              />
+              <button
+                type="button"
+                onClick={handlePastePeerKey}
+                className={`absolute right-2 p-1.5 rounded-lg transition-all cursor-pointer ${
+                  isDarkMode
+                    ? 'text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10'
+                    : 'text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50'
+                }`}
+                title={t.paste || 'Paste'}
+              >
+                <ClipboardPaste className="w-3.5 h-3.5" />
+              </button>
+            </div>
             {viewData.e2e_public_key && viewData.e2e_public_key !== e2eKeyPair?.publicKey && (
               <button
                 type="button"
@@ -270,6 +298,7 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
         ) : (
           e2eActiveMessages.map((msg, i) => {
             const isSystem = msg.text.startsWith('[Encrypted:') || msg.text.startsWith('[Decryption Failed:') || msg.text.startsWith('[رمزگذاری شده:') || msg.text.startsWith('[خطا در رمزگشایی:');
+            const isSelf = msg.isSelf;
             return (
               <motion.div 
                 key={msg.id || i}
@@ -279,9 +308,20 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
                 className={`p-3 px-4 rounded-2xl text-xs max-w-[85%] ${
                   isSystem 
                     ? 'bg-zinc-800/15 text-zinc-500 border border-zinc-800/25 self-center text-center font-mono text-[9px] my-1 rounded-xl' 
-                    : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-100 self-start text-left rounded-tl-none'
+                    : isSelf
+                      ? (isDarkMode 
+                          ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-100 self-end text-right rounded-tr-none' 
+                          : 'bg-emerald-50 border border-emerald-300 text-emerald-950 self-end text-right rounded-tr-none')
+                      : (isDarkMode 
+                          ? 'bg-indigo-500/15 border border-indigo-500/30 text-indigo-100 self-start text-left rounded-tl-none' 
+                          : 'bg-indigo-50 border border-indigo-200 text-indigo-950 self-start text-left rounded-tl-none')
                 } shadow-sm`}
               >
+                {!isSystem && (
+                  <div className={`text-[9px] font-bold uppercase tracking-wider mb-1 ${isSelf ? 'text-emerald-400' : 'text-indigo-400'} ${language === 'fa' ? 'font-vazir' : ''}`}>
+                    {isSelf ? (language === 'fa' ? 'شما' : 'You') : (language === 'fa' ? 'طرف مقابل' : 'Peer')}
+                  </div>
+                )}
                 <p className="leading-relaxed break-words">{msg.text}</p>
                 <p className="text-[8px] font-mono text-zinc-500 mt-1.5 text-right select-none">
                   {new Date(msg.timestamp * 1000).toLocaleTimeString()}
@@ -290,6 +330,7 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
             );
           })
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Chat input box */}
@@ -322,10 +363,10 @@ export const E2EChatBoard: React.FC<E2EChatBoardProps> = ({
           if (onTerminate) {
             onTerminate();
           } else {
-            triggerShatterExplosion(['#6366f1', '#4f46e5', '#818cf8', '#1e1b4b', isDarkMode ? '#ffffff' : '#1e293b']);
-            setViewData(null);
+            triggerShatterExplosion?.(['#6366f1', '#4f46e5', '#818cf8', '#1e1b4b', isDarkMode ? '#ffffff' : '#1e293b']);
+            setViewData?.(null);
             setE2EActiveMessages([]);
-            setE2EChannelDetails(null);
+            setE2EChannelDetails?.(null);
             try {
               (window as any).secureClearClipboard?.();
             } catch (_) {}

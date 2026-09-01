@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ViewTabProps } from '../types';
 import { getWasm, b64url_decode } from '../../../utils/wasmLoader';
 import { b64toBlob, getFileBase64, b64toUint8Array, uint8ArrayToB64, parseSecfPayload } from '../../../utils/fileHelpers';
-import { e2eDecrypt, e2eEncrypt } from '../../../utils/e2eCrypto';
+import { e2eDecrypt, e2eEncrypt, e2eDecryptMessageList, e2ePrepareOutboundMessage } from '../../../utils/e2eCrypto';
 import { registerBiometrics, verifyBiometrics } from '../../../utils/webAuthn';
 import { forceClearClipboard } from '../../../utils/clipboardManager';
 import { audioStegoExtract } from '../../../utils/audioStego';
@@ -93,7 +93,15 @@ export function useViewLogic(props: ViewTabProps) {
     } catch (_) {}
   };
 
-  const handleRefreshE2EMessages = async (channelId: string) => {
+  const e2eKeyPairRef = useRef(e2eKeyPair);
+  e2eKeyPairRef.current = e2eKeyPair;
+  const tRef = useRef(t);
+  tRef.current = t;
+  const languageRef = useRef(language);
+  languageRef.current = language;
+
+  const handleRefreshE2EMessages = useCallback(async (channelId: string) => {
+    if (!channelId) return;
     try {
       const res = await fetch(`/api/paste/${channelId}`);
       if (!res.ok) {
@@ -101,42 +109,31 @@ export function useViewLogic(props: ViewTabProps) {
         throw new Error(errData.error || "Failed to load channel messages.");
       }
       const channelData = await res.json();
-      
-      const decryptedMsgs = [];
-      if (channelData.e2e_messages && Array.isArray(channelData.e2e_messages)) {
-        for (const msg of channelData.e2e_messages) {
-          let text = t.e2eDecryptionFailedKey;
-          if (e2eKeyPair) {
-            try {
-              text = await e2eDecrypt(
-                e2eKeyPair.privateKey,
-                msg.ephemeral_pub,
-                msg.nonce,
-                msg.ciphertext
-              );
-            } catch (cryptoErr) {
-              // decryption failed, keep fallback text
-            }
-          } else {
-            text = t.e2eEncryptedIdentityReq;
-          }
-          decryptedMsgs.push({
-            id: msg.id,
-            text,
-            timestamp: msg.timestamp
-          });
+      const decrypted = await e2eDecryptMessageList(
+        channelData.e2e_messages,
+        e2eKeyPairRef.current,
+        tRef.current,
+        languageRef.current
+      );
+      setE2EActiveMessages(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(decrypted)) {
+          return prev;
         }
-      }
-      setE2EActiveMessages(decryptedMsgs);
+        return decrypted;
+      });
     } catch (err: any) {
-      console.error(err);
+      console.error("Failed to refresh E2E messages:", err);
     }
-  };
+  }, []);
 
   const handleSendE2EMessage = async (channelId: string, recipientPubKey: string) => {
     if (!e2eMessageText.trim()) return;
     try {
-      const encPayload = await e2eEncrypt(recipientPubKey, e2eMessageText);
+      const encPayload = await e2ePrepareOutboundMessage(
+        recipientPubKey.trim(),
+        e2eMessageText.trim(),
+        e2eKeyPair?.publicKey
+      );
       const res = await fetch(`/api/paste/${channelId}/e2e`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,6 +149,17 @@ export function useViewLogic(props: ViewTabProps) {
       setStatus({ type: 'err', msg: err.message });
     }
   };
+
+  // Auto-polling for active E2E channel in ViewTab
+  useEffect(() => {
+    const channelId = viewData?.id;
+    if (!viewData?.is_e2e_channel || !channelId) return;
+    handleRefreshE2EMessages(channelId);
+    const interval = setInterval(() => {
+      handleRefreshE2EMessages(channelId);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [viewData?.is_e2e_channel, viewData?.id, handleRefreshE2EMessages]);
 
   const handleView = async () => {
     if (!viewInput) return;
@@ -421,10 +429,11 @@ export function useViewLogic(props: ViewTabProps) {
     }
   };
 
-  const handleStegoExtract = async () => {
+  const handleStegoExtract = async (overrideKey?: string) => {
     if (!stegoExtractFile) return;
     setIsStegoExtracting(true);
     setStatus(null);
+    const activePassword = overrideKey !== undefined ? overrideKey : stegoExtractPassword;
     try {
       let extractedText = '';
       let extractedFilePayload: { data: Uint8Array; filename: string; mime_type: string; kind: number } | null = null;
@@ -436,13 +445,13 @@ export function useViewLogic(props: ViewTabProps) {
 
       if (isAudio) {
         if (W && typeof W.audio_stego_extract === 'function') {
-          extractedText = W.audio_stego_extract(fileBytes, stegoExtractPassword || '');
+          extractedText = W.audio_stego_extract(fileBytes, activePassword || '');
         } else {
-          extractedText = await audioStegoExtract(fileBytes, stegoExtractPassword || '');
+          extractedText = await audioStegoExtract(fileBytes, activePassword || '');
         }
       } else if (isImage) {
         if (W && typeof W.stego_extract === 'function') {
-          const plainBytes = W.stego_extract(fileBytes, stegoExtractPassword || '');
+          const plainBytes = W.stego_extract(fileBytes, activePassword || '');
           extractedText = new TextDecoder().decode(plainBytes);
         } else {
           const imgB64 = await getFileBase64(stegoExtractFile);
@@ -450,7 +459,7 @@ export function useViewLogic(props: ViewTabProps) {
           const res = await fetch('/api/stego/extract', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: cleanB64, password: stegoExtractPassword })
+            body: JSON.stringify({ image: cleanB64, password: activePassword })
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
@@ -458,12 +467,28 @@ export function useViewLogic(props: ViewTabProps) {
         }
       } else {
         // Generic Binary File / .enc / .bin / archive decrypted via WASM Argon2id + AES-GCM parser
-        if (W && typeof W.decrypt_file_with_password === 'function' && fileBytes.length >= 48) {
+        if (W && fileBytes.length >= 48) {
           // Check for salt (32 bytes) + IV (12 bytes) + ciphertext format
           const salt = fileBytes.slice(0, 32);
           const iv = fileBytes.slice(32, 44);
           const ciphertext = fileBytes.slice(44);
-          const res = W.decrypt_file_with_password(ciphertext, iv, salt, stegoExtractPassword || '');
+
+          let res: any = null;
+          // Check if password is a base64url random key (from Shamir)
+          const pwdTrim = (activePassword || '').trim();
+          if (pwdTrim.length === 43 || pwdTrim.length === 44) {
+            try {
+              const rawKey = b64url_decode(pwdTrim);
+              if (rawKey.length === 32 && typeof W.decrypt_file_with_key === 'function') {
+                res = W.decrypt_file_with_key(ciphertext, iv, rawKey);
+              }
+            } catch (_) {}
+          }
+
+          if (!res && typeof W.decrypt_file_with_password === 'function') {
+            res = W.decrypt_file_with_password(ciphertext, iv, salt, activePassword || '');
+          }
+
           if (res && res.data) {
             extractedFilePayload = {
               data: new Uint8Array(res.data),
@@ -471,6 +496,8 @@ export function useViewLogic(props: ViewTabProps) {
               mime_type: res.mime_type || 'application/octet-stream',
               kind: res.kind ?? 0
             };
+          } else {
+            throw new Error(t.invalidPassword || "Invalid decryption key or password.");
           }
         } else {
           throw new Error(t.invalidPassword || "Unsupported carrier format or invalid key");
@@ -583,13 +610,15 @@ export function useViewLogic(props: ViewTabProps) {
           try {
             const cipherBytes = b64toUint8Array(data.data);
             const ivBytes = b64toUint8Array(data.iv);
-            const saltBytes = b64toUint8Array(data.salt);
+            const saltBytes = data.salt ? b64toUint8Array(data.salt) : new Uint8Array(0);
             
             let plainBytes: Uint8Array;
             let isHoney = false;
             
-            // Try honey decryption if honey parameters exist
-            if (data.has_honey && data.honey_data && data.honey_salt && data.honey_iv) {
+            if (data.has_shamir) {
+              const rawKey = b64url_decode(keyOrPwd);
+              plainBytes = W.decrypt_with_key(cipherBytes, ivBytes, rawKey);
+            } else if (data.has_honey && data.honey_data && data.honey_salt && data.honey_iv) {
               try {
                 const hCipherBytes = b64toUint8Array(data.honey_data);
                 const hIvBytes = b64toUint8Array(data.honey_iv);
@@ -624,7 +653,18 @@ export function useViewLogic(props: ViewTabProps) {
             } else {
               const isText = !data.kind || data.kind === 'text';
               if (!isText && !isHoney) {
-                const plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                let plain: any;
+                if (data.has_shamir) {
+                  const rawKey = b64url_decode(keyOrPwd);
+                  if (typeof W.decrypt_file_with_key === 'function') {
+                    plain = W.decrypt_file_with_key(cipherBytes, ivBytes, rawKey);
+                  } else {
+                    const dec = W.decrypt_with_key(cipherBytes, ivBytes, rawKey);
+                    plain = { data: dec, filename: data.original_name || 'decrypted_file', mime_type: data.mime_type || 'application/octet-stream', kind: 0 };
+                  }
+                } else {
+                  plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                }
                 const blob = new Blob([plain.data], { type: plain.mime_type });
                 const url = URL.createObjectURL(blob);
                 
@@ -651,7 +691,7 @@ export function useViewLogic(props: ViewTabProps) {
               setStatus({ type: 'ok', msg: t.decryptedSuccess });
             }
           } catch (decErr) {
-            console.error("Local WASM password decryption failed:", decErr);
+            console.error("Local WASM decryption failed:", decErr);
             throw new Error(t.invalidPassword);
           }
         } else {
@@ -659,7 +699,8 @@ export function useViewLogic(props: ViewTabProps) {
         }
       } else {
         // Standard server-decrypted path
-        const res = await fetch(`/api/paste/${data.id}?password=${encodeURIComponent(keyOrPwd)}`);
+        const param = data.has_shamir ? `key=${encodeURIComponent(keyOrPwd)}` : `password=${encodeURIComponent(keyOrPwd)}`;
+        const res = await fetch(`/api/paste/${data.id}?${param}`);
         const resData = await res.json();
         if (!res.ok) {
           if (res.status === 403) {

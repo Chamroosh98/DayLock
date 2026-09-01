@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Globe, FolderArchive, KeyRound } from 'lucide-react';
+import { Globe, FolderArchive } from 'lucide-react';
 import { ViewTabProps } from './types';
 import { useViewLogic } from './hooks/useViewLogic';
 import { ViewInputForm } from './components/ViewInputForm';
@@ -10,10 +10,9 @@ import { E2EChatBoard } from './components/E2EChatBoard';
 import { PasswordProtectedCard } from './components/PasswordProtectedCard';
 import { DecryptedViewContent } from './components/DecryptedViewContent';
 import { StegoExtractSection } from './components/StegoExtractSection';
-import { ShamirReconstructSection } from './components/ShamirReconstructSection';
 
 export const ViewTab: React.FC<ViewTabProps> = (props) => {
-  const [activeMode, setActiveMode] = useState<'link' | 'file' | 'shamir'>('link');
+  const [activeMode, setActiveMode] = useState<'link' | 'file'>('link');
   const [showLimitationModal, setShowLimitationModal] = useState(false);
 
   const {
@@ -164,35 +163,6 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
                 </span>
               </span>
             </button>
-
-            {/* Mode C: Shamir Combine */}
-            <button
-              type="button"
-              onClick={() => setActiveMode('shamir')}
-              className={`relative px-4 sm:px-5 py-2 rounded-full text-xs font-black tracking-wider transition-colors flex items-center gap-2 cursor-pointer ${
-                activeMode === 'shamir'
-                  ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-950')
-                  : (isDarkMode ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-600 hover:text-zinc-900')
-              }`}
-            >
-              {activeMode === 'shamir' && (
-                <motion.div
-                  layoutId="viewModeTabHighlight"
-                  className={`absolute inset-0 rounded-full border shadow-sm ${
-                    isDarkMode 
-                      ? 'bg-emerald-500/15 border-emerald-500/30' 
-                      : 'bg-white border-emerald-200/80 shadow-emerald-500/10'
-                  }`}
-                  transition={{ type: 'spring', bounce: 0.18, duration: 0.35 }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-2">
-                <KeyRound className="w-3.5 h-3.5" />
-                <span className={isFa ? 'font-vazir' : 'font-sans'}>
-                  {t.modeShamirCombine || t.shamir || 'Shamir'}
-                </span>
-              </span>
-            </button>
           </div>
         </div>
       )}
@@ -226,7 +196,7 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
               handlePasswordChange={handlePasswordChange}
               handlePasswordKeyDown={handlePasswordKeyDown}
             />
-          ) : activeMode === 'file' ? (
+          ) : (
             <StegoExtractSection
               key="mode-file-form"
               contentType={contentType}
@@ -249,15 +219,6 @@ export const ViewTab: React.FC<ViewTabProps> = (props) => {
               copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
               setStatus={setStatus}
               handleTerminate={handleTerminateSession}
-            />
-          ) : (
-            <ShamirReconstructSection
-              key="mode-shamir-form"
-              isDarkMode={isDarkMode}
-              language={language}
-              t={t}
-              copyToClipboardWithAutoClear={copyToClipboardWithAutoClear}
-              setStatus={setStatus}
             />
           )}
         </AnimatePresence>

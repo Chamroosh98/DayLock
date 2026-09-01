@@ -119,7 +119,7 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                 onClick={onPresetHigh}
                 className={`py-2 px-1.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all flex flex-col items-center gap-1 text-center cursor-pointer ${
                   blurActive && keysActive && printActive && copyActive && biometricLockActive
-                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+                    ? 'bg-rose-500/15 border-rose-500/50 text-rose-500 shadow-sm'
                     : isDarkMode ? 'bg-zinc-900/40 border-white/5 text-zinc-400 hover:text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:text-zinc-800'
                 }`}
               >
@@ -130,7 +130,7 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                 onClick={onPresetStandard}
                 className={`py-2 px-1.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all flex flex-col items-center gap-1 text-center cursor-pointer ${
                   blurActive && keysActive && printActive && copyActive && !biometricLockActive
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                    ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-500 shadow-sm'
                     : isDarkMode ? 'bg-zinc-900/40 border-white/5 text-zinc-400 hover:text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:text-zinc-800'
                 }`}
               >
@@ -141,7 +141,7 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                 onClick={onPresetNone}
                 className={`py-2 px-1.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all flex flex-col items-center gap-1 text-center cursor-pointer ${
                   !blurActive && !keysActive && !printActive && !copyActive && !biometricLockActive
-                    ? 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400'
+                    ? 'bg-zinc-500/15 border-zinc-500/50 text-zinc-400 shadow-sm'
                     : isDarkMode ? 'bg-zinc-900/40 border-white/5 text-zinc-400 hover:text-zinc-200' : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:text-zinc-800'
                 }`}
               >
@@ -151,20 +151,20 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
             </div>
 
             {/* Toggles Container */}
-            <div className="space-y-3.5 overflow-y-auto max-h-[300px] pr-1">
+            <div className="space-y-3 overflow-y-auto max-h-[320px] pr-1">
               
               {/* Shield 1: Multitasking Blur */}
-              <div className={`p-3 rounded-2xl border flex items-start gap-3 transition-colors ${
+              <div className={`p-3 rounded-2xl border transition-colors ${
                 blurActive 
                   ? isDarkMode ? 'bg-zinc-900/50 border-emerald-500/20' : 'bg-emerald-50/20 border-emerald-500/20'
                   : isDarkMode ? 'bg-zinc-900/10 border-white/5' : 'bg-zinc-50 border-zinc-100'
               }`}>
-                <div className={`p-1.5 rounded-xl mt-0.5 shrink-0 ${blurActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
-                  <EyeOff className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wide">
+                <div className="flex items-center gap-3 w-full">
+                  <div className={`p-1.5 rounded-xl shrink-0 ${blurActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                    <EyeOff className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide truncate">
                       {t.appSwitcherBlur || 'App-Switcher Blur Shield'}
                     </span>
                     <button 
@@ -175,58 +175,50 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                       <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${blurActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                     </button>
                   </div>
-                  <p className={`text-[9px] mt-1 leading-normal ${language === 'fa' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    {t.appSwitcherBlurDesc || 'Obscures entire screen when switching apps, blocking display frame buffer leakage on system switchers.'}
-                  </p>
                 </div>
               </div>
 
-              {/* Shield 5: App Lock Guard (Biometric / PIN) */}
+              {/* Shield 2: Smart Workspace App Lock (Biometric / PIN) */}
               <div className={`p-3 rounded-2xl border flex flex-col gap-3 transition-colors ${
                 biometricLockActive 
                   ? isDarkMode ? 'bg-zinc-900/50 border-emerald-500/20' : 'bg-emerald-50/20 border-emerald-500/20'
                   : isDarkMode ? 'bg-zinc-900/10 border-white/5' : 'bg-zinc-50 border-zinc-100'
               }`}>
-                <div className="flex items-start gap-3">
-                  <div className={`p-1.5 rounded-xl mt-0.5 shrink-0 ${biometricLockActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                <div className="flex items-center gap-3 w-full">
+                  <div className={`p-1.5 rounded-xl shrink-0 ${biometricLockActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
                     <Fingerprint className="w-4 h-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wide">
-                        {t.smartWorkspaceLock || 'Smart Workspace App Lock'}
-                      </span>
-                      <button 
-                        dir="ltr"
-                        onClick={() => setBiometricLockActive(!biometricLockActive)}
-                        className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none shrink-0 cursor-pointer ${biometricLockActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
-                      >
-                        <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${biometricLockActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                      </button>
-                    </div>
-                    <p className={`text-[9px] mt-1 leading-normal ${language === 'fa' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                      {t.smartWorkspaceAppLockDesc || 'Enforces biometric verification or custom PIN passcode when returning to the application tab.'}
-                    </p>
+                  <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide truncate">
+                      {t.smartWorkspaceLock || 'Smart Workspace App Lock'}
+                    </span>
+                    <button 
+                      dir="ltr"
+                      onClick={() => setBiometricLockActive(!biometricLockActive)}
+                      className={`w-7 h-4 rounded-full relative transition-colors duration-200 focus:outline-none shrink-0 cursor-pointer ${biometricLockActive ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                    >
+                      <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${biometricLockActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                    </button>
                   </div>
                 </div>
 
                 {biometricLockActive && (
-                  <div className={`${language === 'fa' ? 'pr-10 text-right' : 'pl-10 text-left'} space-y-3.5 border-t border-zinc-500/10 pt-3`}>
-                    <div className="flex gap-4 items-center justify-between">
-                      <span className="text-[9px] uppercase font-black tracking-wider text-zinc-500">
+                  <div className="w-full space-y-3 border-t border-zinc-200 dark:border-white/10 pt-3">
+                    <div className="flex items-center justify-between gap-3 w-full">
+                      <span className="text-[9px] uppercase font-black tracking-wider text-zinc-500 shrink-0">
                         {t.unlockMethodLabel || 'Unlock Method :'}
                       </span>
-                      <div className="flex bg-zinc-950/60 p-0.5 rounded-lg border border-white/5">
+                      <div className={`flex p-0.5 rounded-lg border ${isDarkMode ? 'bg-zinc-950/80 border-white/10' : 'bg-zinc-200/80 border-zinc-300'}`}>
                         {biometricsSupported && (
                           <button
                             onClick={() => {
                               setLockMethod('biometric');
                               localStorage.setItem('vault_app_lock_method', 'biometric');
                             }}
-                            className={`px-2 py-1 text-[8px] font-bold uppercase rounded-md transition-all cursor-pointer ${
+                            className={`px-2.5 py-1 text-[8px] font-bold uppercase rounded-md transition-all cursor-pointer ${
                               lockMethod === 'biometric' 
-                                ? 'bg-emerald-500 text-black' 
-                                : 'text-zinc-400 hover:text-zinc-200'
+                                ? 'bg-emerald-500 text-black shadow-sm' 
+                                : isDarkMode ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-600 hover:text-zinc-900'
                             }`}
                           >
                             {t.biometricOption || 'Biometric'}
@@ -237,10 +229,10 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                             setLockMethod('pin');
                             localStorage.setItem('vault_app_lock_method', 'pin');
                           }}
-                          className={`px-2 py-1 text-[8px] font-bold uppercase rounded-md transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 text-[8px] font-bold uppercase rounded-md transition-all cursor-pointer ${
                             lockMethod === 'pin' 
-                              ? 'bg-emerald-500 text-black' 
-                              : 'text-zinc-400 hover:text-zinc-200'
+                              ? 'bg-emerald-500 text-black shadow-sm' 
+                              : isDarkMode ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-600 hover:text-zinc-900'
                           }`}
                         >
                           {t.pinOption || 'PIN Code'}
@@ -249,28 +241,32 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                     </div>
 
                     {lockMethod === 'biometric' && (
-                      <div className="space-y-2">
+                      <div className="w-full">
                         {isEnrolled ? (
-                          <div className="flex items-center justify-between bg-zinc-950/20 p-2 rounded-xl border border-white/5">
-                            <span className="text-[9px] text-zinc-400 font-medium flex items-center gap-1.5">
-                              <Fingerprint className="w-3.5 h-3.5 text-emerald-500" />
+                          <div className={`w-full flex items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                            isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-300' : 'bg-white border-zinc-200 text-zinc-700'
+                          }`}>
+                            <span className="text-[9px] font-medium flex items-center gap-1.5 truncate">
+                              <Fingerprint className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                               {t.biometricActiveStatus || 'Biometrics enrolled & active'}
                             </span>
                             <button
                               onClick={onEnrollBiometrics}
-                              className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-wider cursor-pointer"
+                              className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-wider cursor-pointer shrink-0"
                             >
                               {t.biometricReEnrollBtn || 'Re-Enroll'}
                             </button>
                           </div>
                         ) : (
-                          <div className="bg-emerald-500/5 p-2 rounded-xl border border-emerald-500/20 flex flex-col sm:flex-row items-center justify-between gap-2">
-                            <span className="text-[9px] text-zinc-300 font-semibold leading-relaxed">
+                          <div className={`w-full flex flex-col sm:flex-row items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                            isDarkMode ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200'
+                          }`}>
+                            <span className={`text-[9px] font-semibold leading-relaxed ${isDarkMode ? 'text-emerald-300' : 'text-emerald-800'}`}>
                               {t.biometricPromptEnroll || 'Register biometric sensor for rapid unlocking'}
                             </span>
                             <button
                               onClick={onEnrollBiometrics}
-                              className="px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-500/30 transition-all cursor-pointer shrink-0"
+                              className="px-2.5 py-1 bg-emerald-500 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-600 transition-all cursor-pointer shrink-0"
                             >
                               {t.biometricEnrollBtn || 'Enroll Biometrics'}
                             </button>
@@ -280,27 +276,31 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                     )}
 
                     {lockMethod === 'pin' && (
-                      <div className="space-y-2">
+                      <div className="w-full">
                         {pinCode ? (
-                          <div className="flex items-center justify-between bg-zinc-950/20 p-2 rounded-xl border border-white/5">
-                            <span className="text-[9px] text-zinc-400 font-medium">
+                          <div className={`w-full flex items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                            isDarkMode ? 'bg-zinc-950/40 border-white/10 text-zinc-300' : 'bg-white border-zinc-200 text-zinc-700'
+                          }`}>
+                            <span className="text-[9px] font-medium truncate">
                               {t.pinActiveStatus || '🔐 4-Digit PIN is active'}
                             </span>
                             <button
                               onClick={onOpenPinSetup}
-                              className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-wider cursor-pointer"
+                              className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-wider cursor-pointer shrink-0"
                             >
                               {t.changePinBtn || 'Change PIN'}
                             </button>
                           </div>
                         ) : (
-                          <div className="bg-rose-500/5 p-2 rounded-xl border border-rose-500/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-                            <span className="text-[9px] text-rose-400 font-semibold leading-relaxed">
+                          <div className={`w-full flex flex-col sm:flex-row items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                            isDarkMode ? 'bg-rose-500/10 border-rose-500/20 text-rose-300' : 'bg-rose-50 border-rose-200 text-rose-700'
+                          }`}>
+                            <span className="text-[9px] font-semibold leading-relaxed flex items-center gap-1.5">
                               {t.pleaseSetPinFirst || '⚠️ Please set a 4-digit PIN first'}
                             </span>
                             <button
                               onClick={onOpenPinSetup}
-                              className="px-2 py-1 bg-rose-500/10 border border-rose-500/25 text-rose-500 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-rose-500/20 transition-all cursor-pointer shrink-0"
+                              className="px-2.5 py-1 bg-rose-500/10 border border-rose-500/30 text-rose-500 hover:bg-rose-500/20 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer shrink-0"
                             >
                               {t.setPinBtn || 'Set PIN'}
                             </button>
@@ -312,18 +312,18 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                 )}
               </div>
 
-              {/* Shield 2: Print Blocker */}
-              <div className={`p-3 rounded-2xl border flex items-start gap-3 transition-colors ${
+              {/* Shield 3: Print Blocker */}
+              <div className={`p-3 rounded-2xl border transition-colors ${
                 printActive 
                   ? isDarkMode ? 'bg-zinc-900/50 border-emerald-500/20' : 'bg-emerald-50/20 border-emerald-500/20'
                   : isDarkMode ? 'bg-zinc-900/10 border-white/5' : 'bg-zinc-50 border-zinc-100'
               }`}>
-                <div className={`p-1.5 rounded-xl mt-0.5 shrink-0 ${printActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
-                  <Printer className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wide">
+                <div className="flex items-center gap-3 w-full">
+                  <div className={`p-1.5 rounded-xl shrink-0 ${printActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                    <Printer className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide truncate">
                       {t.pdfPrintBlocker || 'PDF / Print Blocker'}
                     </span>
                     <button 
@@ -334,24 +334,21 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                       <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${printActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                     </button>
                   </div>
-                  <p className={`text-[9px] mt-1 leading-normal ${language === 'fa' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    {t.pdfPrintBlockerDesc || 'Forces the document print spool to render blank, guarding against physical print triggers or virtual PDF saves.'}
-                  </p>
                 </div>
               </div>
 
-              {/* Shield 3: Key Interception */}
-              <div className={`p-3 rounded-2xl border flex items-start gap-3 transition-colors ${
+              {/* Shield 4: Key Interception */}
+              <div className={`p-3 rounded-2xl border transition-colors ${
                 keysActive 
                   ? isDarkMode ? 'bg-zinc-900/50 border-emerald-500/20' : 'bg-emerald-50/20 border-emerald-500/20'
                   : isDarkMode ? 'bg-zinc-900/10 border-white/5' : 'bg-zinc-50 border-zinc-100'
               }`}>
-                <div className={`p-1.5 rounded-xl mt-0.5 shrink-0 ${keysActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
-                  <Lock className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wide">
+                <div className="flex items-center gap-3 w-full">
+                  <div className={`p-1.5 rounded-xl shrink-0 ${keysActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide truncate">
                       {t.keyboardHookProtector || 'Keyboard Hook Protector'}
                     </span>
                     <button 
@@ -362,24 +359,21 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                       <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${keysActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                     </button>
                   </div>
-                  <p className={`text-[9px] mt-1 leading-normal ${language === 'fa' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    {t.keyboardHookProtectorDesc || 'Intercepts print-screen keys, blurring content instantly on triggers and flushing clipboard buffer dynamically.'}
-                  </p>
                 </div>
               </div>
 
-              {/* Shield 4: Copy Protection */}
-              <div className={`p-3 rounded-2xl border flex items-start gap-3 transition-colors ${
+              {/* Shield 5: Copy Protection */}
+              <div className={`p-3 rounded-2xl border transition-colors ${
                 copyActive 
                   ? isDarkMode ? 'bg-zinc-900/50 border-emerald-500/20' : 'bg-emerald-50/20 border-emerald-500/20'
                   : isDarkMode ? 'bg-zinc-900/10 border-white/5' : 'bg-zinc-50 border-zinc-100'
               }`}>
-                <div className={`p-1.5 rounded-xl mt-0.5 shrink-0 ${copyActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
-                  <Copy className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wide">
+                <div className="flex items-center gap-3 w-full">
+                  <div className={`p-1.5 rounded-xl shrink-0 ${copyActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                    <Copy className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide truncate">
                       {t.copyRightClickLock || 'Copy & Right-Click Lock'}
                     </span>
                     <button 
@@ -390,9 +384,6 @@ export const SecurityShieldsModal: React.FC<SecurityShieldsModalProps> = ({
                       <span className={`block w-2.5 h-2.5 rounded-full bg-white transition-transform duration-200 ${copyActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                     </button>
                   </div>
-                  <p className={`text-[9px] mt-1 leading-normal ${language === 'fa' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-zinc-500' : 'text-zinc-500'}`}>
-                    {t.copyRightClickLockDesc || 'Disables document highlights and right-click inspectors to block scrapers, bot scrapers, and quick copy-paste.'}
-                  </p>
                 </div>
               </div>
 
