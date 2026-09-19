@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { ContentType, Language } from '../types';
-import { gregorianToJalali, jalaliToGregorian } from '../utils/jalaliConverter';
+import { revokeIfBlobUrl } from '../utils/imageProcessor';
 import { useUndoableState } from './useUndoableState';
 
 export interface UseVaultStateOptions {
@@ -249,7 +249,10 @@ export function useVaultState(options: UseVaultStateOptions = {}): VaultState {
     setAsnMode('block');
     setAsnSelected('');
     setSelectedFile(null);
-    setStegoImage(null);
+    setStegoImage((prev) => {
+      revokeIfBlobUrl(prev);
+      return null;
+    });
     setStegoCapacity(0);
   };
 

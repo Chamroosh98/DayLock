@@ -486,7 +486,7 @@ export function useViewLogic(props: ViewTabProps) {
           }
 
           if (!res && typeof W.decrypt_file_with_password === 'function') {
-            res = W.decrypt_file_with_password(ciphertext, iv, salt, activePassword || '');
+            res = W.decrypt_file_with_password(ciphertext, iv, salt, activePassword || '', 0);
           }
 
           if (res && res.data) {
@@ -612,6 +612,7 @@ export function useViewLogic(props: ViewTabProps) {
             const ivBytes = b64toUint8Array(data.iv);
             const saltBytes = data.salt ? b64toUint8Array(data.salt) : new Uint8Array(0);
             
+            const argonM = data.argon_m_cost || 0;
             let plainBytes: Uint8Array;
             let isHoney = false;
             
@@ -624,14 +625,14 @@ export function useViewLogic(props: ViewTabProps) {
                 const hIvBytes = b64toUint8Array(data.honey_iv);
                 const hSaltBytes = b64toUint8Array(data.honey_salt);
                 
-                plainBytes = W.decrypt_with_password(hCipherBytes, hIvBytes, hSaltBytes, keyOrPwd);
+                plainBytes = W.decrypt_with_password(hCipherBytes, hIvBytes, hSaltBytes, keyOrPwd, argonM);
                 isHoney = true;
               } catch (honeyErr) {
                 // Honey decryption failed, try decrypting main secret
-                plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
               }
             } else {
-              plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+              plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
             }
             
             setIsHoneyView(isHoney);
@@ -663,7 +664,7 @@ export function useViewLogic(props: ViewTabProps) {
                     plain = { data: dec, filename: data.original_name || 'decrypted_file', mime_type: data.mime_type || 'application/octet-stream', kind: 0 };
                   }
                 } else {
-                  plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                  plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
                 }
                 const blob = new Blob([plain.data], { type: plain.mime_type });
                 const url = URL.createObjectURL(blob);

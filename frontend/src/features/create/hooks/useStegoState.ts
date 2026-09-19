@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Language } from '../../../types';
-import { convertImageToPng, calculateStegoCapacity, formatStegoSize } from '../../../utils/imageProcessor';
+import { convertImageToPng, calculateStegoCapacity, formatStegoSize, revokeIfBlobUrl } from '../../../utils/imageProcessor';
 
 export const useStegoState = (
   language: Language,
@@ -12,6 +12,13 @@ export const useStegoState = (
 ) => {
   const [stegoResultFile, setStegoResultFile] = useState<{ blob: Blob; url: string; filename: string } | null>(null);
   const stegoCanvasRef = useRef<HTMLCanvasElement>(null);
+  const previewBlobRef = useRef<string | null>(null);
+
+  const replacePreview = (url: string | null) => {
+    revokeIfBlobUrl(previewBlobRef.current);
+    previewBlobRef.current = url && url.startsWith('blob:') ? url : null;
+    setStegoImage(url);
+  };
 
   const handleFileChangeDirect = async (file: File) => {
     setSelectedFile(file);
@@ -31,17 +38,8 @@ export const useStegoState = (
       try {
         const processed = await convertImageToPng(file, file.name);
         setSelectedFile(processed.pngFile);
-        setStegoImage(processed.dataUrl);
+        replacePreview(processed.dataUrl);
         setStegoCapacity(processed.capacityBytes);
-
-        if (stegoCanvasRef.current) {
-          const ctx = stegoCanvasRef.current.getContext('2d');
-          stegoCanvasRef.current.width = processed.width;
-          stegoCanvasRef.current.height = processed.height;
-          const img = new Image();
-          img.onload = () => ctx?.drawImage(img, 0, 0);
-          img.src = processed.dataUrl;
-        }
 
         const capStr = formatStegoSize(processed.capacityBytes, language);
         setStatus({
@@ -55,7 +53,7 @@ export const useStegoState = (
         reader.onload = (event) => {
           const img = new Image();
           img.onload = () => {
-            setStegoImage(event.target?.result as string);
+            replacePreview(event.target?.result as string);
             const cap = calculateStegoCapacity(img.width, img.height);
             setStegoCapacity(cap);
           };

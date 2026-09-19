@@ -7,6 +7,10 @@ use argon2::{ Algorithm, Argon2, Params, Version };
 use getrandom::getrandom;
 use wasm_bindgen::prelude::*;
 
+/// Legacy m_cost (KiB) used by existing pastes / SCRT stego images.
+pub const LEGACY_ARGON_M_COST: u32 = 65536;
+const MIN_ARGON_M_COST: u32 = 8192;
+const MAX_ARGON_M_COST: u32 = 65536;
 
 // Generate random bytes
 pub fn rand_bytes(n: usize) -> Vec<u8> {
@@ -15,13 +19,25 @@ pub fn rand_bytes(n: usize) -> Vec<u8> {
     buf
 }
 
-// Argon2 Key Derivation
-pub fn derive_key_argon2id(password: &str, salt: &[u8]) -> Result<Vec<u8>, String> {
+pub fn normalize_m_cost(m_cost: u32) -> u32 {
+    if m_cost == 0 {
+        LEGACY_ARGON_M_COST
+    } else {
+        m_cost.clamp(MIN_ARGON_M_COST, MAX_ARGON_M_COST)
+    }
+}
 
+// Argon2 Key Derivation (legacy 64 MiB — keep for old ciphertext)
+pub fn derive_key_argon2id(password: &str, salt: &[u8]) -> Result<Vec<u8>, String> {
+    derive_key_argon2id_m(password, salt, LEGACY_ARGON_M_COST)
+}
+
+pub fn derive_key_argon2id_m(password: &str, salt: &[u8], m_cost: u32) -> Result<Vec<u8>, String> {
+    let m = normalize_m_cost(m_cost);
     let params = Params::new(
-        65536,              // m_cast: 64 Mb
-        3,                 // t_cost : 3 iteration
-        1,                // p_cost: 1 thread
+        m,
+        3,
+        1,
         Some(32),
     ).map_err(|e| e.to_string())?;
 
@@ -69,11 +85,12 @@ pub fn aes_decrypt(ciphertext: &[u8], key_bytes: &[u8], iv: &[u8]) -> Result<Vec
 // Encryption with password (Argon2id + AES-GCM)
 // returns : {data, iv, slat} into Vec<u8>
 
+/// `m_cost` is Argon2 memory in KiB. Pass `0` to use the legacy 64 MiB cost.
 #[wasm_bindgen]
-pub fn encrypt_with_password(plaintext: &[u8], password: &str) -> Result<js_sys::Object, JsValue> {
-
+pub fn encrypt_with_password(plaintext: &[u8], password: &str, m_cost: u32) -> Result<js_sys::Object, JsValue> {
+    let m = normalize_m_cost(m_cost);
     let salt = rand_bytes(32);
-    let key = derive_key_argon2id(password, &salt)
+    let key = derive_key_argon2id_m(password, &salt, m)
         .map_err(|e| JsValue::from_str(&e))?;
 
     let (ciphertext, iv) = aes_encrypt(plaintext, &key)
@@ -83,6 +100,7 @@ pub fn encrypt_with_password(plaintext: &[u8], password: &str) -> Result<js_sys:
     js_sys::Reflect::set(&obj, &"data".into(), &js_sys::Uint8Array::from(ciphertext.as_slice()).into())?;
     js_sys::Reflect::set(&obj, &"iv".into(),   &js_sys::Uint8Array::from(iv.as_slice()).into())?;
     js_sys::Reflect::set(&obj, &"salt".into(), &js_sys::Uint8Array::from(salt.as_slice()).into())?;
+    js_sys::Reflect::set(&obj, &"m_cost".into(), &JsValue::from_f64(m as f64))?;
 
     Ok(obj)
 }
@@ -105,10 +123,10 @@ pub fn encrypt_with_random_key(plaintext: &[u8]) -> Result<js_sys::Object, JsVal
 }
 
 // Decryption with password
+/// `m_cost` is Argon2 memory in KiB. Pass `0` to use the legacy 64 MiB cost.
 #[wasm_bindgen]
-pub fn decrypt_with_password(ciphertext: &[u8], iv: &[u8], salt: &[u8], password: &str,) -> Result<js_sys::Uint8Array, JsValue> {
-    
-    let key = derive_key_argon2id(password, salt)
+pub fn decrypt_with_password(ciphertext: &[u8], iv: &[u8], salt: &[u8], password: &str, m_cost: u32) -> Result<js_sys::Uint8Array, JsValue> {
+    let key = derive_key_argon2id_m(password, salt, m_cost)
         .map_err(|e| JsValue::from_str(&e))?;
 
     let plaintext = aes_decrypt(ciphertext, &key, iv)

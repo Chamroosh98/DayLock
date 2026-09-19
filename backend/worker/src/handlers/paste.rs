@@ -1,6 +1,7 @@
 use worker::{Date, Env, Request, Response, Result};
 use crate::models::{ErrorResponse, paste::*};
 use serde::Serialize;
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 
 #[derive(Serialize)]
 struct GeoBlockedResponse {
@@ -25,14 +26,26 @@ pub async fn create(mut req: Request, env: &Env, ip: &str) -> Result<Response> {
                 .map(|r| r.with_status(400));
         }
     };
+    let data = if let Some(ref b64) = body.data_b64 {
+        match STANDARD.decode(b64.trim()) {
+            Ok(bytes) => bytes,
+            Err(_) => {
+                return Response::from_json(&ErrorResponse::new("❌ [worker handlers ERROR in paste.rs] data_b64 is not valid base64!"))
+                    .map(|r| r.with_status(400));
+            }
+        }
+    } else {
+        body.data
+    };
+
     worker::console_log!(
         "📂 [worker log in paste.rs] [PASTE:CREATE] data_len={} iv_len={} has_pwd={} has_honey={:?} dms={:?} geo={:?}",
-        body.data.len(), body.iv.len(), body.has_password,
+        data.len(), body.iv.len(), body.has_password,
         body.has_honey, body.dead_mans_interval, body.allowed_countries
     );
 
     // ── Validation ──
-    if body.data.is_empty() || body.data.len() > MAX_PASTE_SIZE {
+    if data.is_empty() || data.len() > MAX_PASTE_SIZE {
         return Response::from_json(&ErrorResponse::new(
             format!("❌ [worker handlers ERROR in paste.rs] The value of data must be between 1 and {} bytes!", MAX_PASTE_SIZE)
         )).map(|r| r.with_status(400));
@@ -121,9 +134,10 @@ pub async fn create(mut req: Request, env: &Env, ip: &str) -> Result<Response> {
     let id = generate_id();
 
     let paste = PasteStore {
-        data: body.data,
+        data,
         iv: body.iv,
         salt: body.salt,
+        argon_m_cost: body.argon_m_cost,
         created: now,
         expires_at: now + expires_in,
         burn_after_read: body.burn_after_read,
@@ -325,6 +339,7 @@ pub async fn get(id: &str, env: &Env, req: &Request, ip: &str) -> Result<Respons
         data: paste.data,
         iv: paste.iv,
         salt: paste.salt,
+        argon_m_cost: paste.argon_m_cost,
         has_password: paste.has_password,
         burn_after_read: paste.burn_after_read,
         views: paste.views,

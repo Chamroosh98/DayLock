@@ -1,7 +1,7 @@
 import { getFileBase64 } from '../utils';
 import { Language } from '../../../types';
-import { getWasm, b64url_encode, b64toUint8Array } from '../../../utils/wasmLoader';
-import { convertImageToPng, formatStegoSize } from '../../../utils/imageProcessor';
+import { getWasm, b64url_encode, b64toUint8Array, uint8ArrayToB64 } from '../../../utils/wasmLoader';
+import { convertImageToPng, formatStegoSize, argonMCostKiB } from '../../../utils/imageProcessor';
 import { audioStegoEmbed } from '../../../utils/audioStego';
 import { saveLastCopiedValue } from '../../../utils/clipboardManager';
 
@@ -175,14 +175,19 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
 
       setStatus({ type: 'warn', msg: t.stegoEmbeddingPayload || 'Embedding hidden payload into image pixels ...' });
 
-      // Ensure lossless PNG format
-      const processed = await convertImageToPng(selectedFile, selectedFile.name);
-      const coverBytes = processed.pngBytes;
+      const mCost = argonMCostKiB();
+      let coverBytes: Uint8Array;
+      if (selectedFile.type === 'image/png') {
+        coverBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      } else {
+        const processed = await convertImageToPng(selectedFile, selectedFile.name);
+        coverBytes = processed.pngBytes;
+      }
       let outPngBytes: Uint8Array;
 
       if (W && typeof W.stego_hide === 'function') {
         try {
-          outPngBytes = W.stego_hide(coverBytes, secretBytes, password || '');
+          outPngBytes = W.stego_hide(coverBytes, secretBytes, password || '', mCost);
         } catch (wasmErr: any) {
           console.warn("WASM stego_hide failed, trying server fallback:", wasmErr);
           const coverB64 = await getFileBase64(processed.pngFile);
@@ -242,6 +247,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
     if (W && !isE2e) {
       // --- CLIENT-SIDE WASM ZERO-KNOWLEDGE ENCRYPTION ---
       const encoder = new TextEncoder();
+      const mCost = argonMCostKiB();
       let mainEnc: any;
 
       if (contentType === 'text') {
@@ -249,7 +255,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         if (hasShamir) {
           mainEnc = W.encrypt_with_random_key(rawBytes);
         } else if (hasPassword) {
-          mainEnc = W.encrypt_with_password(rawBytes, password);
+          mainEnc = W.encrypt_with_password(rawBytes, password, mCost);
         } else {
           mainEnc = W.encrypt_with_random_key(rawBytes);
         }
@@ -261,7 +267,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         if (hasShamir) {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, selectedFile.name, selectedFile.type, kindNum);
         } else if (hasPassword) {
-          mainEnc = W.encrypt_file_with_password(fileBytes, selectedFile.name, selectedFile.type, kindNum, password);
+          mainEnc = W.encrypt_file_with_password(fileBytes, selectedFile.name, selectedFile.type, kindNum, password, mCost);
         } else {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, selectedFile.name, selectedFile.type, kindNum);
         }
@@ -275,7 +281,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
         if (hasShamir) {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, 'voice.webm', 'audio/webm', kindNum);
         } else if (hasPassword) {
-          mainEnc = W.encrypt_file_with_password(fileBytes, 'voice.webm', 'audio/webm', kindNum, password);
+          mainEnc = W.encrypt_file_with_password(fileBytes, 'voice.webm', 'audio/webm', kindNum, password, mCost);
         } else {
           mainEnc = W.encrypt_file_with_random_key(fileBytes, 'voice.webm', 'audio/webm', kindNum);
         }
@@ -311,7 +317,7 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
       };
       if (hasHoney && honeyContent && honeyPwd) {
         const honeyBytes = encoder.encode(honeyContent);
-        const hEnc = W.encrypt_with_password(honeyBytes, honeyPwd);
+        const hEnc = W.encrypt_with_password(honeyBytes, honeyPwd, mCost);
         honeyPayload = {
           honey_data: Array.from(hEnc.data),
           honey_iv: Array.from(hEnc.iv),
@@ -321,9 +327,11 @@ export const executeEncryption = async (params: ExecuteEncryptionParams) => {
 
       const payload = {
         is_pre_encrypted: true,
-        data: Array.from(mainEnc.data),
+        data: [],
+        data_b64: uint8ArrayToB64(mainEnc.data),
         iv: Array.from(mainEnc.iv),
         salt: mainEnc.salt ? Array.from(mainEnc.salt) : null,
+        argon_m_cost: typeof mainEnc.m_cost === 'number' ? mainEnc.m_cost : mCost,
         expires_in: expiresIn,
         burn_after_read: burnAfterRead,
         max_views: maxViews === '' ? null : maxViews,

@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 use crate::crypto::{
     aes_encrypt, aes_decrypt,
-    derive_key_argon2id, rand_bytes,
+    derive_key_argon2id_m, normalize_m_cost, rand_bytes,
 };
 
 // File's MetaData : before encrypting data
@@ -41,15 +41,14 @@ pub fn encrypt_file_with_password(
     filename: &str, 
     mime_type: &str, 
     kind: u8, 
-    password: &str
+    password: &str,
+    m_cost: u32
 ) -> Result<js_sys::Object, JsValue> {
-
-    // create payload = header + file's data
+    let m = normalize_m_cost(m_cost);
     let payload = build_payload(file_data, filename, mime_type, kind);
 
-    // ecryption
     let salt = rand_bytes(32);
-    let key = derive_key_argon2id(password, &salt)
+    let key = derive_key_argon2id_m(password, &salt, m)
         .map_err(|e| JsValue::from_str(&e))?;
 
     let (ciphertext, iv) = aes_encrypt(&payload, &key)
@@ -60,6 +59,7 @@ pub fn encrypt_file_with_password(
     js_sys::Reflect::set(&obj, &"iv".into(),   &js_sys::Uint8Array::from(iv.as_slice()).into())?;
     js_sys::Reflect::set(&obj, &"salt".into(), &js_sys::Uint8Array::from(salt.as_slice()).into())?;
     js_sys::Reflect::set(&obj, &"size".into(), &JsValue::from_f64(file_data.len() as f64))?;
+    js_sys::Reflect::set(&obj, &"m_cost".into(), &JsValue::from_f64(m as f64))?;
 
     Ok(obj)
 }
@@ -96,10 +96,11 @@ pub fn decrypt_file_with_password(
     ciphertext: &[u8],
     iv: &[u8],
     salt: &[u8],
-    password: &str
+    password: &str,
+    m_cost: u32
 ) -> Result<js_sys::Object, JsValue> {
 
-    let key = derive_key_argon2id(password, salt)
+    let key = derive_key_argon2id_m(password, salt, m_cost)
         .map_err(|e| JsValue::from_str(&e))?;
 
     let payload = aes_decrypt(ciphertext, &key, iv)

@@ -51,9 +51,9 @@ export const b64toBlob = (input: any, type: string) => {
 
 export const uint8ArrayToB64 = (uint8: Uint8Array): string => {
   let binary = '';
-  const len = uint8.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(uint8[i]);
+  const chunk = 0x8000;
+  for (let i = 0; i < uint8.byteLength; i += chunk) {
+    binary += String.fromCharCode(...uint8.subarray(i, i + chunk));
   }
   return btoa(binary);
 };

@@ -8,7 +8,7 @@ import { useAudioStegoState } from './useAudioStegoState';
 import { useE2EChannelState } from './useE2EChannelState';
 import { useCountryFilter } from './useCountryFilter';
 import { validateCreateConfiguration } from './useCreateValidation';
-import { executeEncryption } from './useEncryptionExecutor';
+import { revokeIfBlobUrl } from '../../../utils/imageProcessor';
 
 export const useCreateLogic = (props: CreateTabProps) => {
   const {
@@ -66,7 +66,10 @@ export const useCreateLogic = (props: CreateTabProps) => {
     vault.setSelfDestructHides(3);
     vault.setSelfDestructTriggers(['tab']);
     vault.setSelectedFile(null);
-    vault.setStegoImage(null);
+    vault.setStegoImage((prev) => {
+      revokeIfBlobUrl(prev);
+      return null;
+    });
     setResultUrl(null);
     
     vault.setHasAsnLock(false);

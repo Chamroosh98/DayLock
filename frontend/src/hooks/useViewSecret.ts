@@ -339,6 +339,7 @@ export function useViewSecret({
             const ivBytes = b64toUint8Array(data.iv);
             const saltBytes = b64toUint8Array(data.salt);
             
+            const argonM = data.argon_m_cost || 0;
             let plainBytes: Uint8Array;
             let isHoney = false;
             
@@ -347,13 +348,13 @@ export function useViewSecret({
                 const hCipherBytes = b64toUint8Array(data.honey_data);
                 const hIvBytes = b64toUint8Array(data.honey_iv);
                 const hSaltBytes = b64toUint8Array(data.honey_salt);
-                plainBytes = W.decrypt_with_password(hCipherBytes, hIvBytes, hSaltBytes, keyOrPwd);
+                plainBytes = W.decrypt_with_password(hCipherBytes, hIvBytes, hSaltBytes, keyOrPwd, argonM);
                 isHoney = true;
               } catch (honeyErr) {
-                plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
               }
             } else {
-              plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+              plainBytes = W.decrypt_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
             }
             
             setIsHoneyView(isHoney);
@@ -374,7 +375,7 @@ export function useViewSecret({
             } else {
               const isText = !data.kind || data.kind === 'text';
               if (!isText && !isHoney) {
-                const plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd);
+                const plain = W.decrypt_file_with_password(cipherBytes, ivBytes, saltBytes, keyOrPwd, argonM);
                 const blob = new Blob([plain.data], { type: plain.mime_type });
                 const url = URL.createObjectURL(blob);
                 

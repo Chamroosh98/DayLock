@@ -97,9 +97,9 @@ export function b64toUint8Array(input: any): Uint8Array {
 // Helper to convert Uint8Array to standard base64 string
 export function uint8ArrayToB64(buf: Uint8Array): string {
   let binary = "";
-  const len = buf.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(buf[i]);
+  const chunk = 0x8000;
+  for (let i = 0; i < buf.byteLength; i += chunk) {
+    binary += String.fromCharCode(...buf.subarray(i, i + chunk));
   }
   return btoa(binary);
 }

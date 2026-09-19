@@ -17,6 +17,8 @@ pub struct PasteStore {
     pub data:            Vec<u8>,
     pub iv:              Vec<u8>,
     pub salt:            Option<Vec<u8>>,
+    #[serde(default)]
+    pub argon_m_cost:    Option<u32>,
     pub created:         u64,
     pub expires_at:      u64,
     pub burn_after_read: bool,
@@ -63,9 +65,14 @@ pub struct PasteStore {
 
 #[derive(Deserialize)]
 pub struct CreatePasteRequest {
+    #[serde(default)]
     pub data:            Vec<u8>,
+    #[serde(default)]
+    pub data_b64:        Option<String>,
     pub iv:              Vec<u8>,
     pub salt:            Option<Vec<u8>>,
+    #[serde(default)]
+    pub argon_m_cost:    Option<u32>,
     pub expires_in:      u64,
     pub burn_after_read: bool,
     pub max_views:       Option<u32>,
@@ -118,6 +125,8 @@ pub struct GetPasteResponse {
     pub data:            Vec<u8>,
     pub iv:              Vec<u8>,
     pub salt:            Option<Vec<u8>>,
+    #[serde(default)]
+    pub argon_m_cost:    Option<u32>,
     pub has_password:    bool,
     pub burn_after_read: bool,
     pub views:           u32,

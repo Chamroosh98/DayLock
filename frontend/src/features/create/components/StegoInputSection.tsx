@@ -5,7 +5,7 @@ import { Language, ContentType } from '../../../types';
 import { Dropzone } from '../../../components/Dropzone';
 import { CameraCapture } from '../../../components/CameraCapture';
 import { getAutoDir, getAutoContainerClass } from '../utils';
-import { formatStegoSize } from '../../../utils/imageProcessor';
+import { formatStegoSize, revokeIfBlobUrl } from '../../../utils/imageProcessor';
 import { toPersianDigits } from '../../../utils/numberConverter';
 
 interface StegoInputSectionProps {
@@ -158,6 +158,7 @@ export const StegoInputSection: React.FC<StegoInputSectionProps> = ({
             onSelect={(e: any) => {
               if (!e.target.files || e.target.files.length === 0) {
                 setSelectedFile(null);
+                revokeIfBlobUrl(stegoImage);
                 setStegoImage(null);
                 setImageAcquisition(null);
               } else {

@@ -1,8 +1,14 @@
 use wasm_bindgen::prelude::*;
-use crate::crypto::{aes_encrypt, aes_decrypt, derive_key_argon2id, rand_bytes};
+use crate::crypto::{
+    aes_encrypt, aes_decrypt, derive_key_argon2id_m, normalize_m_cost, rand_bytes,
+    LEGACY_ARGON_M_COST,
+};
 
-const MAGIC: &[u8] = b"SCRT";
-const HEADER_SIZE: usize = 52; // [MAGIC:4][LEN:4][IV:12][SALT:32]
+const MAGIC_V1: &[u8] = b"SCRT";
+const MAGIC_V2: &[u8] = b"SCR2";
+const HEADER_SIZE_V1: usize = 52; // [MAGIC:4][LEN:4][IV:12][SALT:32]
+const HEADER_SIZE_V2: usize = 56; // [MAGIC:4][LEN:4][MCOST:4][IV:12][SALT:32]
+const HEADER_SIZE: usize = HEADER_SIZE_V2;
 
 fn decode_png(png_bytes: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
     let decoder = png::Decoder::new(std::io::Cursor::new(png_bytes));
@@ -13,7 +19,10 @@ fn decode_png(png_bytes: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
     let height = info.height;
 
     let rgba = match info.color_type {
-        png::ColorType::Rgba => pixels[..info.buffer_size()].to_vec(),
+        png::ColorType::Rgba => {
+            pixels.truncate(info.buffer_size());
+            pixels
+        }
         png::ColorType::Rgb => {
             let rgb = &pixels[..info.buffer_size()];
             let mut out = Vec::with_capacity(width as usize * height as usize * 4);
@@ -86,15 +95,18 @@ fn lsb_decode(pixels: &[u8], byte_count: usize) -> Vec<u8> {
     out
 }
 
+/// `m_cost` is Argon2 memory in KiB. Pass `0` for a mobile-safe 16 MiB default.
 #[wasm_bindgen]
-pub fn stego_hide(png_bytes: &[u8], secret_text: &[u8], password: &str) -> Result<js_sys::Uint8Array, JsValue> {
+pub fn stego_hide(png_bytes: &[u8], secret_text: &[u8], password: &str, m_cost: u32) -> Result<js_sys::Uint8Array, JsValue> {
+    let m = if m_cost == 0 { 16384 } else { normalize_m_cost(m_cost) };
     let salt = rand_bytes(32);
-    let key = derive_key_argon2id(password, &salt).map_err(|e| JsValue::from_str(&e))?;
+    let key = derive_key_argon2id_m(password, &salt, m).map_err(|e| JsValue::from_str(&e))?;
     let (ciphertext, iv) = aes_encrypt(secret_text, &key).map_err(|e| JsValue::from_str(&e))?;
 
-    let mut payload = Vec::with_capacity(HEADER_SIZE + ciphertext.len());
-    payload.extend_from_slice(MAGIC);
+    let mut payload = Vec::with_capacity(HEADER_SIZE_V2 + ciphertext.len());
+    payload.extend_from_slice(MAGIC_V2);
     payload.extend_from_slice(&(ciphertext.len() as u32).to_be_bytes());
+    payload.extend_from_slice(&m.to_be_bytes());
     payload.extend_from_slice(&iv);
     payload.extend_from_slice(&salt);
     payload.extend_from_slice(&ciphertext);
@@ -109,26 +121,43 @@ pub fn stego_hide(png_bytes: &[u8], secret_text: &[u8], password: &str) -> Resul
 pub fn stego_extract(png_bytes: &[u8], password: &str) -> Result<js_sys::Uint8Array, JsValue> {
     let (pixels, _, _) = decode_png(png_bytes).map_err(|e| JsValue::from_str(&e))?;
 
-    let header = lsb_decode(&pixels, HEADER_SIZE);
-    if &header[0..4] != MAGIC {
+    if (pixels.len() / 4) * 3 / 8 < 4 {
         return Err(JsValue::from_str("❌ [wasm ERROR in stego.rs] No hidden data found in this image!"));
     }
 
+    let magic = lsb_decode(&pixels, 4);
+    let (header_size, is_v2) = if magic == MAGIC_V2 {
+        (HEADER_SIZE_V2, true)
+    } else if magic == MAGIC_V1 {
+        (HEADER_SIZE_V1, false)
+    } else {
+        return Err(JsValue::from_str("❌ [wasm ERROR in stego.rs] No hidden data found in this image!"));
+    };
+
+    let header = lsb_decode(&pixels, header_size);
     let data_len = u32::from_be_bytes([header[4], header[5], header[6], header[7]]) as usize;
     if data_len == 0 || data_len > 50 * 1024 * 1024 {
         return Err(JsValue::from_str("❌ [wasm ERROR in stego.rs] Corrupt or incomplete data!"));
     }
 
-    let total = HEADER_SIZE + data_len;
+    let total = header_size + data_len;
     if total * 8 > (pixels.len() / 4) * 3 {
         return Err(JsValue::from_str("❌ [wasm ERROR in stego.rs] The image is incomplete!"));
     }
 
-    let iv = &header[8..20];
-    let salt = &header[20..52];
+    let (iv, salt, m_cost): (&[u8], &[u8], u32) = if is_v2 {
+        (
+            &header[12..24],
+            &header[24..56],
+            u32::from_be_bytes([header[8], header[9], header[10], header[11]]),
+        )
+    } else {
+        (&header[8..20], &header[20..52], LEGACY_ARGON_M_COST)
+    };
+
     let full = lsb_decode(&pixels, total);
-    let key = derive_key_argon2id(password, salt).map_err(|e| JsValue::from_str(&e))?;
-    let plain = aes_decrypt(&full[HEADER_SIZE..], &key, iv)
+    let key = derive_key_argon2id_m(password, salt, m_cost).map_err(|e| JsValue::from_str(&e))?;
+    let plain = aes_decrypt(&full[header_size..], &key, iv)
         .map_err(|_| JsValue::from_str("❌ [wasm ERROR in stego.rs] The password is wrong!"))?;
 
     Ok(js_sys::Uint8Array::from(plain.as_slice()))
@@ -145,7 +174,8 @@ pub fn stego_has_data_in_png(png_bytes: &[u8]) -> bool {
     match decode_png(png_bytes) {
         Ok((pixels, _, _)) => {
             if (pixels.len() / 4) * 3 / 8 < HEADER_SIZE { return false; }
-            lsb_decode(&pixels, 4) == MAGIC
+            let mag = lsb_decode(&pixels, 4);
+            mag == MAGIC_V1 || mag == MAGIC_V2
         }
         Err(_) => false,
     }
@@ -154,7 +184,8 @@ pub fn stego_has_data_in_png(png_bytes: &[u8]) -> bool {
 #[wasm_bindgen]
 pub fn stego_has_data(pixels: &[u8]) -> bool {
     if (pixels.len() / 4) * 3 / 8 < HEADER_SIZE { return false; }
-    lsb_decode(pixels, 4) == MAGIC
+    let mag = lsb_decode(pixels, 4);
+    mag == MAGIC_V1 || mag == MAGIC_V2
 }
 
 #[wasm_bindgen]
