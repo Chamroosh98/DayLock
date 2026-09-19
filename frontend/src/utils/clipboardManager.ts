@@ -3,6 +3,10 @@ import { Language } from '../types';
 let activeClearTimeout: NodeJS.Timeout | null = null;
 let lastCopiedValue: string | null = null;
 
+export const saveLastCopiedValue = (value: string | null) => {
+  lastCopiedValue = value;
+};
+
 /**
  * Copies sensitive text to the clipboard and schedules an automatic
  * neutralization of that content after a specified timeout (default 30 seconds).
