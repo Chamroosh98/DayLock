@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import { fileURLToPath } from "url";
 // @ts-ignore
 import secrets from "secrets.js-grempe";
 
@@ -618,8 +619,24 @@ async function startServer() {
     app._router.handle(req, res, () => {});
   });
 
-  // Serve WASM pkg directory statically at /pkg
-  const pkgDir = path.join(process.cwd(), "backend/worker/pkg");
+  // Serve WASM pkg at /pkg (cwd may be frontend/ or repo root)
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const pkgCandidates = [
+    path.resolve(here, "../backend/worker/pkg"),
+    path.resolve(here, "pkg"),
+    path.resolve(here, "../../backend/worker/pkg"),
+    path.resolve(process.cwd(), "../backend/worker/pkg"),
+    path.resolve(process.cwd(), "backend/worker/pkg"),
+    path.resolve(process.cwd(), "dist/pkg"),
+  ];
+  const pkgDir =
+    pkgCandidates.find((dir) => fs.existsSync(path.join(dir, "wasm.js"))) ??
+    pkgCandidates[0];
+  if (!fs.existsSync(path.join(pkgDir, "wasm.js"))) {
+    console.warn(`[WASM] wasm.js not found. Tried: ${pkgCandidates.join(", ")}`);
+  } else {
+    console.log(`[WASM] Serving ${pkgDir} at /pkg`);
+  }
   app.use("/pkg", express.static(pkgDir));
 
   // Vite middleware for development
